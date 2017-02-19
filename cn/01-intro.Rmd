@@ -1,0 +1,88 @@
+# Einführung {#intro}
+
+Den in dieser Vorlesung präsentierte Stoff kann aus mehreren Gesichtspunkten betrachtet werden. Aus Sicht der Tierzucht behandeln wir die statistischen Methoden, welche in der __genomischen Selektion__ angewendet werden. Für Statistiker stellen wir verschiedene Methoden der Regularisierung in hoch-parametrischen Modellen vor. In der sehr populären Disziplin des __Machine Learnings__ wird das hier besprochene Problem als die Selektion von relevanten Features im Kontext des Supervised Learnings dargestellt.
+
+
+## Beschreibung des Problems {#problem}
+Alle die soeben genannten Formulierungen beschreiben das gleiche Problem. Wir gehen von einem Datensatz aus, welcher aus Beobachtungen besteht. Jede Beobachtung ist charakterisiert durch sehr viele unabhängige Grössen. Die Gewichtung der zu einer Beobachtung gehörenden Grössen wird über unbekannte Parameter erreicht. 
+
+Als Beispiel für einen solchen Datensatz können wir eine Population mit SNP-typisierten Tieren betrachten. Das Typisierrungsergebnis für ein bestimmtes Tier enthält die Genotypen an den Genorten, welche bei der Typisierung untersucht werden. Die einzelnen Genorte werden als sogenannte Single Nucleotide Polymorphisms (SNP) bezeichnet. In Abhängigkeit des anbietenden Labors gibt es verschiedene Optionen für die gewünschte Typisierung. Die Optionen unterscheiden sich vor allem in der Dichte der untersuchten Genorte. Das heisst bei einer grösseren Dichte werden mehr SNPs untersucht. Typische Werte von gängigen Anbietern bewegen sich im Bereich zwischen 50000 (50K) bis rund 800000 (800K) untersuchte SNPs pro untersuchtes Genom. Die totale Anzahl an SNP im Genom beträgt rund 20 Millionen. Somit ist ein Typisierungsergebnis eine vom Anbieter gemachte Auswahl aller verfügbaren SNPs.
+
+
+## Rückblick {#background}
+Bis Anfangs des 21. Jahrhundert wurden eigentlich keine genomischen Informationen in Zuchtprogrammen berücksichtigt. Mit genomischer Information ist hier die Genotyp-Varianten einer grosser Anzahl von Genorten, welche über das ganze Genom verteilt ist. Um die Jahrtausendwende waren sehr viele ForscherInnen in einem Gebiet aktiv, welches damals als Mapping von sogenannten `r r6objTableAbbrev$add_abbrev(psAbbrev = "QTL", psMeaning = "Quatitative Trait Loci")` bezeichnet wurde. Eine Übersicht zu QTL ist im Buch [@BBC2008]. Das Ziel der Untersuchungen im Bereich QTL-Mapping war das Finden von Regionen im Genom, welche wichtig sind für die Ausprägung von spezifischen Phänotypen. Heute spricht man nicht mehr QTL-Mapping sondern heute wird die Suche von genetischen Orten, welche einen wichtigen Einfluss auf die Ausprägung eines Phänotyps haben, mit `r r6objTableAbbrev$add_abbrev(psAbbrev = "GWAS", psMeaning = "Genome Wide Association Study")` bezeichnet. 
+
+Trotz umfangreicher Forschungstätigkeit auf dem Gebiet des QTL-Mappings, fanden keine Resultate aus diesen Arbeiten den Weg in die praktische Zuchtarbeit. Somit verläuft die Zuchtarbeit bis vor kurzem nach dem klassischen Schema, welches nachfolgend gezeigt ist.
+
+```{r ZuchtprogrammKomplett, conv.odg=TRUE, odg.path="odg", odg.graph.cache=TRUE, fig.align='center', echo=FALSE, results='asis'}
+knitr::include_graphics(path = "ZuchtprogrammKomplett.pdf")
+```
+
+### Paradigmenwechsel
+Die Publikation [@MHG2001] gilt als Grundstein für eine neue Ära in der praktischen Zuchtarbeit. Die Autoren haben gezeigt, wie genomische Information, welche in genügender Dichte vorliegen muss, zur Schätzung von Zuchtwerten verwendet werden kann. Sie konnten auch statistische Methoden zeigen, mit welchen die Parameter in verwendeten Modell geschätzt werden können. Wir werden zu einem späteren Zeitpunkt noch genauer auf den Inhalt des Papers von [@MHG2001] zurückkommen.
+
+
+### Vor der Genomischen Selektion
+Von Anfangs der 1980-er Jahre wurden die statistischen Auswertungen in den Zuchtprogrammen auf das BLUP-Tiermodell abgestellt. In dieser Zeit wurden die einfachen Modelle auch durch verschiedene Erweiterungen ausgebaut. Bei der Milchproduktion wurde von einfachen Laktationsleistungen auf Testtagesmodelle umgestellt. Bei der Wurfgrösse beim Schwein oder anderen diskreten Merkmalen wurden auch `r r6objTableAbbrev$add_abbrev(psAbbrev = "GLMM", psMeaning = "Generalized Linear Mixed Models")` verwendet. Unabhängig von den verwendeten Modellen wurden in allen Auswertungen die gleichen Informationen berücksichtigt. 
+- phänotypische Leistungen
+- Pedigree
+- Varianzkomponenten aus periodischen Schätzungen
+
+
+
+
+
+
+## Statistische Modellierung {#model}
+Basierend auf der Beschreibung im vorangegangenen Abschnitt wollen wir ein statistisches Modell aufstellen, anhand dessen die beobachteten Daten beschrieben werden können.
+
+
+<!-- ------------------------------------------------------------------- --
+  -- END of document:  Below this must not be anything, except the stuff --
+  -- concerning the table of abbreviations                               --> 
+  
+\pagebreak  
+  
+```{r WriteTableOfAbbreviations, echo=FALSE, results='hide'}
+if (!r6objTableAbbrev$is_empty_abbr())
+  r6objTableAbbrev$writeToTsvFile()
+```
+
+```{r AbrTableToDocument, echo=FALSE, results='asis'}
+r6objTableAbbrev$include_abbr_table(psAbbrTitle = "# Abkürzungen {-}")
+```
+
+
+```{r Bibliography, echo=FALSE, results='hide'}
+bref <- c(bibentry(
+     bibtype = "Article",
+     title = "Prediction of total genetic value using genome-wide dense marker maps",
+     author = c(as.person("Theo HE Meuwissen [aut]"), 
+                as.person("Ben J Hayes [aut]]"),
+                as.person("Mike E Goddard [aut]")),
+     year = "2001",
+     journal = "Genetics",
+     number = "157",
+     pages = "1819-1829",
+     key = "MHG2001"),
+  bibentry(
+    bibtype = "Book",
+    title = "Handbook of Statistical Genetics",
+    editor = c(as.person("D. J. Balding"), as.person("M. Bishop"), as.person("C. Cannings")),
+    year = "2009",
+    publisher = "Wiley",
+    doi = "10.1002/9780470061619",
+    key = "BBC2008"
+  )     
+)
+
+### # Fixed assignmen of bib file
+sBibFile <- "ASMNW.bib"
+
+if(!file.exists(sBibFile))
+  cat(toBibtex(bref), "\n", file = sBibFile)
+```
+
+\pagebreak
+
+# References {-}

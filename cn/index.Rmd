@@ -1,0 +1,49 @@
+---
+title: "Angewandte Statistische Methoden in den Nutztierwissenschaften"
+author: "Peter von Rohr"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output: bookdown::gitbook
+documentclass: book
+bibliography: ["ASMNW.bib"]
+biblio-style: apalike
+link-citations: yes
+description: "Unterlagen zur Vorlesung Angewandte Statistische Methoden in den Nutztierwissenschaften."
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::knit_hooks$set(conv.odg = rmddochelper::odg.graphics.conv.hook)
+r6objTableAbbrev <- rmddochelper::R6ClassTableAbbrev$new()
+```
+
+# Vorwort {-}
+Dieses Dokument umfasst die kompletten Unterlagen zur Vorlesung __Angewandte Statistische Methoden in den Nutztierwissenschaften__. Der Titel dieser Vorlesung ist sehr allgemein gehalten. Dies würde es erlauben einen grosszügigen Überblick über eine breite Palette an statistischen Methoden, welche in den Nutztierwissenschaften eingesetzt werden, zu geben. 
+
+Wir schlagen an dieser Stelle aber einen anderen Weg ein, und fokussieren uns auf die statistischen Methoden in der genomischen Selektion. Nur diese bewusste Wahl eines spezifischen Gebietes ermöglicht es uns, den behandelten Stoff angemessen zu vertiefen. Im anschliessenden Unterabschnitt wollen wir die hier getroffene Entscheidung der Fokusierung auf die genomische Selektion motivieren. Dabei wird klar, dass wir mit der Wahl des Themas der multiplen linearen Regression als Ausgangspunkt auch eine Leserschaft ansprechen, welche nicht primär an der Tierzucht interessiert ist.
+
+
+## Motivation {-}
+Vom Standpunkt der statistischen Modellierung, ist das einfache lineare Modell mit fixen Effektstufen für den Einsatz in der genomischen Selektion ausreichend. Diese Art von Modellen werden auch als Regressionsmodelle bezeichnet. Die Problematik entsteht erst bei der Technik, welche wir für die Schätzung der unbekannten Parameter verwenden können. In der klassischen Regressionsanalyse ist die Methode der kleinsten Quadrate (Least Squares) die Methode der Wahl. Least Squares können wir aber für die genomische Selektion nicht verwenden, da die Anzahl unbekannter Parameter ($p$) grösser ist als die Anzahl Beobachtungen ($n$). 
+
+Mit der steigenden Grösse und Komplexität von aktuellen Datensätzen tritt das soeben beschriebene Problem nicht nur in der Tierzucht auf, sondern es gibt eine breite Palette von Anwendungen. In der Vorlesung beschrieben wir diese Problematik am Beispiel der genomischen Selektion und es werden alternative Techniken zur Schätzung von Parametern vorgeschlagen. Da die Methode der multiplen Regressionsanalyse in früheren Vorlesungen behandelt wurde, bietet diese ein idealer Ausgangspunkt für den in dieser Veranstaltung präsentierten Stoffinhalt.
+
+
+## Einordnung {-}
+Die Vorlesung __Angewandte Statistische Methoden in den Nutztierwissenschaften__ ist eine halb-semestrige Veranstaltung und wird im Masterstudiengang Agrarwissenschaften der ETH Zürich angeboten.
+
+
+## Lernziele {-}
+Für die Verwendung des hier präsentierten Stoffs schlagen wir die folgenden Lernziele vor. 
+
+Die Studierenden ...
+
+- kennen die Eigenschaften der multiplen linearen Regression und 
+- können einfache Datensätze mithilfe der Regressionsmethode analysieren 
+- wissen wieso multiple lineare Regressionen bei der genomischen Selektion nicht brauchbar ist 
+- kennen die in der genomischen Selektion verwendeten statistischen Verfahren, wie
+    + BLUP-basierte Verfahren, 
+    + Bayes'sche Verfahren und 
+    + die LASSO Methode 
+- können einfache Übungsbeispiele mit der Statistiksoftware R erfolgreich bearbeiten.
+

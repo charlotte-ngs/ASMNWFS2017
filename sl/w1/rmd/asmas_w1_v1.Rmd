@@ -1,0 +1,338 @@
+--- 
+title: "Angewandte Statistische Methoden in den Nutztierwissenschaften" 
+author: "Peter von Rohr" 
+date: "20 February 2017" 
+output: 
+  beamer_presentation: 
+    fig_crop: no
+    fig_height: 6
+    includes:
+      in_header: ../../tex/ethslidesheader.tex
+  keep_tex: yes 
+output_file: asmas_w1_v1.pdf
+documentclass: ETHbeamerclass 
+classoption: first,ETH3,navigation 
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = FALSE, results ='asis') 
+knitr::knit_hooks$set(conv.odg = rmddochelper::odg.graphics.conv.hook)
+```
+
+
+## Administration
+
+- Veranstaltung: 2 V im Vorlesungsverzeichnis 
+- Plan: 2 V $\rightarrow$ 1 U + 1V 
+- Übungen: Beispiele in R 
+- Unterlagen: Folien, Übungen, Lösungen 
+- Prüfung: schriftlich, Termin: 29.5.2017, Dauer: 1 Stunde 
+- Prüfungsstoff: Lösungen der Übungen, Folien
+
+
+## Lernziele
+
+Die Studierenden ...
+
+- kennen die Eigenschaften der multiplen linearen Regression und 
+- können einfache Datensätze mithilfe der Regressionsmethode analysieren 
+- wissen wieso multiple linear Regressionen bei der genomischen Selektion nicht brauchbar ist 
+- kennen die in der genomischen Selektion verwendeten statistischen Verfahren, wie
+- BLUP-basierte Verfahren, 
+- Bayes'sche Verfahren und 
+- die LASSO Methode 
+- können einfach Übungsbeispiele mit der Statistiksoftware R erfolgreich bearbeiten.
+
+
+## Programm 
+
+```{r SlidesTable, echo=FALSE, results='asis'} 
+#' add subject togiven vector based on date 
+addSubjectOnDate <- function(psSubject, 
+                             pdSubjDate,
+                             pvSubject, 
+                             pvDate){ 
+  vSubjectResult <- pvSubject 
+  nSubIdx <- which(pvDate == pdSubjDate) 
+  vSubjectResult[nSubIdx] <- psSubject 
+  return(vSubjectResult) 
+}
+
+# define course start date 
+dCourseStart <- as.Date("2017/02/20") 
+# set number of weeks in semester 
+#nNrSemesterWeeksTotal <- 15 
+# define columns for weaks, dates, and subjects 
+#nNrSemsterStartWeek <- 8 
+nNrSemesterWeeks <- 6 #nNrSemesterWeeksTotal - nNrSemsterStartWeek + 1
+
+Woche <- 1:nNrSemesterWeeks  #nNrSemsterStartWeek:nNrSemesterWeeksTotal 
+Datum <- format(seq(dCourseStart, by = "week", length.out = nNrSemesterWeeks), "%d.%m") 
+Thema <- vector(mode = "character", length = nNrSemesterWeeks) 
+# set subject for special dates 
+# pentecote 
+#sDatePentMon <- format(as.Date("2016/05/16"), "%d.%m")
+#nSubjPentMondIdx <- which(Datum == sDatePentMon) 
+#Thema[nSubjPentMondIdx] <- "Pfingstmontag (frei)" 
+# assign subjects 
+Thema <- addSubjectOnDate(psSubject  ="Einführung, Statistik in der Genomik", 
+                          pdSubjDate = format(as.Date("2017/02/20"), "%d.%m"), 
+                          pvSubject  = Thema, 
+                          pvDate = Datum) 
+Thema <- addSubjectOnDate(psSubject  = "Problem der multiplen lineare Regression", 
+                          pdSubjDate = format(as.Date("2017/02/27"), "%d.%m"), 
+                          pvSubject  = Thema, 
+                          pvDate = Datum) 
+Thema <- addSubjectOnDate(psSubject  = "Alternative Ansätze - LASSO", 
+                          pdSubjDate = format(as.Date("2017/03/06"), "%d.%m"), 
+                          pvSubject = Thema, 
+                          pvDate = Datum) 
+Thema <- addSubjectOnDate(psSubject  = "BLUP", 
+                          pdSubjDate = format(as.Date("2017/03/13"), "%d.%m"), 
+                          pvSubject  = Thema, 
+                          pvDate = Datum) 
+Thema <- addSubjectOnDate(psSubject  = "Einführung in Bayes'sche Statistik", 
+                          pdSubjDate = format(as.Date("2017/03/20"), "%d.%m"), 
+                          pvSubject  = Thema, 
+                          pvDate = Datum) 
+Thema <- addSubjectOnDate(psSubject  = "Bayes'sche Verfahren in der Genomik", 
+                          pdSubjDate = format(as.Date("2017/03/27"), "%d.%m"), 
+                          pvSubject  = Thema, 
+                          pvDate = Datum)
+
+# exam 
+Woche <- c(Woche, 15)
+Datum <- c(Datum, format(as.Date("2017/05/29"), "%d.%m"))
+Thema <- addSubjectOnDate(psSubject  = "Prüfung", 
+                          pdSubjDate = format(as.Date("2017/05/29"), "%d.%m"), 
+                          pvSubject  = Thema, 
+                          pvDate = Datum)
+
+dfSlideTable <- data.frame(Woche, Datum, Thema, stringsAsFactors = FALSE) 
+knitr::kable(dfSlideTable) 
+```
+
+
+## Thema
+
+- Mit __Genomischer Selektion__ (GS) kam Paradigmentwechsel in der Tierzucht 
+- Bedeutung dieser Veränderung mit Fokus auf die verwendeten statistische Methoden
+- Grundstein für GS war das Paper
+
+"Meuwissen THE, Hayes BJ, Goddard ME (2001) Prediction of total genetic value
+using genome-wide dense marker maps. Genetics 157:1819–1829"
+
+## Informationsfluss in einem Zuchtprogramm
+
+```{r ZuchtprogrammKomplett, conv.odg=TRUE, odg.path="../odg", odg.graph.cache=TRUE,fig.align='center', out.width='10cm'} 
+knitr::include_graphics(path = "ZuchtprogrammKomplett.pdf")
+```
+
+## Genomische Selektion
+
+```{r AnimalModelVsGenomicSelection, conv.odg=TRUE, odg.path="../odg", odg.graph.cache=TRUE,fig.align='center', out.width='10cm'} 
+knitr::include_graphics(path = "AnimalModelVsGenomicSelection.pdf")
+```
+
+
+## Vor Einführung von GS
+
+* Informationsquellen für Zuchtwertschätzung 
+  + phänotypische Leistungen 
+  + verwandtschaftliche Beziehungen / Abstammungen / Pedigree 
+  + Varianzkomponenten aus periodischen Schätzungen 
+  + BLUP Tiermodell zur Schätzung der Zuchtwerte 
+  + ab ca 1990 einzelne genetische Marker als fixe oder zufällige Effekte ins Tiermodell integriert 
+  + Problem: einzelne Marker werden sehr schnell fixiert 
+* Konsequenzen der Fixation für das Zuchtziel unbekannt? 
+* Uneinigkeit, welches die beste Strategie sein könnte 
+* Durch technologischen Fortschritt wurde Problem hinfällig
+
+
+## Modellierung vor GS
+
+* BLUP Tiermodell
+
+$$\mathbf{y} = \mathbf{X} \mathbf{b} + \mathbf{Z} \mathbf{u} + \mathbf{e}$$
+
+wobei: 
+\begin{tabular}{ll} 
+$\mathbf{y}$: & Vektor mit phänotypischen Beobachtungen\\ 
+$\mathbf{b}$: & Vektor mit fixen Effekten              \\ 
+$\mathbf{X}$: & Inzidenzmatrix, welche fixe Effekte den Beobachtungen zuordnet\\ 
+$\mathbf{u}$: & Vektor mit Zuchtwerten (zufällig) \\ 
+$\mathbf{Z}$: & Inzidenzmatrix der Zuchtwerte \\ 
+$\mathbf{e}$: & Vektor mit Residuen (zufällig) 
+\end{tabular}
+
+* Varianzen: 
+$Var(\mathbf{e}) = \mathbf{R} = \mathbf{I}*\sigma_e^2$, 
+$Var(\mathbf{u}) = \mathbf{G} = \mathbf{A} * \sigma_g^2$, 
+$Cov(\mathbf{u},\mathbf{e}^T) = Cov(\mathbf{e}, \mathbf{u}^T) = \mathbf{0}$, 
+$\rightarrow Var(\mathbf{y}) = \mathbf{V} = \mathbf{ZGZ}^T + \mathbf{R}$
+
+
+## Mit GS
+
+- Genomische Selektion ist Methode der Wahl in modernen Zuchtprogrammen 
+- __Theorie__: Genomische Zuchtwerte basieren nicht mehr auf dem BLUP-Tiermodell
+mit einem "infinitesimal model" für die Genwirkung sondern auf einem Modell
+einer endlichen Anzahl Genorten mit hauptsächlich additiver Wirkung. 
+- Häufig verwendet wird eine Prozedur bestehend aus zwei Schritten
+
+1. Schätzung der additivien Substitutionseffekte ($a$-Werte im Substitutionsmodell)
+2. Schätzung der genomischen Zuchtwerten aufgrund der unter 1) geschätzten Substitutionseffekte und aufgrund der Typisierungsergebnisse
+
+- NB: Es gibt auch Verfahren, welche beide Schritte zu einem kombinieren, sogenannte "single step" Verfahren
+
+
+## Modellierung mit GS
+
+- Annahme: Betrachtung der zwei-Schritt Prozedur
+- Da Genorte bekannt und SNP-Genotypen beobachtet werden können, braucht es kein Tiermodell mit zufälligen Zuchtwerte mehr
+- Somit brauchen Zuchtwerte nicht mehr als zufällige Effekte eines gemischten linearen Modells geschätzt zu werden.
+- Genetische Komponenten können als additiv genetische Effekte nach dem Gen-Substitutionsmodell aus der quantitativnen Genetik geschätzt werden
+- Was bleibt ist ein Modell mit nur fixen Effekten und einem zufälligen Rest
+
+
+## Modelle in GS 
+
+- Wie sieht der Schritt 1 aus?
+- Idealfall: Summe aller additiven Genwirkungen und SNP Genotypen als Beobachtungen, daraus können Substitutionseffekte mit folgendem Modell geschätzt werden
+
+$$\mathbf{g} = \mathbf{1}\mu + \mathbf{M}\mathbf{a} + \mathbf{\epsilon}$$
+
+wobei:
+\begin{tabular}{ll}
+$\mathbf{g}$         &  Vektor von wahren Zuchtwerten \\
+$\mu$                &  Achsenabschnitt \\
+$\mathbf{a}$         &  Vektor mit Gensubstitutionseffekten \\
+$\mathbf{M}$         &  Inzidenzmatrix als Verknüpfung zwischen $\mathbf{a}$ und $\mathbf{g}$ \\
+$\mathbf{\epsilon}$  &  Vektor von zufälligen Residuen 
+\end{tabular}
+
+
+## Modelle in GS II
+
+- Wahre Zuchtwerte können nicht beobachtet werden
+- Alternativ dazu können phänotypische Beobachtungen verwendet werden
+- Individuelle Beobachtung beim Tier
+
+$$\mathbf{y} = (\mathbf{1}\mu + \mathbf{X}\mathbf{b}) + \mathbf{M}\mathbf{a} + (\mathbf{\epsilon}+ \mathbf{e})$$
+
+wobei:
+\begin{tabular}{ll}
+$\mathbf{y}$  &  Vektor der phänotypischen Beobachtungen \\
+$\mathbf{b}$  &  Vektor der fixen Umweltfaktoren \\
+$\mathbf{X}$  &  Inzidenzmatrix der fixen Effekte\\
+$\mathbf{e}$  &  Vektor von nicht-genetische Residuen
+\end{tabular}
+
+
+## Modelle in GS III
+
+- BLUP Zuchtwerte $\hat{\mathbf{g}}$ werden wie Beobachtungen behandelt
+- Idee: Geschätzter Zuchtwert $=$ wahrer Zuchtwert plus Abweichung
+
+$$\hat{\mathbf{g}} = \mathbf{g} + (\hat{\mathbf{g}} - \mathbf{g}) 
+= \mathbf{1}\mu + \mathbf{M}\mathbf{a} + (\mathbf{\epsilon} + (\hat{\mathbf{g}} - \mathbf{g}) )$$
+
+Probleme mit BLUP Zuchtwerten als Beobachtungen: 
+
+1. Addition der Abweichung zu $\mathbf{g}$ führt zu einer Reduktion der Varianz
+2. BLUP Zuchtwerte werden gegen das Mittel der Eltern gedrückt (shrinkage estimator)
+
+$\rightarrow$ __Deregression__ der Zuchtwerte
+
+
+## Reduktion der Varianz
+
+- Reduktion der Varianz heisst: $var(\hat{g}_i) \le var(g_i)$, obwohl $var(\hat{g}_i - g_i) \ge 0$
+- Addition der Abweichung $(\hat{g}_i - g_i)$ zum wahren Zuchtwert $g_i$ reduziert die Varianz $var(g + (\hat{g}_i - g_i))$ der Summe
+- Grund bei BLUP gilt: $cov(\hat{g}_i, g_i) = var(\hat{g}_i)$
+- Allgemein gilt: $var(a - b) = var(a) + var(b) - 2*cov(a,b)$
+- Anwendung auf BLUP Zuchtwerte: 
+
+$$var(\hat{g}_i - g_i) = var(\hat{g}_i) + var(g_i) - 2*cov(\hat{g}_i, g_i) = var(g_i) - var(\hat{g}_i) \ge 0$$
+
+$$\rightarrow  var(\hat{g}_i) \le var(g_i)$$
+
+## Schrumpfen (shrinkage) zum Elterndurchschnitt
+
+- Dies gilt für alle Nachkommen gleich unabhängig der Allele, welche sie erhalten haben
+- Das Ausmass der Schrumpfung ist abhängig von der Genauigkeit des geschätzten Zuchtwerts
+- Unser Interesse ist aber der Einfluss von Markerallelen auf den Phänotyp und der ist unabhängig von der Genauigkeit der Zuchtwerte
+- $\rightarrow$ Deregression hebt diese Effekte auf
+
+## Deregression von Zuchtwerten
+
+- Wie können wir die geschätzten Zuchtwerte anpassen, damit die genannten Probleme nicht mehr bestehen
+- Gesucht ist eine Matrix $\mathbf{K}$, welche mit den geschätzten Zuchtwerten multipliziert wird, so dass Probleme behoben werden
+
+
+## Modelle in GS Zusammenfassung
+
+- Zusammenfassung der Modelle zur Effektschätzung
+
+\begin{tabular}{ll}
+wahre Zuchtwerte  &  $\mathbf{g} = \mathbf{1}\mu + \mathbf{M}\mathbf{a} + \mathbf{\epsilon}$ \\
+phänotypische Beobachtungen  &   $\mathbf{y} = (\mathbf{1}\mu + \mathbf{X}\mathbf{b}) + \mathbf{M}\mathbf{a} + (\mathbf{\epsilon}+ \mathbf{e})$ \\
+geschätzte Zuchtwerte  &  $\hat{\mathbf{g}} = \mathbf{1}\mu + \mathbf{M}\mathbf{a} + (\mathbf{\epsilon} + (\hat{\mathbf{g}} - \mathbf{g}) )$
+\end{tabular}
+
+- Alle diese Modelle sehen eigentlich aus wie eine ... 
+- Aber ...
+
+
+## Probleme bei der Modellierung mit GS
+
+- Statistische Modelle in genomischer Zuchtwertschätzung haben mehr Parameter ($p$) als Beobachtungen ($n$) 
+- Konsequenz: least squares funktioniert nicht zur Parameterschätzung in den verwendeten Regressionsmodellen 
+- Frage: welche Methoden stehen zur Auswahl
+- Multiple lineare Regression
+- LASSO
+- BLUP - single step Verfahren
+- Bayes'sche Verfahren
+
+
+## Multiple lineare Regression
+- Einfachheit des Modells
+- Least squares kann nicht verwendet werden, da $n << p$
+- kein Ersatz der multiplen linearen Regression durch mehrere Regressionen mit weniger Parameter
+- Forward-selection, d.h. schrittweise Berücksichtigung von signifikanten SNPs im Modell ist keine stabile Prozedur, da diese vom Startpunkt abhängig ist
+- Referenz
+
+\small "> Kapitel 1 aus den Vorlesungsunterlagen zu: Computational Statistics. Peter Bühlmann und Martin Mächler. Seminar für Statistik ETHZ. Version 2014"
+
+## LASSO
+- LASSO bedeutet Least Absolute Shrinkage and Seletion Operator
+- Veränderung der Zielfunktion von den quadrierten Residuen zum Absolutbetrag der Residuen führt zu einer Selektion der Effekte
+- Referenzen: 
+
+\small "> Kap 6.2.2 von: Gareth James, Daniela Witten, Trevor Hastie and Robert Tibshirani. An Introduction to
+Statistical Learning. ISBN 978-1-4614-7137-0 ISBN 978-1-4614-7138-7 (eBook)
+DOI 10.1007/978-1-4614-7138-7 Springer New York Heidelberg Dordrecht London"
+
+## BLUP - single step Verfahren
+- SNP-Effekte und genomische Zuchtwerte in einem Schritt geschätzt
+- Tiere mit phänotypischen Leistungen und/oder genomischer Information in einer Auswertung
+- $\rightarrow$ bessere Berücksichtigung der genetischen Vorselektion in der Auswertung
+- Referenzen:
+
+\small "> Z. Liu, M. E. Goddard, F. Reinhardt, and R. Reents. A single-step genomic model with direct estimation of marker effects. J. Dairy Sci. 97:5833–5850 (2014)  http://dx.doi.org/10.3168/jds.2014-7924. http://www.sciencedirect.com/science/article/pii/S0022030214004895"
+
+\small "> Ignacy Misztal, Samuel E. Aggrey, and William M. Muir. Experiences with a single-step genome evaluation. 2013 Poultry Science 92 :2530–2534 http://dx.doi.org/10.3382/ps.2012-02739. http://ps.oxfordjournals.org/content/92/9/2530.full.pdf"
+
+
+## Bayes'sche Verfahren
+- a priori Information so gewählt, dass nur wenige SNP einen Einfluss, d.h. einen Effekt $\ne 0$ haben
+- Referenz:
+
+\small "> Meuwissen THE, Hayes BJ, Goddard ME (2001) Prediction of total genetic value
+using genome-wide dense marker maps. Genetics 157:1819–1829"
+
+\small "> Kapitel 10 und 11 von: Genome-Wide Association
+Studies and Genomic Prediction. Cedric Gondro, Julius van der Werf, Ben Hayes. ISSN 1064-3745 ISSN 1940-6029 (electronic)
+ISBN 978-1-62703-446-3 ISBN 978-1-62703-447-0 (eBook)
+DOI 10.1007/978-1-62703-447-0
+Springer New York Heidelberg Dordrecht London"
