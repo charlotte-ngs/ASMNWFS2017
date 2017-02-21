@@ -22,19 +22,79 @@ knitr::include_graphics(path = "ZuchtprogrammKomplett.pdf")
 Die Publikation [@MHG2001] gilt als Grundstein für eine neue Ära in der praktischen Zuchtarbeit. Die Autoren haben gezeigt, wie genomische Information, welche in genügender Dichte vorliegen muss, zur Schätzung von Zuchtwerten verwendet werden kann. Sie konnten auch statistische Methoden zeigen, mit welchen die Parameter in verwendeten Modell geschätzt werden können. Wir werden zu einem späteren Zeitpunkt noch genauer auf den Inhalt des Papers von [@MHG2001] zurückkommen.
 
 
-### Vor der Genomischen Selektion
+### Vor der genomischen Selektion
 Von Anfangs der 1980-er Jahre wurden die statistischen Auswertungen in den Zuchtprogrammen auf das BLUP-Tiermodell abgestellt. In dieser Zeit wurden die einfachen Modelle auch durch verschiedene Erweiterungen ausgebaut. Bei der Milchproduktion wurde von einfachen Laktationsleistungen auf Testtagesmodelle umgestellt. Bei der Wurfgrösse beim Schwein oder anderen diskreten Merkmalen wurden auch `r r6objTableAbbrev$add_abbrev(psAbbrev = "GLMM", psMeaning = "Generalized Linear Mixed Models")` verwendet. Unabhängig von den verwendeten Modellen wurden in allen Auswertungen die gleichen Informationen berücksichtigt. 
 - phänotypische Leistungen
 - Pedigree
 - Varianzkomponenten aus periodischen Schätzungen
 
+Versuchsweise wurde ab den 1990-er Jahren erste genetische Marker mit in den Zuchtprogrammen berücksichtigt. Das Problem war dass diese wenigen Markern sehr schnell auf einer bestimmten Variante fixiert war. Nach der Fixierung lieferten diese Genorte keine zusätzliche Information zur Auswahl von potentiellen Zuchttieren. Es war zu dieser Zeit nicht klar, wie das Problem der Fixierung von einzelnen Genorten behandelt werden soll und es gab auch keine wirklich gute Strategie für die Berücksichtigung von genetischen Informationen in Zuchtprogrammen.
 
 
+### Modellierung vor der genomischen Selektion
+Vor der Einführung der genomischen Selektion war das BLUP-Tiermodell die Methode der Wahl für die Auswertung von Leistungsdaten in der Tierzucht. In seiner einfachsten Form sieht dieses Modell wie folgt aus.
+
+$$\mathbf{y} = \mathbf{X} \mathbf{b} + \mathbf{Z} \mathbf{u} + \mathbf{e}$$
+
+wobei: 
+\begin{tabular}{ll} 
+$\mathbf{y}$: & Vektor mit phänotypischen Beobachtungen\\ 
+$\mathbf{b}$: & Vektor mit fixen Effekten              \\ 
+$\mathbf{X}$: & Inzidenzmatrix, welche fixe Effekte den Beobachtungen zuordnet\\ 
+$\mathbf{u}$: & Vektor mit Zuchtwerten (zufällig) \\ 
+$\mathbf{Z}$: & Inzidenzmatrix der Zuchtwerte \\ 
+$\mathbf{e}$: & Vektor mit Residuen (zufällig) 
+\end{tabular}
+
+Die Co-Varianzen der zufälligen Komponenten sind definiert als:
+
+$$Var(\mathbf{e}) = \mathbf{R} = \mathbf{I}*\sigma_e^2$$ 
+$$Var(\mathbf{u}) = \mathbf{G} = \mathbf{A} * \sigma_g^2$$
+$$Cov(\mathbf{u},\mathbf{e}^T) = Cov(\mathbf{e}, \mathbf{u}^T) = \mathbf{0}$$
+$$\rightarrow Var(\mathbf{y}) = \mathbf{V} = \mathbf{ZGZ}^T + \mathbf{R}$$
 
 
+## Genomische Selektion {#gensel}
+Vom Standpunkt der Genetik aus basiert das BLUP-Tiermodell auf dem sogenannten Infinitesimalmodell. In diesem Modell wird angenommen, dass die phänotypische Ausprägung eines Merkmals durch die Summe von unendlich vielen Genorten mit undendlich kleiner Wirkung verursacht wird. Durch diese Annahme lässt sich dem einzelnen Tier kein fix definierter Genotyp mehr zuordnen. Diese fehlende Zuordnung der einzelnen Genotypen wird über die Modellierung der Zuchtwerte als zufällige Effekte gelöst. Die zufälligen Effekte der Zuchtwerte entsprechen dabei Realisierungen einer Zufallsvariablen mit vorgegebener Verteilung. 
 
-## Statistische Modellierung {#model}
-Basierend auf der Beschreibung im vorangegangenen Abschnitt wollen wir ein statistisches Modell aufstellen, anhand dessen die beobachteten Daten beschrieben werden können.
+In der genomischen Selektion verwenden wir das polygene Modell. Dabei werden die phänotypischen Leistungen als Summe von bekannten Genorten zusammengesetzt. Die konkrete Umsetzung des polygenen Modells wurde zum ersten Mal im Paper von [@MHG2001] gezeigt. Diese Autoren haben aufgrund von simulierten Daten gezeigt, dass es mit Hilfe einer sehr dichten Markerkarte möglich ist, die phänotypischen Leistungen alleine aufgrund der geschätzten Wirkungen an den Markergenorten zu modellieren. 
+
+Die folgende Abbildung fasst die Unterschiede zwischen dem Infinitesimalmodell und dem polygenen Modell zusammen.
+
+```{r AnimalModelVsGenomicSelection, conv.odg=TRUE, odg.path="odg", odg.graph.cache=TRUE,fig.align='center', echo=FALSE, results='asis'} 
+knitr::include_graphics(path = "AnimalModelVsGenomicSelection.pdf")
+```
+
+
+### Modellierung
+Im Zusammenhang mit der genomischen Selektion besteht die Modellierung der Daten aus zwei Komponenten
+
+1. Die Schätzung der Gen-Wirkungseffekte ($a$)
+2. Die Schätzung der genomischen Zuchtwerte
+
+Die Umsetzung der beiden Komponenten wird in zwei verschiedenen Verfahren gemacht. Im Zwei-Schritt-Verfahren werden beide Komponenten einzeln an verschiedenen Teilen der Zuchtpopulation ausgeführt. Im Gegensatz dazu werden im Single-Step-Verfahren beide Komponenten im gleichen Schritt realisiert.
+
+
+### Zwei-Schritt-Verfahren
+Beim Zwei-Schritt-Verfahren wird die Population in ein Trainings- und ein Testset unterteilt. Im Trainingsset werden aufgrund von Typisierungsergebnissen und Beobachtungen die Gen-Wrkungseffekte ($a$) geschätzt. Sobald die Schätzwerte für die $a$-Effekte bekannt 
+sind können diese für die Schätzung der genomischen Zuchtwerte verwendet werden.
+
+Da aufgrund der Typisierungsergebnisse die Genotypen an den SNP-Genorten bekannt sind, brauchen wir kein gemischtes lineares Modell mehr. Im Gegensatz zur BLUP-Zuchtwertschätzung, ist in der genomischen Selektion beim Zwei-Schritt-Verfahren ein einfaches lineares Modell ausreichend. Im Idealfall, wenn die komplette Information zu allen Gen-Wirkungseffekten ($a$) bekannt sind, dann setzen sich die genotypischen Werte einfach zusammen aus den aufsummierten $a$-Werten. In Matrix-Vektor-Schreibweise können wir die folgende Modellgleichung aufstellen.
+
+$$\mathbf{g} = \mathbf{1}\mu + \mathbf{M}\mathbf{a} + \mathbf{\epsilon}$$
+
+wobei:
+\begin{tabular}{ll}
+$\mathbf{g}$         &  Vektor von wahren genomischen Zuchtwerten \\
+$\mu$                &  Achsenabschnitt \\
+$\mathbf{a}$         &  Vektor mit Gensubstitutionseffekten \\
+$\mathbf{M}$         &  Inzidenzmatrix als Verknüpfung zwischen $\mathbf{a}$ und $\mathbf{g}$ \\
+$\mathbf{\epsilon}$  &  Vektor von zufälligen Residuen 
+\end{tabular}
+
+Die Matrix $M$ ist eine Inzidenzmatrix, welche die genotypischen Werte im Vektor $g$ mit den Gen-Wirkungseffekten $a$ verknüpft. Die Matrix $M$ hat die Dimension $n\times p$ wobei $n$ der Anzahl Individuen mit einem Typisierungsergebnis entspricht und $p$ gleich der Anzahl SNP-Genorte ist.
+
+In der Realität im ersten Schritt des Zwei-Schritt-Verfahrens kennen wir aber weder die Komponenten des Vektors $g$ noch die Gensubstitutionseffekte $a$. Somit müssen wir ein
 
 
 <!-- ------------------------------------------------------------------- --
@@ -78,11 +138,10 @@ bref <- c(bibentry(
 
 ### # Fixed assignmen of bib file
 sBibFile <- "ASMNW.bib"
-
 if(!file.exists(sBibFile))
-  cat(toBibtex(bref), "\n", file = sBibFile)
+  cat(paste(toBibtex(bref), collapse = "\n"), "\n", file = sBibFile)
 ```
 
 \pagebreak
 
-# References {-}
+`r if (knitr:::is_html_output()) '# References {-}'`
