@@ -148,7 +148,9 @@ Durch die Berücksichtigung zusätzlicher Informationen, wie Eigenleistung und L
 
 
 ### Einsatz von BLUP-Zuchtwerten in der genomischen Selektion
-Eigenschaften von BLUP-Zuchtwerten führen zu Varianzreduktion und dazu dass geschätzte Zuchtwerte zum Durchschnitt der geschätzten Zuchtwerte der Eltern regressiert werden. Diese beiden Effekte sind problematisch bei der Verwendung von BLUP-Zuchtwerten für die Schätzung der $a$-Effekte in der genomischen Selektion. Ein bestimmtes Tier $i$ hat immer die gleichen SNP-Genotypen und wir gehen davon aus, dass diese auch immer die gleiche Wirkung auf die Ausprägung eines Phänotyps haben. Der mit BLUP geschätzte Zuchtwert eines Tieres ändert sich aber während seines Lebens. In der Zeitperiode der Geburt bis zur Beobachtung einer Eigenleistung ist der geschätzte Zuchtwert durch die geschätzten Zuchtwerte der Eltern bestimmt. Mit zunehmendem Alter werden für Tier $i$ mehr Informationen in der Zuchtwertschätzung berücksichtigt. Somit ändert sich der geschätzte Zuchtwert. 
+Eigenschaften von BLUP-Zuchtwerten führen zu Varianzreduktion und dazu dass geschätzte Zuchtwerte zum Durchschnitt der geschätzten Zuchtwerte der Eltern regressiert werden. Diese beiden Effekte sind problematisch bei der Verwendung von BLUP-Zuchtwerten für die Schätzung der $a$-Effekte in der genomischen Selektion. Ein bestimmtes Tier $i$ hat immer die gleichen SNP-Genotypen und wir gehen davon aus, dass diese auch immer die gleiche Wirkung auf die Ausprägung eines Phänotyps haben. Der mit BLUP geschätzte Zuchtwert eines Tieres ändert sich aber während seines Lebens. In der Zeitperiode der Geburt bis zur Beobachtung einer Eigenleistung ist der geschätzte Zuchtwert durch die geschätzten Zuchtwerte der Eltern bestimmt. Mit zunehmendem Alter werden für Tier $i$ mehr Informationen in der Zuchtwertschätzung berücksichtigt. Somit ändert sich der geschätzte Zuchtwert und damit würde sich auch die aufgrund der BLUP-Zuchtwerte geschätzten $a$-Effekte ändern. Das ist aufgrund von unserer Annahme der konstanten Wirkung der $a$-Effekte ein unerwünschtes Verhalten.
+
+Die unerwünschten Veränderungen der geschätzten BLUP-Zuchtwerte werden durch eine Prozedur namens __Deregression__ korrigiert. Da sich die Veränderungen der Zuchtwerte im wesentlichen durch eine Funktion der Änderungen im Bestimmtheitsmass beschrieben werden kann, ist die Deregression als Korrektur von geschätzten Zuchtwerten aufgrund deren Bestimmtheitsmass definiert. Einzelheiten zur Deregression können dem Paper [@GTF2009] entnommen werden.
 
 
 
@@ -206,8 +208,21 @@ bref <- c(bibentry(
     note = "Vorlesungsunterlagen ETHZ, HS2016",
     url = "https://charlotte-ngs.github.io/LBGHS2016",
     key = "vonRohr2016"
+  ),
+  bibentry(
+    bibtype = "Article",
+    title   = "Deregressing Estimated Breeding Values and Weighting Information for Genomic Regression Analyses",
+    author  = c(as.person("D. Garrick"), 
+                as.person("J. Taylor"), 
+                as.person("R. Fernando")),
+    year    = "2009",
+    journal = "Genetics Selection Evolution",
+     number = "41(1)",
+     pages = "55",
+     key = "GTF2009"
   )
 )
+
 
 ### # Fixed assignmen of bib file
 sBibFile <- "ASMNW.bib"
