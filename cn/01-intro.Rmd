@@ -153,14 +153,21 @@ Eigenschaften von BLUP-Zuchtwerten führen zu Varianzreduktion und dazu dass ges
 Die unerwünschten Veränderungen der geschätzten BLUP-Zuchtwerte werden durch eine Prozedur namens __Deregression__ korrigiert. Da sich die Veränderungen der Zuchtwerte im wesentlichen durch eine Funktion der Änderungen im Bestimmtheitsmass beschrieben werden kann, ist die Deregression als Korrektur von geschätzten Zuchtwerten aufgrund deren Bestimmtheitsmass definiert. Einzelheiten zur Deregression können dem Paper [@GTF2009] entnommen werden.
 
 
+## Zusammenfassung
+Die deregressierten Zuchtwerten werden als Beobachtunen für die Schätzung der $a$-Effekte im ersten Schritt des Zwei-Schritt-Verfahrens verwendet. Die geschätzen $a$-Werte werden dann verwendet um im zweiten Schritt die genomischen Zuchtwerte der restlichen Population zu berechnen. 
+
+Die im Zwei-Schritt-Verfahren verwendeten Modelle zur Schätzung der $a$-Effekte sind einfache lineare Modelle. Die Anzahl der Parameter $p$ in diesen Modellen entspricht der Anzahl zu schätzender $a$-Werte und somit der Anzahl an SNPs pro Typisierung. Diese Anzahl ist typischerweise bei 50K kann aber auch bis 800K anwachsen. In den meisten Fällen ist $p >> n$, wenn $n$ die Anzahl typisierter Tiere ist. Somit können wir das klassische Least Squares Verfahren für die Schätztung der Parameter nicht verwenden.
+
+## Ausblick
+Das Problem $p >> n$ kommt heutzutage in sehr vielen Anwendungen vor. In den nachfolgenden Kapiteln wollen wir uns ein paar Lösungsansätze anschauen, welche uns trotz der spärlich verfügbaren Informationen in den hoch-dimensionalen Parameterräumen, sinnvolle Schätzwerte für die Parameter im Modell liefern kann.
+
 
 
 <!-- ------------------------------------------------------------------- --
   -- END of document:  Below this must not be anything, except the stuff --
   -- concerning the table of abbreviations                               --> 
   
-\pagebreak  
-  
+
 ```{r WriteTableOfAbbreviations, echo=FALSE, results='hide'}
 if (!r6objTableAbbrev$is_empty_abbr())
   r6objTableAbbrev$writeToTsvFile()

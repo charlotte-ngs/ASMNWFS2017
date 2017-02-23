@@ -1,0 +1,168 @@
+---
+title: "ASMNW - Lösung 1"
+author: "Peter von Rohr"
+date: "`r Sys.Date()`"
+output: pdf_document
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r SetUp, echo=FALSE, results='hide'}
+bOnline <- FALSE
+```
+
+## Kontrollfrage 1
+
+Welches Modell wurde vor der Genomischen Selektion zur Zuchtwertschätzung verwendet und welche Tiere bekamen in diesem Modell Zuchtwerte?
+
+### Lösung
+- BLUP Tiermodell
+- alle Tiere bekommen einen Zuchtwert
+
+
+## Kontrollfrage 2
+
+Beim gängigen Verfahren zur genomischen Zuchtwertschätzung braucht es mehrere Schritte, wie sehen diese aus?
+
+### Lösung
+- Schritt 1: Schätzung der a-Werte in der Referenzpopulation
+- Schritt 2: Schätzung genomischer Zuchtwerte für Tiere ausserhalb der Referenzpopulation durch Aufsummieren der für die Tiere relevanten a-Effekte
+
+
+## Kontrollfrage 3
+
+Was bedeuten die $a$- Werte in den Modellen der genomischen Zuchtwertschätzung und welchem genetischen Modell werden diese entnommen?
+
+### Lösung
+- Die $a$-Werte sind Allel-Substitutionseffekte
+- Sie stammen aus dem Substitutionsmodell
+
+
+## Kontrollfrage 4
+
+Im Paper zur Deregression (auf dem Stick oder unter: http://gsejournal.biomedcentral.com/articles/10.1186/1297-9686-41-55) stehen nach Gleichung (8) zwei Probleme, weshalb mit BLUP geschätzte Zuchtwerte nicht ideal sind als Beobachtungen in genomischer Zuchtwertschätzung. Fassen Sie diese zwei Probleme mit Ihren Worten kurz zusammen.
+
+### Lösung
+1. Durch das Hinzufügen des Schätzfehlers wird die Varianz des Schätzers im Vergleich zur Varianz der phänotypischen Beobachtungen reduziert. Das würde zu einer Unterschätzung der Allel-Substitutionseffekte führen
+2. Durch die Eigenschaften von BLUP werden die geschätzten Zuchtwerte zum Durchschnitt der Eltern gedrückt (shrinkage estimation). Das Ausmass, wie stark die einzelen Schätzwerte zu den Elterndurchschnitten gedrückt werden, hängt vom Informationsgehalt, d.h. vom Bestimmungsmass ab. Dies verfälscht aber die Schätzwerte von Allelsubstitutionseffekten.
+
+
+
+## Aufgabe 1: Modellierung
+```{r TaskInit, echo=FALSE, results='hide'}
+nAnzTiere <- 5
+nAnzSnp <- 10
+nAnzAllelPerSnp <- 2
+nAnzAllelTot <- nAnzAllelPerSnp * nAnzSnp * nAnzTiere
+### # rng stuff
+set.seed(986)
+matAlleles <- matrix(data = rbinom(n = nAnzAllelTot, size = 1, prob = 0.25), ncol = nAnzTiere)
+
+matGenotypes <- matrix(NA, nrow = nAnzSnp, ncol = nAnzTiere)
+for (i in 1:nAnzSnp){
+  matGenotypes[i,] <- unlist(sapply(c(1:ncol(matAlleles)), 
+                                    function(x) {
+                                      curAllele <- matAlleles[((i-1)*2 + 1):(i*2),x]
+                                      curAllele <- curAllele[order(curAllele)]
+                                      paste0("$G_", curAllele[1], "G_", curAllele[2], "$", collapse = " ")
+                                      }
+                                    ))
+
+}
+dfGenotypes <- data.frame(matGenotypes, row.names = unlist(sapply(c(1:nAnzSnp), function(x) paste0("SNP",x,collapse = ""))),
+                          stringsAsFactors = FALSE)
+colnames(dfGenotypes) <- unlist(sapply(c(1:nAnzTiere), function(x) paste0("Tier ",x,collapse = "")))
+```
+
+In einem kleinen Beispieldatensatz sind die SNP-Genotypen für `r nAnzTiere` Tiere gegeben. Für jedes Tier liegen Typisierungsergebnisse an `r nAnzSnp` SNPs vor. Die Bezeichnung $(G_kG_l)_{ij}$ steht für den Genotypen für Tier $i$ an der SNP-Position $j$ mit den Allelen $k$ und $l$. Da wir nur SNPs mit zwei Allelen betrachten können als $k$ und $l$ nur entweder $0$ oder $1$ sein. Wir nehmen auch an, dass das Allel $0$ immer das Allel mit der gewünschten Ausprägung ist. In der folgenden Tabelle sind die SNP-Genotypen für alle Tiere aufgelistet, wobei die Indices $i$ und $j$ weggelassen wurden. 
+
+```{r ShowTableGenotypes, echo=FALSE, results='asis'}
+knitr::kable(dfGenotypes)
+```
+
+Wir möchten aufgrund des gegebenen Datensatzes die $a$-Werte schätzen. Dafür verwenden wir das folgende Modell
+
+\begin{equation}
+  \hat{g}_d = 1\mu + Ma + \epsilon_d
+  \label{eq:GenSelModel}
+\end{equation}
+
+\begin{tabular}{lll}
+wobei  &  $\hat{g}_d$  &  Vektor der deregressierten BLUP-Zuchtwerte \\
+       &  $\mu$        &  allgemeines Mittel \\
+       &  $a$          &  Allelsubstitutionseffekte \\
+       &  $M$          &  Inzidenzmatrix, welche $\hat{g}_d$ und $a$ verknüpft\\
+       &  $\epsilon_d$ &  zufällige Resteffekte \\
+\end{tabular}
+
+Wir nehmen an, dass für jedes Tier nur ein deregressierter Zuchtwert vorliegt. 
+
+### Ihr Aufgabe:
+Stellen Sie den Vektor $a$ und die Matrix $M$ für den gezeigten Genotypendatensatz und das Modell (\ref{eq:GenSelModel}) auf.
+
+### NB
+Diese Aufgabe dient nur der Anschauung. Für den praktischen Einsatz wäre der Datensatz viel zu klein.
+
+
+### Lösung
+
+
+
+## Aufgabe 2: Reduktion der Varianz
+Bei der BLUP-Zuchtwertschätzung haben die geschätzten Zuchtwerte im Vergleich zu den phänotypischen Werten eine reduzierte Varianz. Dies können wir an folgendem Beispiel mit `R` zeigen. Wir verwenden dazu einen Datensatz aus einer Übung der Züchtungslehre. Der Datensatz wird mit folgendem Befehl eingelesen:
+
+```{r DisplayReadData, eval=FALSE}
+dfLmm <- read.csv2(file =
+  "http://charlotte-ngs.github.io/LivestockBreedingAndGenomics/w7/zl_w7_u5_DataLmm.csv")
+```
+
+```{r ReadData, echo=FALSE, results='hide'}
+sInputFileName <- "zl_w7_u5_DataLmm.csv"
+if (bOnline){
+  sInputDataPath <- "http://charlotte-ngs.github.io/LivestockBreedingAndGenomics/w7"
+} else {
+  sInputDataPath <- "/Users/peter/Data/Projects/GitHub/charlotte-ngs/LivestockBreedingAndGenomics/gh-pages/w7"
+}
+dfLmm <- read.csv2(file = file.path(sInputDataPath, sInputFileName), stringsAsFactors = FALSE)
+```
+
+
+Die Struktur der Daten können wir mit dem Befehl `str` anzeigen. Die Kolonne `y` enthält die beobachteten Daten. 
+
+```{r StructureData}
+str(dfLmm)
+```
+
+BLUP-Zuchtwerte werden mit dem Package `pedigreemm` geschätzt.
+
+```{r BlupAniModel}
+library(pedigreemm)
+nAnzAnim <- 6
+pedP1 <- pedigree(sire = as.integer(c(NA,NA,1, 1,4,5)),
+           dam  = as.integer(c(NA,NA,2,NA,3,2)),
+           label = as.character(1:nAnzAnim))
+
+fitReml <- pedigreemm(formula = y ~ FixerFactor + (1 | ID),
+                      data = dfLmm,
+                      pedigree = list(ID = pedP1))
+```
+
+Die geschätzten Zuchtwerte erhalten wir aus dem Slot `u` aus dem Resultat-Objekt `fitReml`. Der Befehl 
+
+```{r AccessSlotU}
+fitReml@u
+```
+
+zeigt den Vektor der geschätzten Zuchtwerte. Die Funktion `var()` kann nun verwendet werden um die Varianz der Beobachtungen mit der Varianz der geschätzten Zuchtwerte zu vergleichen.
+
+```{r CompareVar}
+var(dfLmm$y)
+var(fitReml@u)
+```
+
+
+
+
+
