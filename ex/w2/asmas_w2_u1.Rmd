@@ -1,5 +1,5 @@
 ---
-title: "ASMNW - Lösung 1"
+title: "ASMNW - Übung 1"
 author: "Peter von Rohr"
 date: "`r Sys.Date()`"
 output: pdf_document
@@ -17,37 +17,20 @@ bOnline <- FALSE
 
 Welches Modell wurde vor der Genomischen Selektion zur Zuchtwertschätzung verwendet und welche Tiere bekamen in diesem Modell Zuchtwerte?
 
-### Lösung
-- BLUP Tiermodell
-- alle Tiere bekommen einen Zuchtwert
-
 
 ## Kontrollfrage 2
 
 Beim gängigen Verfahren zur genomischen Zuchtwertschätzung braucht es mehrere Schritte, wie sehen diese aus?
-
-### Lösung
-- Schritt 1: Schätzung der a-Werte in der Referenzpopulation
-- Schritt 2: Schätzung genomischer Zuchtwerte für Tiere ausserhalb der Referenzpopulation durch Aufsummieren der für die Tiere relevanten a-Effekte
 
 
 ## Kontrollfrage 3
 
 Was bedeuten die $a$- Werte in den Modellen der genomischen Zuchtwertschätzung und welchem genetischen Modell werden diese entnommen?
 
-### Lösung
-- Die $a$-Werte sind Allel-Substitutionseffekte
-- Sie stammen aus dem Substitutionsmodell
-
 
 ## Kontrollfrage 4
 
 Im Paper zur Deregression (auf dem Stick oder unter: http://gsejournal.biomedcentral.com/articles/10.1186/1297-9686-41-55) stehen nach Gleichung (8) zwei Probleme, weshalb mit BLUP geschätzte Zuchtwerte nicht ideal sind als Beobachtungen in genomischer Zuchtwertschätzung. Fassen Sie diese zwei Probleme mit Ihren Worten kurz zusammen.
-
-### Lösung
-1. Durch das Hinzufügen des Schätzfehlers wird die Varianz des Schätzers im Vergleich zur Varianz der phänotypischen Beobachtungen reduziert. Das würde zu einer Unterschätzung der Allel-Substitutionseffekte führen
-2. Durch die Eigenschaften von BLUP werden die geschätzten Zuchtwerte zum Durchschnitt der Eltern gedrückt (shrinkage estimation). Das Ausmass, wie stark die einzelen Schätzwerte zu den Elterndurchschnitten gedrückt werden, hängt vom Informationsgehalt, d.h. vom Bestimmungsmass ab. Dies verfälscht aber die Schätzwerte von Allelsubstitutionseffekten.
-
 
 
 ## Aufgabe 1: Modellierung
@@ -116,27 +99,6 @@ Stellen Sie den Vektor $a$ und die Matrix $M$ für den gezeigten Genotypendatens
 Diese Aufgabe dient nur der Anschauung. Für den praktischen Einsatz wäre der Datensatz viel zu klein.
 
 
-### Lösung
-In der gezeigten Tabelle zählen wir als erstes die Anzahl der $G_0$-Allele. Diese speichern wir in einer Matrix.
-
-```{r}
-matPosAllels <- matrix(NA, nrow = nrow(dfGenotypes), ncol = ncol(dfGenotypes))
-matPosAllels[dfGenotypes == "$G_0G_0$"] <- 2
-matPosAllels[dfGenotypes == "$G_0G_1$"] <- 1
-matPosAllels[dfGenotypes == "$G_1G_1$"] <- 0
-print(matPosAllels)
-```
-
-Die gesuchte Matrix $M$ hat Werte 1, 0 und -1 für die Genotypen $G_0G_0$, $G_0G_1$ und $G_1G_1$. Wir müssen als bei den Einträgen der oben gezeigten Matrix $1 abziehen. Da die Orientierung der Gleichungen im Modell so ist, dass jede Zeile für ein Tier steht müssen wir die Matrix noch transponieren. 
-```{r MatMResult}
-matM <- t(matPosAllels-1)
-#print(matM)
-knitr::kable(matM)
-```
-
-Der Vektor $a$ hat die Länge gleich der Anzahl SNPs in unserem Beispiel also `r nAnzSnp`. 
-
-
 ## Aufgabe 2: Reduktion der Varianz
 Bei der BLUP-Zuchtwertschätzung haben die geschätzten Zuchtwerte im Vergleich zu den phänotypischen Werten eine reduzierte Varianz. Dies können wir an folgendem Beispiel mit `R` zeigen. Wir verwenden dazu einen Datensatz aus einer Übung der Züchtungslehre. Der Datensatz wird mit folgendem Befehl eingelesen:
 
@@ -184,10 +146,6 @@ fitReml@u
 
 zeigt den Vektor der geschätzten Zuchtwerte. Die Funktion `var()` kann nun verwendet werden um die Varianz der Beobachtungen mit der Varianz der geschätzten Zuchtwerte zu vergleichen.
 
-```{r CompareVar}
-var(dfLmm$y)
-var(fitReml@u)
-```
 
 
 

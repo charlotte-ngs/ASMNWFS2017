@@ -1,0 +1,249 @@
+---
+title: "Multiple Lineare Regression"
+author: "Peter von Rohr"
+date: "27 Februar 2017"
+output: 
+  beamer_presentation:
+    includes:
+      in_header: ../../tex/ethslidesheader.tex
+  keep_tex: yes 
+output_file: asmas_w9_v2.pdf
+documentclass: ETHbeamerclass
+classoption: first,ETH3,navigation
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = FALSE, results ='asis') 
+knitr::knit_hooks$set(conv.odg = rmddochelper::odg.graphics.conv.hook)
+```
+
+
+## Outline
+
+- Das Modell
+- Stochastische Komponente: Zufälliger Rest
+- Methode der kleinsten Quadrate - Least Squares
+- Annahmen und Eigenschaften
+- Tests und Konfidenzintervalle
+- Analyse der Residuen
+- Modellwahl
+
+
+## Das lineare Modell
+
+- Gegeben: __Zielgrösse__ (response variable) $y_i$ für Individuum $i$. Entspricht einer Beobachtung oder Messung, welche zu $i$ gehört.
+- Gegeben: mehrere __erklärende Variablen__ (predictors or covariables) $x_{i,1}, x_{i,2}, ..., x_{i,p}$, welche Eigenschaften von $i$ beschreiben
+- Zusammengefasst wissen wir von Individuum $i$: $(x_{i,1}, x_{i,2}, ..., x_{i,p}, y_i)$
+
+\vspace{1ex}
+- Multiple lineare Regression sagt: 
+
+\begin{center}
+\textbf{Zielgrösse} $=$ \textbf{lineare} Funktion der \textbf{erklärenden Variablen} $+$ \textbf{Rest}
+\end{center}
+
+
+## Das Modell als Formel
+
+$$y_i = \beta_1 x_{i,1} + \beta_2 x_{i,2} + ... + \beta_p x_{i,p} + \epsilon_i$$
+
+- In einer Population mit $n$ Individuen, können wir $n$ solche Gleichungen aufstellen, wobei die $i$ von $1$ bis $n$ laufen
+- Zur Vereinfachung wird eine Matrix-Vektor Schreibweise verwendet
+
+\begin{equation} 
+\mathbf{y} = \mathbf{X}\mathbf{\beta} + \mathbf{\epsilon}
+\label{eq:LinModelReg}
+\end{equation}
+
+wobei:
+\begin{tabular}{p{1cm}ll}
+&  $\mathbf{y}$         &  Vektor mit Beobachtungen (Länge $n$)                     \\
+&  $\mathbf{\beta}$     &  Vektor mit Parametern (Länge $p$)                        \\
+&  $\mathbf{X}$         &  Matrix mit erklärenden Variablen (Dimension $n\times p$) \\
+&  $\mathbf{\epsilon}$  &  Vektor mit zufälligen Resten (Länge $n$)                 \\
+\end{tabular}
+
+
+## Stochastisches Modell
+
+- Zufällige Komponente $\mathbf{\epsilon}$ im Lineares Modell (siehe Gleichung (\ref{eq:LinModelReg}))
+- Somit ist die Zielgrösse ($\mathbf{y}$) auch zufällig
+- In unserem Beispiel sind die erklärenden Variablen als fix angenommen
+- In gewissen Anwendungen können auch erklärende Variablen als zufällig angenommen werden (BLUP-Zuchtwertschätzung)
+- Verschiedene Einflüsse auf $\mathbf{\epsilon}$: Messfehler, unbekannte Einflussfaktoren
+- Annahme: unbekannte Faktoren haben sich im "Mittel" auf $\rightarrow E(\mathbf{\epsilon}) = \mathbf{0}$
+- Streuung wird quantifiziert mit: $var(\mathbf{\epsilon}) = \mathbf{I}*\sigma^2$
+
+
+## Beispiel
+
+```{r GainDataPrep, echo=FALSE, results='hide'}
+set.seed(7643)
+nNrCalf <- 5
+Calf <- 1:nNrCalf
+WWG <- c(4.5, 2.9, 3.9, 3.5, 5.0)/5
+PWG <- c(6.8, 5.0, 6.8, 6.0, 7.5)/5
+BW <- round(25*PWG + rnorm(nNrCalf), digits = 1)
+dfGainData <- data.frame(Calf, BW, WWG=WWG, PWG=PWG)
+#dfGainData
+#summary(dfGainData)
+```
+
+Einfluss des Geburtsgewichts (BW) und Zunahme vor dem Absetzen (WWG) auf Zunahme nach dem Absetzen (PWG)
+
+```{r TableGainDataTable}
+knitr::kable(dfGainData)
+```
+
+
+## Identifikation der Komponenten des Modells
+
+```{r TableGainData, conv.odg=TRUE, odg.path="../odg", odg.graph.cache=TRUE,fig.align='center', out.width='10cm'}
+knitr::include_graphics(path = "TableGainData.pdf")
+```
+
+
+## Komponenten als Formeln
+
+\begin{equation}
+\mathbf{y} = \left[ 
+  \begin{array}{c}
+  1.36 \\ 1.00 \\ 1.36 \\ 1.20 \\ 1.50
+  \end{array}
+\right], 
+\mathbf{X} = \left[ 
+  \begin{array}{cc}
+  35.00 & 0.90 \\ 
+  25.30 & 0.58 \\ 
+  34.20 & 0.78 \\ 
+  31.20 & 0.70 \\ 
+  38.70 & 1.00 \\ 
+  \end{array}
+\right],
+\mathbf{\beta} = \left[ 
+  \begin{array}{c}
+  \beta_1 \\ \beta_2
+  \end{array}
+\right], 
+\mathbf{\epsilon} = \left[ 
+  \begin{array}{c}
+  \epsilon_1 \\ \epsilon_2 \\ \epsilon_3 \\ \epsilon_4 \\ \epsilon_5
+  \end{array}
+\right]
+\end{equation}
+
+- Achsenabschnitt: $\mathbf{y}$ und $\mathbf{\epsilon}$ ändern sich nicht
+\begin{equation}
+\mathbf{X} = \left[ 
+  \begin{array}{ccc}
+  1 & 35.00 & 0.90 \\ 
+  1 & 25.30 & 0.58 \\ 
+  1 & 34.20 & 0.78 \\ 
+  1 & 31.20 & 0.70 \\ 
+  1 & 38.70 & 1.00 \\ 
+  \end{array}
+\right],
+\mathbf{\beta} = \left[ 
+  \begin{array}{c}
+  \beta_0 \\ \beta_1 \\ \beta_2
+  \end{array}
+\right]
+\end{equation}
+
+
+## Weshalb ein Achsenabschnitt
+\setkeys{Gin}{width=0.8\paperwidth,height=0.8\textheight,keepaspectratio}
+```{r InterceptPlot, fig.width=7, fig.height=5}
+plot(BW, PWG)
+```
+\setkeys{Gin}{width=1.1\paperwidth,height=1.1\textheight,keepaspectratio}
+
+
+## Quadratische Regression und Transformationen
+- __Wichtig__: Auch das sind lineare Regressionen
+
+\begin{equation}
+\mathbf{X} = \left[ 
+  \begin{array}{ccc}
+  1 & x_1 & x_1^2 \\
+  1 & x_2 & x_2^2 \\
+  1 & x_3 & x_3^2 \\
+  1 & x_4 & x_4^2 \\
+  1 & x_5 & x_5^2 \\
+  \end{array}
+\right],
+\mathbf{X} = \left[ 
+  \begin{array}{ccc}
+  1 & log(x_{12}) & sin(x_{13}) \\
+  1 & log(x_{22}) & sin(x_{23}) \\
+  1 & log(x_{32}) & sin(x_{33}) \\
+  1 & log(x_{42}) & sin(x_{43}) \\
+  1 & log(x_{52}) & sin(x_{53}) \\
+  \end{array}
+\right]
+\end{equation}
+
+$\rightarrow$ Modell $\mathbf{y} = \mathbf{X}\mathbf{\beta} + \mathbf{\epsilon}$ heisst __lineares__ Modell, weil es linear in den Koeffizienten $\mathbf{\beta}$ ist.
+
+
+## Ziele einer Regression
+- __Anpassung__: Möglichst kleine Abweichungen der angepassten Ebenen und der Zielgrösse 
+- Gute __Schätzung__ der unbekannten Parameter: Sollen Änderungen der Zielgrösse in Abhängigkeit der Änderung der erklärenden Variablen darstellen
+- Gute __Voraussage__: Soll neue Zielgrössen als Funktion von neuen Werten der erklärenden Variablen voraussagen können. __Achtung__: keine Extrapolation
+- __Unsicherheit__ bei der Schätzung: Vertrauensintervallen und statistische Tests als gute Werkzeuge
+
+
+## Keine Extrapolation
+```{r PillKink, conv.odg=TRUE, odg.path="../odg", odg.graph.cache=TRUE,fig.align='center', out.width='10cm'}
+knitr::include_graphics(path = "PillKink")
+```
+
+
+## Schätzung der Parameter
+
+- Methode der kleinsten Quadrate (Least Squares)
+- Suche einer guten Schätzung für $\mathbf{\beta}$, so dass die Abweichungen oder Reste möglichst klein sind
+- Mathematische Formulierung: Abweichungen entsprechen 
+
+$$L = ||\mathbf{y} - \mathbf{X}\mathbf{\beta}||^2 = (\mathbf{y} - \mathbf{X}\mathbf{\beta})^T(\mathbf{y} - \mathbf{X}\mathbf{\beta})$$
+
+- Möglichst kleine Abweichung: Minimierung durch Ableiten und die Ableitung $0$ setzen
+- Somit ist der Least Squares Schätzer $\hat{\mathbf{\beta}}$ definiert als
+
+$$\hat{\mathbf{\beta}} = arg min_{\beta} ||\mathbf{y} - \mathbf{X}\mathbf{\beta}||^2$$
+
+
+## Normalgleichungen
+- Der Schätzer $\hat{\mathbf{\beta}}$ berechnet sich als $p$ dimensionaler Gradient
+
+$$\frac{\partial L}{\partial \mathbf{\beta}} = (-2)\mathbf{X}^T(\mathbf{y} - \mathbf{X}\hat{\mathbf{\beta}})$$
+
+- Daraus folgen die __Normalgleichungen__
+
+$$(\mathbf{X}^T\mathbf{X})\hat{\mathbf{\beta}} =  \mathbf{X}^T\mathbf{y}$$
+
+- Auflösung nach $\hat{\mathbf{\beta}}$
+
+$$\hat{\mathbf{\beta}} =  (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}$$
+
+
+## Restvarianz
+
+- Least Squares liefert eigentlich keine Schätzung für die Restvarianz $\sigma^2$
+- Aufgrund der Residuen $r_i = y_i - \mathbf{x}_i^T\hat{\mathbf{\beta}}$, ergibt sich die Schätzung
+
+$$\hat{\sigma}^2 = \frac{1}{n-p}\sum_{i=1}^n r_i^2$$
+
+- Schätzung ist plausible, da sie auf der Momentenmethode basiert
+- Ungewöhnlicher Faktor $1/(n-p)$ so gewählt, dass: $$E(\hat{\sigma}^2) = \sigma^2$$
+- Dieser Schätzer wird oft als Least-Squares Schätzer für $\sigma^2$ bezeichnet
+
+
+## Annahmen für ein lineares Modell
+
+- Ausser, dass die Matrix $\mathbf{X}$ vollen Rang hat ($p < n$) wurden bis jetzt keine Annahmen gemacht
+- Lineares Modell ist korrekt $\rightarrow E(\mathbf{\epsilon}) = \mathbf{0}$
+- Die Werte in $\mathbf{X}$ sind exakt
+- Die Varianz der Fehler ist konstant ("Homoskedazidität") für alle Beobachtungen $\rightarrow Var(\mathbf{\epsilon}) = \mathbf{I} * \sigma^2$
+- Die Fehler sind unkorreliert
+- Weitere Eigenschaften folgen, falls die Fehler normal verteilt sind
