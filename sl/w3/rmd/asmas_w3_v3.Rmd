@@ -1,0 +1,254 @@
+---
+title: "Multiple Lineare Regression (Teil 2)"
+author: "Peter von Rohr"
+date: "06 März 2017"
+output: 
+  beamer_presentation:
+    includes:
+      in_header: ../../tex/ethslidesheader.tex
+  keep_tex: yes 
+output_file: asmas_w3_v3.pdf
+documentclass: ETHbeamerclass
+classoption: first,ETH3,navigation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, results ='asis')
+knitr::knit_hooks$set(conv.odg = rmddochelper::odg.graphics.conv.hook)
+```
+
+
+## Massnahmen und Alternativen
+Was passiert, wenn Annahmen nicht erfüllt sind?
+
+- Falls Annahme 3 (konstante Varianzen) verletzt ist, verwenden wir weighted least squares
+- Falls Annahme 5 der Normalität nicht gilt, verwenden wir robuste Methoden
+- Falls Annahme 2 falsch ist, brauchen wir eine Methode namens "errors in variables"
+- Falls Annahme 1 nicht zutrifft, brauchen wir ein nicht-lineares Modell
+
+
+## Annahmen 1 und 4 nicht erfüllt
+```{r PillKink, conv.odg=TRUE, odg.path="../odg", odg.graph.cache=TRUE,fig.align='center', out.width='10cm'}
+knitr::include_graphics(path = "PillKink")
+```
+
+
+## Mehrere Regressionen mit einer Variablen
+- __Wichtig__: Multiple lineare Regression nicht durch mehrere Regressionen mit einer Variablen ersetzen
+- Beispiel: $y = 2*x1 - x2$
+
+```{r MultiLinRegNoSimpleLinReg, echo=FALSE, results='asis'}
+x1 <- c(0, 1, 2, 3, 0, 1, 2, 3)
+x2 <- c(-1,0,1,2,1,2,3,4)
+y <- 2*x1-x2
+dfTab <- rbind(x1,x2,y)
+pander::pander(dfTab, style = "rmarkdown")
+```
+
+## Einfache Regression mit x2
+```{r SimpleLinRegX2, echo=TRUE}
+x1 <- c(0, 1, 2, 3, 0, 1, 2, 3)
+x2 <- c(-1,0,1,2,1,2,3,4)
+y <- 2*x1-x2
+dfData <- data.frame(x1=x1, x2=x2, y=y)
+lm_simple_x2 <- lm(y ~ x2, data = dfData)
+```
+
+## Resultat
+```{r SimpleLinRegX2Result, echo=FALSE, results='asis'}
+pander::pander(lm_simple_x2)
+```
+
+- Original:  $y = 2*x1 - x2$
+
+
+## Eigenschaften der Least Squares Schätzer
+- Modell: $\mathbf{y} = \mathbf{X}\mathbf{\beta} + \mathbf{\epsilon}$, mit $E[\mathbf{\epsilon}] = \mathbf{0}$, $Cov(\mathbf{\epsilon}) = \mathbf{I}*\sigma^2$
+
+1. $E[\hat{\mathbf{\beta}}] = \mathbf{\beta} \rightarrow$ unverzerrter Schätzer (unbiasedness) \vspace{1ex}
+2. $E[\hat{\mathbf{Y}}] = E[\mathbf{Y}] = \mathbf{X}\mathbf{\beta} \rightarrow E[\mathbf{r}] = \mathbf{0}$ \vspace{1ex}
+3. $Cov(\hat{\mathbf{\beta}}) = \sigma^2(\mathbf{X}^T\mathbf{X})^{-1}$ \vspace{1ex}
+4. $Cov(\hat{\mathbf{Y}}) = \sigma^2 P$, $Cov(\mathbf{r}) = \sigma^2 (\mathbf{I} - \mathbf{P})$ \vspace{1ex}
+
+wobei $\mathbf{P} = \mathbf{X}(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T$
+
+## Verteilung der Schätzer
+Annahme, dass $\mathbf{\epsilon}$ normal-verteilt sind, daraus folgt
+
+1. $\hat{\mathbf{\beta}} \sim \mathcal{N}_p(\mathbf{\beta}, \sigma^2(\mathbf{X}^T\mathbf{X})^{-1})$ \vspace{1ex}
+2. $\hat{\mathbf{Y}} \sim \mathcal{N}_n(\mathbf{X}\mathbf{\beta}, \sigma^2 P)$ \vspace{1ex}
+3. $\hat{\sigma}^2 \sim \frac{\sigma^2}{n-p}\chi^2$ \vspace{1ex}
+
+
+## Tests und Vertrauensintervalle
+- Angenommen, wir möchten wissen, ob eine bestimmte erklärende Variable $\beta_j$ relevant ist in unserem Modell, dann testen wir die Nullhypothese 
+$$H_0: \beta_j = 0$$
+gegenüber der Alternativhypothese 
+$$H_A: \beta_j  \ne 0$$
+
+- Bei unbekanntem $\sigma^2$ ergibt sich folgende Teststatistik
+$$T_j = \frac{\hat{\beta}_j}{\sqrt{\hat{\sigma}^2(\mathbf{X}^T\mathbf{X})^{-1}_{jj}}} \sim t_{n-p}$$
+
+wobei $t_{n-p}$ für die Student-t Verteilung mit $n-p$ Freiheitsgraden steht.
+
+
+## Probleme bei t-Tests
+- Multiples Testen bei vielen $\beta_j$, d.h. falls wir $100$ Tests mit Irrtumswahrscheinlchkeit $5\%$ machen, sind automatisch $5$ Tests signifikant
+- Es kann passieren, dass für kein $\beta_j$ die Nullhypothese verworfen werden kann, aber die erklärende Variable trotzdem einen Einfluss hat. Der Grund dafür sind Korrelationen zwischen erklärenden Variablen
+- Individuelle t-tests für $H_0: \beta_j = 0$ sind so zu interpretieren, dass diese den Effekt von $\beta_j$ quantifizieren nach Abzug des Einflusses aller anderen Variablen auf die Zielgrösse $Y$
+
+$\rightarrow$ falls z. Bsp. $\beta_i$ und $\beta_j$ stark korreliert sind und wir testen die beiden Nullhypothesen $H_{0j}: \beta_j = 0$ und $H_{0i}: \beta_i = 0$, kann durch die Korrektur der anderen Variablen der Effekt von $\beta_i$ und $\beta_j$ auf $Y$ durch den t-Test nicht gefunden werden.
+
+
+## Globaler Test eines Modells
+- Beim t-Test hatten wir jede einzelne erklärende Variable getestet. 
+- Test, ob überhaupt eine der erklärenden Variablen einen Einfluss auf die Zielgrösse hat
+- Zerlegung der Länge der totalen quadrierten Abweichungen der Beobachtungswerte $\mathbf{y}$ um deren Mittel $\bar{\mathbf{y}}$ in
+
+$$||\mathbf{y} -  \bar{\mathbf{y}}||^2 = ||\hat{\mathbf{y}} - \bar{\mathbf{y}}||^2 + ||\mathbf{y} - \hat{\mathbf{y}}||^2$$
+
+wobei: $||\hat{\mathbf{y}} - \bar{\mathbf{y}}||^2$ der Länge der quadrierten Abweichungen der gefitteten Werte ($\hat{\mathbf{y}} = \mathbf{X}\hat{\mathbf{\beta}}$) um das globale Mittel ($\bar{\mathbf{y}} = \mathbf{1} * 1/n\sum_{i=1}^ny_i$) und $\mathbf{r} = \mathbf{y} - \hat{\mathbf{y}}$ den Residuen entspricht
+
+
+## Geometrische Begründung
+
+```{r AnovaDecomposition, conv.odg=TRUE, odg.path="../odg", odg.graph.cache=TRUE,fig.align='center', out.width='10cm'}
+knitr::include_graphics(path = "AnovaDecomposition")
+```
+
+
+## Zerlegung als Varianzanalyse (ANOVA)
+- ANOVA Tabelle sieht wie folgt aus
+
+\begin{tabular}{lccc}
+            &  sums of squares  &  degrees of freedom  &  mean square \\
+regression  &  $||\hat{\mathbf{y}} - \bar{\mathbf{y}}||^2$  &  $p-1$  &  $||\hat{\mathbf{y}} - \bar{\mathbf{y}}||^2 / (p-1)$ \\ 
+error       &  $||\mathbf{y} - \hat{\mathbf{y}}||^2$        &  $n-p$  &  $||\mathbf{y} - \hat{\mathbf{y}}||^2 / (n-p)$\\
+\hline
+total       &  $||\mathbf{y} -  \bar{\mathbf{y}}||^2$       &  $n-1$  &  \\
+\end{tabular}
+
+\vspace{2ex}
+- Relevante Teststatistik lautet
+
+$$F = \frac{||\hat{\mathbf{y}} - \bar{\mathbf{y}}||^2 / (p-1)}{||\mathbf{y} - \hat{\mathbf{y}}||^2 / (n-p)} \sim F_{p-1,n-p}$$ 
+
+\vspace{2ex}
+unter der globalen Nullhypothese $H_0: \beta_j = 0$ für alle $j$
+
+
+## Bestimmtheitsmass des Modells
+- Nützliche Grösse für die Qualität eines Modells ist das Bestimmtheitsmass (coefficient of determination)
+
+$$ R^2 = \frac{||\hat{\mathbf{y}} - \bar{\mathbf{y}}||^2}{||\mathbf{y} -  \bar{\mathbf{y}}||^2}$$
+
+diese sagt aus, wieviel der totalen Variation von $\mathbf{y}$ um $\bar{\mathbf{y}}$ durch die Regression erkärt wird.
+
+
+##  Vertrauensintervall der Schätzung
+- Basierend auf der Teststatistik des t-Tests
+
+$$T_j = \frac{\hat{\beta}_j}{\sqrt{\hat{\sigma}^2(\mathbf{X}^T\mathbf{X})^{-1}_{jj}}} \sim t_{n-p}$$
+
+- Vertrauensintervall für den unbekannten Parameter $\beta_j$ als 
+
+$$\hat{\beta}_j \pm \sqrt{\hat{\sigma}^2(\mathbf{X}^T\mathbf{X})^{-1}_{jj}} * t_{n-p, 1-\alpha/2}$$
+
+$\rightarrow$ somit beinhaltet das Intervall zwischen den angegebenen Grenzen den wahren Wert mit Wahrscheinlichkeit $1-\alpha$, wobei $t_{n-p, 1-\alpha/2}$ das $1-\alpha/2$ Quantil der Verteilung $t_{n-p}$ darstellt
+
+
+## Vertrauensintervall im Bild
+
+```{r ConfidenceInterval, conv.odg=TRUE, odg.path="../odg", odg.graph.cache=TRUE,fig.align='center', out.width='10cm'}
+knitr::include_graphics(path = "ConfidenceInterval")
+```
+
+
+## R Output
+
+```{r LinModResults, conv.odg=TRUE, odg.path="../odg", odg.graph.cache=TRUE,fig.align='center', out.width='10cm'}
+knitr::include_graphics(path = "LinModResults")
+```
+
+
+## R Output Bedeutung
+
+1. Funktionsaufruf mit welchem das Resultatobjekt erzeugt wurde. Wichtig, falls Resultate als R-objekt (.rda) gespeichert werden
+2. Verteilung der Residuen aufgrund der Quantile
+3. Schätzwert und Schätzfehler für die Paramter $\beta_j$ zu jeder erklärenden Variablen. Werte der t-Teststatistik
+4. Schätzung der Rest-Standardabweichung $\sigma$.  Zusätzliche Modellinformationen, wie F-Teststatistik, $R^2$ und das um Anzahl erklärende Variablen korrigierte $R^2$, wobei
+
+$$\bar{R}^2 = R^2 - (1-R^2)\frac{p-1}{n-p} $$
+
+
+## Überprüfung der Modellannahmen anhand Analyse der Residuen
+
+- Residuen $r_i = y_i - \hat{y}_i$ als Approximation der unbekannten Fehler $\epsilon_i$ bei der Überprüfung der Modellannahmen verwenden
+- __Tukey-Anscombe__ Plot: zeigt Residuen $r_i$ versus gefittete Werte $\hat{y}_i$. Dieser sollte keine erkennbaren Muster aufweisen
+
+
+```{r TukeyAnscombNoViolation, conv.odg=TRUE, odg.path="../odg", odg.graph.cache=TRUE,fig.align='center', out.width='10cm'}
+knitr::include_graphics(path = "TukeyAnscombNoViolation")
+```
+
+
+## Probleme bei Modellannahmen
+Folgende Plots deuten auf Probleme hin
+
+```{r TukeyAnscombProblem, conv.odg=TRUE, odg.path="../odg", odg.graph.cache=TRUE,fig.align='center', out.width='10cm'}
+knitr::include_graphics(path = "TukeyAnscombProblem")
+```
+
+
+## Tukey-Anscombe Plot in R
+
+```{r TukeyAnscombeRcmd, echo = TRUE, eval=FALSE}
+data(anscombe)
+reg <- lm(y1 ~ x1, data = anscombe)
+plot(fitted(reg), resid(reg))
+```
+
+
+## Tukey-Anscombe Plot - Das Resultat
+
+
+\setkeys{Gin}{width=0.8\paperwidth}
+```{r TukeyAnscombeResult, echo=FALSE, results='asis'}
+<<TukeyAnscombeRcmd>>
+```
+\setkeys{Gin}{width=1.1\paperwidth,height=1.1\textheight,keepaspectratio}
+
+
+## QQ (quantile-quantile) Plot
+
+- Überprüfung der Verteilung der Zufallsvariablen (Zielgrösse und Residuen)
+- Empirische Verteilung der Residuen (y-Achse) wird gegen theoretische Quantile der Normalverteilung (x-Achse) aufgezeichnet
+- Falls Normalverteilung zutrifft, dann liegen alle Punkte auf einer Linie
+
+
+## In R:
+
+\setkeys{Gin}{width=0.8\paperwidth}
+```{r QQPlot, echo=TRUE, results='asis'}
+qqnorm(anscombe$y1)
+qqline(anscombe$y1)
+```
+\setkeys{Gin}{width=1.1\paperwidth,height=1.1\textheight,keepaspectratio}
+
+
+## Probleme mit Verteilung
+
+```{r QQPlotProblems, conv.odg=TRUE, odg.path="../odg", odg.graph.cache=TRUE,fig.align='center', out.width='10cm'}
+knitr::include_graphics(path = "QQPlotProblems")
+```
+
+## Quellen
+
+Tukey-Anscombe Plots und QQ-Plots stammen aus dem Skript: 
+
+\begin{quote}
+Computational Statistics\\
+Peter B\"uhlmann and Martin M\"achler\\
+Seminar f\"ur Statistik ETH Z\"urich\\
+Version of January 31, 2014
+\end{quote}

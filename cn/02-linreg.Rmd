@@ -1,0 +1,152 @@
+# Multiple Lineare Regression {#linreg}
+Die multiple lineare Regression ist wie folgt definiert. Jedes Individuum oder jedes Objekt in einem Datensatz ist charakterisiert durch eine __Zielgrösse__ und einer Menge von __erklärenden Variablen__. Zusammengefasst besteht die bekannte Information für jedes Individuum oder jedes Objekt $i$ aus einem Datensatz aus der folgenden Menge 
+
+$$\{x_{i,1}, x_{i,2}, \ldots, x_{i,p}, y_i\}$$
+Das multiple lineare Regressionsmodell versucht die Zielgrösse bis auf einen zufälligen Restterm $\epsilon$ als lineare Funktion der erklärenden Variablen auszudrücken. Unser Ziel besteht in der Schätzung der unbekannten Parameter, welche im Regressionsmodell enthalten sind. Die nachfolgend gezeigte Modellformel soll die Unterscheidung zwischen erklärenden Variablen und unbekannten Parametern verdeutlichen.
+
+\begin{equation}
+y_i = \beta_i x_{i,1} + \ldots + \beta_p x_{i,p} + \epsilon_i \qquad (i = 1, \ldots, n)
+\label{eq:MultLinRegForm}
+\end{equation}
+
+Fassen wir die Gleichungen über alle $(i = 1, \ldots, n)$ zusammen und verwenden die Matrix-Vektor-Notation, so sieht das lineare Modell in (\ref{eq:MultLinRegForm}) wie folgt aus.
+
+\begin{equation}
+y = X\beta + \epsilon
+\label{eq:MultLinRegMatVec}
+\end{equation}
+
+\begin{tabular}{lll}
+wobei  &              & \\
+       &  $y$         &  Vektor der Länge $n$ mit allen Zielgrössen \\
+       &  $\beta$     &  Vektor der Länge $p$ mit unbekannten Parametern \\
+       &  $X$         &  Matrix der Dimension $n\times p$ mit erklärenden Variablen \\
+       &  $\epsilon$  &  Vektor der Länge $n$ mit zufälligen Resteffekten
+\end{tabular}
+
+Die Reste $\epsilon_i$ im Modell (\ref{eq:MultLinRegForm}) haben wir als zufällige Effekte definiert. Somit müssen wir geeignete Annahmen zur Dichteverteilung der $\epsilon_i$ treffen. Meistens gehen wir davon aus, dass die $\epsilon_i$ unabhängig sind und der gleichen Verteilung folgen. In der englischsprachigen Literatur wird das mit dem Begriff `r r6objTableAbbrev$add_abbrev(psAbbrev = "i.i.d.", psMeaning = "independent, identically distributed")` bezeichnet. Der Erwartungswert und die Varianz der Zufallsvariablen $\epsilon$ sind $E\left[\epsilon_i \right] = 0$ und $Var(\epsilon_i) = \sigma^2$. 
+
+
+## Beispiele für Lineare Regressionen
+### Regression mit Achsenabschnitt
+Die erste erklärende Variable wir oft als eine Konstante angenommen. Das bedeutet, dass der erste Kolonnenvektor in der Matrix $X$ gleich dem Eins-Vektor ist. Die konstante erklärende Variable erlaubt es einen sogenannten __Achsenabschnitt__ anzupassen. In skalarer Schreibweise hat das lineare Modell mit Achsenabschnitt die folgende Form
+
+$$y_i = \beta_1 + \beta_2x_{i2} + \ldots + \beta_px_{ip} + \epsilon_i \qquad (i = 1,\ldots,n)$$
+
+### Regression durch den Ursprung
+Im Gegensatz zur Regression mit Achsenabschnitt steht die Regression durch den Ursprung. Diese kennt keine konstante erklärende Variable. Das Modell ohne Achsenabschnitt sieht dann wie folgt aus.
+
+$$y_i = \beta_1x_{i1}+ \ldots + \beta_px_{ip} + \epsilon_i \qquad (i = 1,\ldots,n)$$
+
+### Regression mit transformierten Variablen
+Regressionen können auch auf Transformationen der erklärenden Variablen oder auf transformierte Zielgrössen angepasst werden. Als Beispiel verwendet die sogenannte "quadratische" Regression die $x_{ij}$ und die $x_{ij}^2$ als erklärende Variablen. Das Modell entspricht dann einer quadratischen Funktion in den $x_j$ ist aber immer noch eine lineare Funktion im Bezug auf die Parameter $\beta_j$.
+
+$$y_i = \beta_1 + \beta_2 x_{i2} + \beta_3 x_{i2}^2 + \epsilon_i \qquad (i = 1,\ldots,n)$$
+
+Abgesehen von der quadratischen Regression sind auch andere Arten von Transformationen der erklärenden Variablen denkbar. Ein Beipsiel ist in der folgenden Gleichung gezeigt. 
+
+$$y_i = \beta_i + \beta_2 \log(x_{i2}) + \beta_3 sin(\pi x_{i3}) + \epsilon_i \qquad (i = 1,\ldots,n)$$
+
+Auch dieses Modell ist _linear_ in den Parametern $\beta_j$ und wird somit als lineare Regression bezeichnet.
+
+### Anwendungen in den Nutztierwissenschaften
+Eine Anwendung der linearen Regression in den Nutztierwissenschaften ist die Schätzung vom Lebendgewicht von Tieren aufgrund des Brustumfangs. Dafür werden Messbänder verwendet, welche auf der einen Seite den Brustumfang angeben und auf der anderen Seite das geschätzte Körpergewicht. Diese Anwendung macht eine Voraussage der Zielgrösse `Körpergewicht` aufgrund der beobachteten erklärenden Variablen `Brustumfang`.
+
+Damit eine Voraussage für die Zielgrösse aufgrund der erklärenden Variablen möglich ist, muss zuerst ein angemessener Datensatz vorliegen, in welchem man für jedes Tier beide Informationen, also sowohl Körpergewicht als auch Brustumfang bekannt ist. Aufgrund dieser Informationen können dann die unbekannten Parameter geschätzt werden. Die geschätzten Parameter werden dann für die Vorhersagen verwendet.
+
+Bei diesem ersten Beispiel handelt es sich um eine einfache lineare Regression. Das verwendete Regressionsmodelle hat nur eine erklärende Variable (`Brustumfang`) und eine Zielvariable (`Gewicht`). Das zu dieser Anwendung zugehörige Modell lautet
+
+$$y_{G,i} = \beta_1 + \beta_2 x_{B,i} + \epsilon_i$$
+
+### Ziele der linearen Regression
+- __Gute Anpassung__: das Modell soll so sein, dass die erklärenden Variablen möglichst präzise Voraussagen zu den Zielvariablen machen. Das Standardtool für die Anpassung ist die Methode der kleinsten Quadrate (`Least Squares`).
+
+- __Parameterschätzung__: die unbekannten Parameter sollen so geschätzt sein, dass eine Veränderung der erklärenden Variablen in einer entsprechenden Veränderung der Zielgrösse führt.
+
+- __Vorhersage__: noch nicht beobachtete Zielgrössen sollen als Funktionen von erklärenden Variablen vorhergesagt werden können
+
+- __Fehler und Signigikanz__: werden durch Vertrauensintervalle und statistische Tests beurteilt
+
+- __Modellentwicklung__: ist ein interaktiver Prozess, welche durch die oben genannten Ziele beeinflusst wird
+
+
+## Methode der kleinsten Quadrate (Least Squares)
+Gegeben sei das lineare Modell $y = X\beta + \epsilon$. Wir wollen eine, gemäss den oben formulierten Zielen, möglichst gute Schätzung für $\beta$ finden. Die folgende Darstellung erklärt, wie die Methode der kleinsten Quadrate funktioniert.
+
+```{r LsqExplain, conv.odg=TRUE, odg.path="odg", odg.graph.cache=TRUE, fig.align='center', echo=FALSE, results='asis'}
+knitr::include_graphics(path = "LsqExplain.pdf")
+```
+
+Die Punkte stehen für die Beobachtungen $y_i$. Die rote Linie steht für die Regressionsgerade. Die Distanz des Punktes zur Projektion in Richtung der $y$-Achse auf der Regressionslinie entspricht dem Residuum $r_i = y_i - x_i^T \hat{\beta}$. Für eine bestimmte Regressionsgerade (rote Linie im Diagramm) wird für jeden Punkt $y_i$ das entsprechende Residuum $r_i$ berechnet. Die Residuen $r_i$ werden quadriert und addiert. Diese summierten Quadrate der Residuen stellt ein Mass dar, wie gut die Regressionsgerade an die Beobachtungspunkte $y_i$ angepasst ist. 
+
+Position und Verlauf der Regressionsgeraden können durch die Wahl des Vektors $\beta$ beeinflusst werden. Gemäss der Methode der kleinsten Quadrate soll $\beta$ so bestimmt werden, dass die Summe der quadrierten Residuen minimal wird. Der so bestimmte Vektor $\beta$ wird dann als Least-Squares-Schätzer bezeichnet. In einer Formel können wir die Berechnung des Least-Squares-Schätzers ($\hat{\beta}$), wie folgt ausdrücken. 
+
+$$\hat{\beta} = argmin_{\beta} \| y - X\beta \| ^2$$
+
+wobei $\| .\|$ für die Euklidsche Norm oder die Euklidsche Distanz steht. In einem ersten Schritt geht es darum das Minimum für den Ausdruck $\| y - X\beta \| ^2$ zu finden. Dabei ist es einfacher, wenn wir folgende Umformung verwenden.
+
+$$\| y - X\beta \| ^2 = (y - X\beta)^T(y - X\beta) = y^Ty - y^TX\beta - \beta^TX^Ty + \beta^TX^TX\beta$$
+
+Leiten wir diesen Ausdruck nach $\beta$ ab und setzen die erste Ableitung gleich $0$, dann erhalten wir eine Gleichung für den Least-Squares-Schätzer $\hat{\beta}$.
+
+$$-y^TX - y^TX + 2\hat{\beta}^TX^TX = 0$$
+
+Aus der obigen Formel können wir die sogenannte __Normalgleichung__ herleiten. Diese lautet 
+
+$$X^TX\hat{\beta} = X^Ty$$
+
+Unter der Annahme, dass die Matrix $X$ vollen Kolonnenrang $p$ hat, können wir explizit nach $\hat{\beta}$ auflösen.
+
+$$\hat{\beta} = (X^TX)^{-1}X^Ty$$
+
+Die Residuen $r_i = y_i - x_i^T\hat{\beta}$ sind Schätzungen für die Resteffekte $\epsilon_i$ und können somit für die Schätzung von $\sigma^2$ verwendet werden. 
+
+$$\hat{\sigma}^2 = \frac{1}{n-p}\sum_{i=1}^{n} r_i^2$$
+
+Der Faktor $1/(n-p)$ scheint ungewöhnlich, aber es kann gezeigt werden, dass die Wahl dieses Faktors zur Erwartungstreue von $\hat{\sigma}^2$ führt. Das heisst, es gilt $E\left[ \hat{\sigma}^2 \right] = \sigma^2$. 
+
+
+### Annahmen hinter dem linearen Modell
+Abgesehen davon, dass die Matrix $X$ vollen Kolonnenrang $p<n$ haben muss, wurden für die erklärenden Variablen keine Annahmen getroffen. Insbesondere können die erklärenden Variablen kontinuierlich oder diskret sein. Kontinuierliche Variablen sind typischerweise Messgrössen, welche als reelle Zahlen (Gleitkommazahlen) erhoben werden. Diskrete Grössen können nur bestimmte Werte, wie zum Beispiel $0$ oder $1$ annehmen.
+
+Damit die Anpassung eines linearen Modells mit der Methode der kleinsten Quadrate Sinn macht und die Tests und Vertrauensintervalle gültig sind, müssen wir gewisse Annahmen treffen.
+
+1. __Korrektheit des linearen Modells__: Das heisst $E\left[\epsilon_i \right] = 0$ für alle $i$. Das heisst aber auch, dass die Zielgrössen und die erklärenden Variablen nicht gemischt werden dürfen.
+2. __Alle $x_i$ sind exakt__: Es wird angenommen, dass die Werte für $x_i$ ohne Fehler beobachtet werden können.
+3. __Konstante Varianz der Resteffekte__: $Var(\epsilon_i) = \sigma^2$ für alle $i$
+4. __Resteffekte sind unkorreliert__: $Cov(\epsilon_i, \epsilon_j) = 0$ für alle $i\ne j$
+5. __Resteffekte folgen Normalverteilung__: Der Vektor $\epsilon$ der Resteffekte folgt einer multivariaten Normalverteilung.
+
+Falls diese Annahmen verletzt sind, gibt es eine Reihe von Massnahmen, welche getroffen werden können. Bei Verletzung der Annahme 3, können "weighted least squares" Methoden verwendet werden. Ähnlich bei Verletzung der Annahme 4, können wir "generalized least squares" verwenden. Ist die Annahme 5 der Normalverteilung nicht erfüllt, können wir auf sogenannte "robuste Methoden" ausweichen. Falls Annahme 2 nicht zutrifft, braucht es Korrekturen, welche als "errors in variables" bezeichnet wird. Falls die Annahme 1 nicht stimmt, braucht es nicht-lineare Modelle.
+
+Die folgende Grafik zeigt das Beispiel des sogenannten "Pillen-Knicks". Dabei werden die Anzahl Geburten seit 1930 in der Schweiz gezeigt. Hier sind die Annahmen 1 und 4 verletzt. Dieses Beispiel zeigt auch die Gefahr bei Vorhersagen in Bereiche, wo keine erklärende Variablen vorliegen.
+
+```{r PillKink, conv.odg=TRUE, odg.path="odg", odg.graph.cache=TRUE, fig.align='center', echo=FALSE, results='asis'}
+knitr::include_graphics(path = "PillKink.pdf")
+```
+
+
+### Kein Ersatz der multiplen Regression durch mehrere einfache Regressionen
+Eine multiple Regression (mit mehreren erklärenden Variablen) soll nicht durch mehrere einfache Regressionen (mit nur einer erklärenden Variablen) ersetzt werden. Das folgende simulierte Beispiel zeigt weshalb.
+
+Wir betrachten die folgenden erklärenden Variablen $x^{(1)}$ und $x^{(2)}$ und die Zielgrösse $y$ mit folgenden Werten
+
+```{r MultRegXval, echo=FALSE, results='asis'}
+x1 <- c(0, 1, 2, 3, 0, 1, 2, 3)
+x2 <- c(-1, 0, 1, 2, 1, 2, 3, 4)
+y <- 2*x1-x2
+knitr::kable(data.frame(x1,x2,y))
+```
+
+Die multiple Regression führt zur Lösung der kleinsten Quadrate, welche die Daten exakt beschreibt, so wie diese erzeugt wurden.
+
+$$y_i = \hat{y_i} = 2x_{i1} - x_{i2} \qquad \text{für alle } i \text{ mit } \hat{\sigma}^2 = 0$$
+
+Wird an die Daten nur eine einfache Regression mit der erklärenden Variablen $x^{(2)}$ und ignoriert $x^{(1)}$, so erhalten wir das folgende Resultat
+
+$$\hat{y_i} = {1\over 9}x_{i2} + {4\over 3} \qquad \text{für alle } i \text{ mit } \hat{\sigma}^2 = 1.72$$
+
+Der Grund dafür ist, dass die erklärenden Variablen $x^{(1)}$ und $x^{(2)}$ korreliert sind. Falls $x^{(1)}$ steigt, dann steigt auch $x^{(2)}$. Da aber in der multiplen Regression $x^{(1)}$ einen grösseren Koeffizienten hat als $x^{(2)}$, muss dieser Effekt in der einfachen Regression durch $x^{(2)}$ kompensiert werden. Dies führt zur Abweichung zwischen den Resultaten der beiden Analysen.
+
+
+## Eigenschaften der Schätzungen

@@ -152,7 +152,7 @@ if (bOnline){
 } else {
   sInputDataPath <- "/Users/peter/Data/Projects/GitHub/charlotte-ngs/LivestockBreedingAndGenomics/gh-pages/w7"
 }
-dfLmm <- read.csv2(file = file.path(sInputDataPath, sInputFileName), stringsAsFactors = FALSE)
+dfLmm <- read.csv2(file = file.path(sInputDataPath, sInputFileName))
 ```
 
 

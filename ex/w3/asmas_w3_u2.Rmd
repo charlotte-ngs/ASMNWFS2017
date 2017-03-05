@@ -1,0 +1,75 @@
+---
+title: "ASMNW - Übung 2"
+author: "Peter von Rohr"
+date: "03/06/2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::knit_hooks$set(conv.odg = rmddochelper::odg.graphics.conv.hook)
+```
+
+## Aufgabe 1 - Begründung für Deregression
+Nennen Sie die beiden Probleme, weshalb BLUP-Zuchtwerte korrigiert werden müssen, damit sie in der genomischen Selektion als Beobachtungen verwendet werden können.
+
+\vspace{5ex}
+## Aufgabe 2 - Bestimmtheitsmass
+Varianzreduktion und Regression des geschätzten Zuchtwertes auf den ED wird erst zum Problem, da das Ausmass dieser Effekte sich im Laufe des Lebens eines Tieres verändert. Zeichnen Sie im nachfolgenden Diagramm den Verlauf der Varianzreduktion, der Regression des geschätzten Zuchtwertes auf den ED und des Bestimmtheitsmasses ein.
+
+\vspace{2ex}
+```{r TrajectVarRedReg, conv.odg=TRUE, odg.path="odg", odg.graph.cache=TRUE,fig.align='center', out.width='12cm', echo=FALSE}
+knitr::include_graphics(path = "TrajectVarRedReg.pdf")
+```
+
+\pagebreak
+
+## Aufgabe 3 - Einfaches Beispiel
+```{r PrepareBvResult, echo=FALSE, results='hide'}
+bOnline <- FALSE
+sInputFileName <- "zl_w7_u5_DataLmm.csv"
+if (bOnline){
+  sInputDataPath <- "http://charlotte-ngs.github.io/LivestockBreedingAndGenomics/w7"
+} else {
+  sInputDataPath <- "/Users/peter/Data/Projects/GitHub/charlotte-ngs/LivestockBreedingAndGenomics/gh-pages/w7"
+}
+dfLmm <- read.csv2(file = file.path(sInputDataPath, sInputFileName))
+
+suppressPackageStartupMessages(library(pedigreemm)) 
+nAnzAnim <- 6
+pedP1 <- pedigree(sire = as.integer(c(NA,NA,1, 1,4,5)),
+           dam  = as.integer(c(NA,NA,2,NA,3,2)),
+           label = as.character(1:nAnzAnim))
+
+fitReml <- pedigreemm(formula = y ~ FixerFactor + (1 | ID),
+                      data = dfLmm,
+                      pedigree = list(ID = pedP1))
+
+### # extract predicted breeding values
+vecPredBv <- ranef(fitReml)$ID
+names(vecPredBv) <- NULL
+vecPredBv <- unlist(vecPredBv)
+### # assign some reliabilites
+vecReliability <- c(.25,.42,.12,.19,.49,.17)
+
+### # true genetic variance
+nGenVar <- 25
+```
+
+Für ein bestimmtes Merkmal sollen genomische Zuchtwerte geschätzt werden. Aus früheren Auswertungen wurde die genetische Varianz auf $`r nGenVar`$  geschätzt. Wir nehmen diesen Wert als eine Approximation für die wahre genetische Varianz $var(g)$. In der folgenden Tabelle sind für `r nAnzAnim` die geschätzten Zuchtwerte ($\hat{g}$) und die Bestimmtheitsmasse ($B$) angegeben. 
+
+```{r BvRelTable, echo=FALSE}
+dfBvRelTable <- data.frame(Tier = c(1:nAnzAnim), ZW = round(vecPredBv, digits = 3), Rel = vecReliability, stringsAsFactors = FALSE)
+names(dfBvRelTable) <- c("Tier", "geschätzter Zuchtwert", "Bestimmtheitsmass")
+knitr::kable(dfBvRelTable)
+```
+
+### Ihre Aufgabe
+Verwenden Sie die folgende vereinfachte Gleichung zur Deregression der geschätzten Zuchtwerte.
+
+$$\hat{g}_D = \lambda \times {1\over B} \times \hat{g}$$
+
+Berechnen Sie die deregressierten Zuchtwerte $\hat{g}_D$ und den Faktor $\lambda$. Bestimmen Sie $\lambda$ so, dass keine Varianzreduktion mehr auftritt. Es muss also gelten, dass 
+
+$$var(\hat{g}_D) = var(g)$$
+

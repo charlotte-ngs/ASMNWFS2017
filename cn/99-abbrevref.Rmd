@@ -1,0 +1,77 @@
+<!-- ------------------------------------------------------------------- --
+  -- END of document:  Below this must not be anything, except the stuff --
+  -- concerning the table of abbreviations                               --> 
+  
+
+```{r WriteTableOfAbbreviations, echo=FALSE, results='hide'}
+if (!r6objTableAbbrev$is_empty_abbr())
+  r6objTableAbbrev$writeToTsvFile()
+```
+
+```{r AbrTableToDocument, echo=FALSE, results='asis'}
+r6objTableAbbrev$include_abbr_table(psAbbrTitle = "# Abkürzungen {-}")
+```
+
+
+```{r Bibliography, echo=FALSE, results='hide'}
+bref <- c(bibentry(
+     bibtype = "Article",
+     title = "Prediction of total genetic value using genome-wide dense marker maps",
+     author = c(as.person("Theo HE Meuwissen [aut]"), 
+                as.person("Ben J Hayes [aut]]"),
+                as.person("Mike E Goddard [aut]")),
+     year = "2001",
+     journal = "Genetics",
+     number = "157",
+     pages = "1819-1829",
+     key = "MHG2001"),
+  bibentry(
+    bibtype = "Book",
+    title = "Handbook of Statistical Genetics",
+    editor = c(as.person("D. J. Balding"), as.person("M. Bishop"), as.person("C. Cannings")),
+    year = "2009",
+    publisher = "Wiley",
+    doi = "10.1002/9780470061619",
+    key = "BBC2008"
+  ),
+  bibentry(
+    bibtype = "PhdThesis",
+    title = "Schätzung von Zuchtwerten feldgeprüfter Schweine mit einem Mehrmerkmals-Tiermodell",
+    author = as.person("A. Hofer [aut]"),
+    year = "1990",
+    school = "ETH Zürich",
+    key = "Hofer1990"
+  ),
+  bibentry(
+    bibtype = "Unpublished",
+    title = "Züchtungslehre",
+    author = as.person("P. von Rohr [aut]"),
+    year = "2016",
+    note = "Vorlesungsunterlagen ETHZ, HS2016",
+    url = "https://charlotte-ngs.github.io/LBGHS2016",
+    key = "vonRohr2016"
+  ),
+  bibentry(
+    bibtype = "Article",
+    title   = "Deregressing Estimated Breeding Values and Weighting Information for Genomic Regression Analyses",
+    author  = c(as.person("D. Garrick"), 
+                as.person("J. Taylor"), 
+                as.person("R. Fernando")),
+    year    = "2009",
+    journal = "Genetics Selection Evolution",
+     number = "41(1)",
+     pages = "55",
+     key = "GTF2009"
+  )
+)
+
+
+### # Fixed assignmen of bib file
+sBibFile <- "ASMNW.bib"
+if(!file.exists(sBibFile))
+  cat(paste(toBibtex(bref), collapse = "\n"), "\n", file = sBibFile)
+```
+
+
+
+`r if (knitr:::is_html_output()) '# References {-}'`

@@ -1,0 +1,136 @@
+---
+title: "ASMNW - Lösung 2"
+author: "Peter von Rohr"
+date: "03/06/2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::knit_hooks$set(conv.odg = rmddochelper::odg.graphics.conv.hook)
+```
+
+## Aufgabe 1 - Begründung für Deregression
+Nennen Sie die beiden Probleme, weshalb BLUP-Zuchtwerte korrigiert werden müssen, damit sie in der genomischen Selektion als Beobachtungen verwendet werden können.
+
+### Lösung
+- Varianzreduktion, d.h. die Varianz der geschätzten Zuchtwerte $\hat{g}_i$ ist kleiner oder gleich als die Varianz der wahren Zuchtwerte $g_i$.
+- Regression des geschätzten Zuchtwertes $\hat{g}_i$ auf den Durchschnitt der geschätzten Zuchtwerte der Eltern (ED)
+
+
+## Aufgabe 2 - Bestimmtheitsmass
+Varianzreduktion und Regression des geschätzten Zuchtwertes auf den ED wird erst zum Problem, da das Ausmass dieser Effekte sich im Laufe des Lebens eines Tieres verändert. Zeichnen Sie im nachfolgenden Diagramm den Verlauf der Varianzreduktion, der Regression des geschätzten Zuchtwertes auf den ED und des Bestimmtheitsmasses ein.
+
+```{r TrajectVarRedRegSol, conv.odg=TRUE, odg.path="odg", odg.graph.cache=TRUE,fig.align='center', out.width='12cm', echo=FALSE}
+knitr::include_graphics(path = "TrajectVarRedRegSol.pdf")
+```
+
+
+## Aufgabe 3 - Einfaches Beispiel
+```{r PrepareBvResult, echo=FALSE, results='hide'}
+bOnline <- FALSE
+sInputFileName <- "zl_w7_u5_DataLmm.csv"
+if (bOnline){
+  sInputDataPath <- "http://charlotte-ngs.github.io/LivestockBreedingAndGenomics/w7"
+} else {
+  sInputDataPath <- "/Users/peter/Data/Projects/GitHub/charlotte-ngs/LivestockBreedingAndGenomics/gh-pages/w7"
+}
+dfLmm <- read.csv2(file = file.path(sInputDataPath, sInputFileName))
+
+suppressPackageStartupMessages(library(pedigreemm)) 
+nAnzAnim <- 6
+pedP1 <- pedigree(sire = as.integer(c(NA,NA,1, 1,4,5)),
+           dam  = as.integer(c(NA,NA,2,NA,3,2)),
+           label = as.character(1:nAnzAnim))
+
+fitReml <- pedigreemm(formula = y ~ FixerFactor + (1 | ID),
+                      data = dfLmm,
+                      pedigree = list(ID = pedP1))
+
+### # extract predicted breeding values
+vecPredBv <- ranef(fitReml)$ID
+names(vecPredBv) <- NULL
+vecPredBv <- unlist(vecPredBv)
+### # assign some reliabilites
+vecReliability <- c(.25,.42,.12,.19,.49,.17)
+
+### # true genetic variance
+nGenVar <- 25
+```
+
+Für ein bestimmtes Merkmal sollen genomische Zuchtwerte geschätzt werden. Aus früheren Auswertungen wurde die genetische Varianz auf $`r nGenVar`$  geschätzt. Wir nehmen diesen Wert als eine Approximation für die wahre genetische Varianz $var(g)$. In der folgenden Tabelle sind für `r nAnzAnim` die geschätzten Zuchtwerte ($\hat{g}$) und die Bestimmtheitsmasse ($B$) angegeben. 
+
+```{r BvRelTable, echo=FALSE}
+dfBvRelTable <- data.frame(Tier = c(1:nAnzAnim), ZW = round(vecPredBv, digits = 3), Rel = vecReliability, stringsAsFactors = FALSE)
+names(dfBvRelTable) <- c("Tier", "geschätzter Zuchtwert", "Bestimmtheitsmass")
+knitr::kable(dfBvRelTable)
+```
+
+### Ihre Aufgabe
+Verwenden Sie die folgende vereinfachte Gleichung zur Deregression der geschätzten Zuchtwerte.
+
+$$\hat{g}_D = \lambda \times {1\over B} \times \hat{g}$$
+
+Berechnen Sie die deregressierten Zuchtwerte $\hat{g}_D$ und den Faktor $\lambda$. Bestimmen Sie $\lambda$ so, dass keine Varianzreduktion mehr auftritt. Es muss also gelten, dass 
+
+$$var(\hat{g}_D) = var(g)$$
+
+### Lösung
+Die geschätzten Zuchtwerte und die Bestimmtheitsmasse wurden vorgängig im Dataframe `dfBvRelTable` abgelegt. Der Einfachheit halber speichern wir diese in separaten Vektoren.
+
+```{r PredBvRel}
+# Vektor der geschätzten Zuchtwerte
+vecZw <- dfBvRelTable[,2]
+# Vektor der Bestimmtheitsmasse
+vecBe <- dfBvRelTable[,3]
+```
+
+Als erstes können wir für jedes Tier $i$ den Quotienten aus geschätztem Zuchtwert $\hat{g}_i$ geteilt durch das Bestimmtheitsmass $B_i$ berechnen. Das Resultat davon ist dann wieder ein Vektor
+
+```{r QuotPbvByRel}
+(vecQuo <- vecZw / vecBe)
+```
+
+Der Faktor $\lambda$ wird über die Bedingung der konstanten Varianzen bestimmt. Es muss also gelten, dass
+
+$$var(g) = var(\hat{g}_D) = var(\lambda \times {1\over B} \times \hat{g}) = \lambda^2 \times var({1\over B} \times \hat{g})$$
+
+Die Varianz $var({1\over B} \times \hat{g})$ können wir empirisch aus dem Vektor `vecQuo` berechnen. Der Wert für $var(g)$ ist in der Aufgabe gegeben. Somit können wir $\lambda$ bestimmen als 
+
+$$\lambda = \sqrt{\frac{var(g)}{var({1\over B} \times \hat{g})}}$$
+
+Da wir die Vorzeichen der geschätzten Zuchtwerte durch die Deregression nicht ändern dürfen, verwenden wir nur die positive Lösung für $\lambda$. 
+
+Die Berechnung des Zahlenwertes für $\lambda$ lautet
+
+```{r ComputeLambda}
+(lambda <- sqrt(nGenVar/var(vecQuo)))
+```
+
+Somit können wir für jedes Tier den deregressierten geschätzten Zuchtwert angeben. Wir legen diese im Vektor `vecDereg` ab und fügen diese zur obigen Tabelle dazu.
+
+```{r ComputeVecDereg}
+(vecDereg <- lambda * vecQuo)
+```
+
+Die Tabelle mit den Resultaten sieht dann wie folgt aus.
+
+```{r TableResult, echo=FALSE}
+dfDeregResult <- cbind(dfBvRelTable, round(vecDereg, digits = 3))
+names(dfDeregResult) <- c(names(dfBvRelTable), "Deregressierte Zuchtwerte")
+knitr::kable(dfDeregResult)
+```
+
+Zur Kontrolle überprüfen wir noch, dass es wirklich keine Varianzreduktion gegeben hat.
+
+```{r VarDereg}
+var(vecDereg)
+```
+
+Durch Rundungsfehler bei der Berechnung hat es eine Abweichung zwischen den Varianzen gegeben. Diese beträgt
+
+```{r VarDiff}
+(abs(var(vecDereg)-nGenVar)/nGenVar)
+```
+
+
