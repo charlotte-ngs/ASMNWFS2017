@@ -150,3 +150,55 @@ Der Grund dafür ist, dass die erklärenden Variablen $x^{(1)}$ und $x^{(2)}$ ko
 
 
 ## Eigenschaften der Schätzungen
+Die Least-Squares-Schätzer sind Zufallsvariablen, da für jeden Datensatz den wir vom gleichen unterliegenden Prozess beobachten, andere Werte resultieren. Damit ändern sich auch die Least-Squares-Schätzer. Da die Schätzer Funktionen der beobachteten Daten sind, haben die Schätzer auch einen zufälligen Charakter. Somit können wir Eigenschaften betreffend den Verteilungen und den Momenten für die Least-Squares-Schätzer herleiten. Die Ergebnisse sind hier nur kurz zusammengefasst.
+
+### Momente der Least-Squares Schätzungen
+Wir nehmen das folgende lineare Modell an
+
+$$y = X\beta + \epsilon \text{, } E\left[\epsilon \right] = 0 \text{, } Cov(\epsilon) = E\left[\epsilon\epsilon^T \right] = \sigma^2I_{n\times n}$$
+
+Zusammen mit den oben getroffenen Annahmen können wir folgende Aussagen machen
+
+1. $E\left[\hat{\beta}\right] = \beta$, das heisst, $\hat{\beta}$ ist unverzerrt
+2. $E\left[\hat{y}\right] = E\left[y\right] = X\beta$, was aus 1. folgt. Zudem ist, $E\left[r\right] = 0$
+3. $Cov(\hat{\beta}) = \sigma^2(X^TX)^{-1}$
+4. $Cov(\hat{y}) = \sigma^2P$, $Cov(r) = \sigma^2(I-P)$
+
+Die Matrix $P$ ist definiert als Projektionsmatrix aus $\hat{y} = Py$. Setzen wir die Least-Squares-Schätzer ein, dann folgt
+
+$$\hat{y} = X\hat{\beta} = X(X^TX)^{-1}X^Ty = Py$$
+
+Somit ist die Matrix $P$ definiert als $P=X(X^TX)^{-1}X^T$. 
+
+### Verteilung der Least-Squares-Schätzer unter normalverteilten Fehlern
+Zusätzlich zum linearen Modell nehmen wir an, dass $\epsilon_i, \ldots, \epsilon_n \text{ i.i.d. } \mathcal{N}(0,\sigma^2)$, dann können wir zeigen, dass
+
+1. $\hat{\beta} \sim \mathcal{N}_p\left(\beta, \sigma^2(X^TX)^{-1}\right)$
+2. $\hat{y} \sim \mathcal{N}_n\left(X\beta,\sigma^2P \right)$, $r \sim \mathcal{N}_n\left(0,\sigma^2(I-P) \right)$
+3. $\hat{\sigma}^2 \sim \frac{n}{n-p}\chi_{n-p}^2$
+
+Die Annahme der Normalverteilung ist oft (annähernd) erfüllt und kann durch den zentralen Grenzwertsatz bei grösseren Datensätzen begründet werden. Diese Eigenschaften im Bezug auf die Verteilung der Schätzer führt zur Herleitung von Vertrauensintervallen und statistischen Tests für die geschätzten Parameter. Sind die Annahmen der Normalverteilung nicht erfüllt, müssen wir auf sogenannte robuste Methoden ausweichen. Diese werden hier nicht behandelt.
+
+
+## Tests und Vertrauensintervalle
+### Einzeltests
+Wir nehmen an, dass das lineare Modell korrekt ist und dass die Resteffekte $\epsilon_1, \ldots, \epsilon_n \text{ i.i.d. } \sim \mathcal{N}\left(0, \sigma^2 \right)$. Dann haben wir gesehen gemäss den Eigenschaften aus dem vorherigen Abschnitt ist dann $\hat{\beta}$ normalverteilt.
+
+Im Allgemeinen sind wir daran interessiert, ob ein bestimmter Parameter $\beta_j$ einen Einfluss hat. Dies lässt sich mit der Nullhypothese $H_{0,j}: \beta_j = 0$ gegenüber der Alternativen $H_{A,j}: \beta_j \ne 0$ überprüfen. Da $\hat{\beta}$ einer Normalverteilung folgt, können wir herleiten, dass unter der Nullhypothese $H_{0,j}$ gilt
+
+$$\frac{\hat{\beta_j}}{\sqrt{\sigma^2(X^TX)_{jj}^{-1}}} \sim \mathcal{N}(0,1)$$
+
+Da $\sigma^2$ unbekannt ist, ist die obige Teststatistk in der Praxis nicht brauchbar. Ersetzen wir $\sigma^2$ durch den Schätzwert $\hat{\sigma}^2$ so erhalten wir die sogenannte t-Teststatistik.
+
+$$T_j = \frac{\hat{\beta_j}}{\sqrt{\hat{\sigma}^2(X^TX)_{jj}^{-1}}} \sim t_{n-p}$$
+
+Anhand dieses Tests können wir die Relevanz der erklärenden Variablen quantifizieren, indem wir die Teststatistiken $T_j$ für $j=1,\ldots,p$ analysieren. Die Beurteilung der Relevanz der erklärenden Variablen aufgrund dieser einzelnen t-Tests birgt zwei Probleme.
+
+1. __Multiples Testen__: Werden sehr viele Tests durchgeführt, dann sind bei einem angenommenen Signifikanz-Niveau von $\alpha$ automatisch ein Anteil $\alpha$ aller Tests signifikant. Werden beispielsweise $100$ Tests auf dem Niveau $\alpha = 0.05$ durchgeführt, dann sind automatisch $5$ Tests signifikant.
+2. __Korrelation der erklärenden Variablen__: Falls die erklärenden Variablen untereinander korreliert sind, dann beeinflusst dies auch die Testergebnisse und kann diese verzerren.
+
+### Globaler Test
+Wenn wir testen wollen, ob (abgesehen vom Achsenabschnitt) überhaupt eine erklärende Variable einen Einfluss auf die Zielgrösse hat, dann können wir diese mit folgender Nullhypothese $H_0: \beta_2 = \ldots = \beta_p = 0$ versus die Alternative $H_A: \beta_j \ne 0$ für $j=2,\ldots, p$ tun.
+
+
+
