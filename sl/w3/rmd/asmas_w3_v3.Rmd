@@ -2,14 +2,8 @@
 title: "Multiple Lineare Regression (Teil 2)"
 author: "Peter von Rohr"
 date: "06 März 2017"
-output: 
-  beamer_presentation:
-    includes:
-      in_header: ../../tex/ethslidesheader.tex
-  keep_tex: yes 
+output: beamer_presentation
 output_file: asmas_w3_v3.pdf
-documentclass: ETHbeamerclass
-classoption: first,ETH3,navigation
 ---
 
 ```{r setup, include=FALSE}

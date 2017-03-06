@@ -2,16 +2,8 @@
 title: "Angewandte Statistische Methoden in den Nutztierwissenschaften" 
 author: "Peter von Rohr" 
 date: "20 February 2017" 
-output: 
-  beamer_presentation: 
-    fig_crop: no
-    fig_height: 6
-    includes:
-      in_header: ../../tex/ethslidesheader.tex
-  keep_tex: yes 
+output: beamer_presentation
 output_file: asmas_w1_v1.pdf
-documentclass: ETHbeamerclass 
-classoption: first,ETH3,navigation 
 ---
 
 ```{r setup, include=FALSE} 
