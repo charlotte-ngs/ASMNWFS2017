@@ -1,0 +1,121 @@
+---
+title: "ASMNW - Lösung 3"
+author: "Peter von Rohr"
+date: "03/13/2017"
+output: 
+  pdf_document:
+    keep_tex: FALSE
+output_file: asmas_w4_l3.pdf
+---
+
+## Kontrollfrage 1
+1. Aus welchen Komponenten besteht ein lineares Modell? 
+2. Welcher Zusammenhang besteht zwischen diesen Komponenten
+
+### Lösung
+1. Zielgrösse, erklärende Variablen und Resteffekte
+2. Zielgrösse soll als lineare Funktion der erklärenden Variablen dargestellt werden
+
+
+## Kontrollfrage 2
+1. Welche fixen und welche zufälligen Effekte gibt es in einer multiplen linearen Regression
+2. Wie lauten Erwartungswerte und Varianzen der zufälligen Effekte
+
+### Lösung
+1. erklärende Variablen sind fix und Resteffekte sind zufällig
+2. Erwartungswert $E(\mathbf{\epsilon}) = \mathbf{0}$ und die Co-Varianz-Matrix beträgt: $Var(\mathbf{\epsilon}) = \mathbf{I} * \sigma^2$
+
+
+## Kontrollfrage 3
+Welche vier Ziele wollen wir mit einer multiplen linearen Regression erreichen?
+
+### Lösung
+1. gute __Anpassung__ des Modells, so dass Abweichungen zu beobachteten Zielgrössen möglichst klein  
+2. gute __Schätzung__ der Parameter, Änderungen bei den erklärenden Variablen sollen möglichst eng mit Änderungen in Zielgrössen zusammenhängen
+3. gute __Voraussage__ für neue Werte der erklärenden Variablen innerhalb des Wertebereichs des Datensatzens, keine Extrapolation
+4. Unsicherheiten sollen durch Tests und Vertrauensintervalle quantifiziert werden
+
+
+## Kontrollfrage 4
+1. Was bedeutet der Ausdruck $$\hat{\mathbf{\beta}} = arg min_{\beta} ||\mathbf{y} - \mathbf{X}\mathbf{\beta}||^2$$
+2. Welcher Schätzer resultiert aus dem Ausdruck unter 1?
+
+### Lösungen
+1. Der Ausdruck $||\mathbf{y} - \mathbf{X}\mathbf{\beta}||^2$ wird nach $\beta$ abgeleitet und $0$ gesetzt und der Wert für $\beta$ an diesem Minimum wird als Schätzer $\hat{\beta}$ verwendet.
+2. $$\hat{\mathbf{\beta}} =  (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}$$
+
+
+## Aufgabe 1: 
+In der Vorlesung wurden die Eigenschaften von linearen Modellen besprochen. Die folgende Tabelle enthält vier verschiedene Modelle. Tragen Sie in die Kolonne ganz rechts ein, ob es sich jeweilen um ein lineares oder nicht-lineares Modell handelt.
+
+\vspace{2ex}
+\begin{tabular}{lll}
+\hline
+Nr  &  Model  &  Typ(linear/nicht-linear)\\
+\hline
+    &                                                                                  & \\
+1   & $y_i = \beta_1^2 + \sqrt{\beta_2}x_{i,2} + \epsilon_i$                           &  \\
+    &                                                                                  & \\
+2   & $y_i = \beta_1x_{i,1} + \beta_2x_{i,2} + \beta_3x_{i,3} + \epsilon_i$            &  \\
+    &                                                                                  & \\
+3   & $y_i = \beta_1x_{i,1} + \beta_2\log{x_{i,2}} + \beta_3sin(x_{i,3}) + \epsilon_i$ & \\
+    &                                                                                  & \\
+4   & $y_i = \beta_1^2\log{x_{i,1}} + \sqrt{\beta_2}x_{i,2} + \epsilon_i$              & \\
+    &                                                                                  & \\
+\hline
+\end{tabular}
+
+### Lösung
+\vspace{2ex}
+\begin{tabular}{lll}
+\hline
+Nr  &  Model  &  Typ(linear/nicht-linear)\\
+\hline
+    &                                                                                  & \\
+1   & $y_i = \beta_1^2 + \sqrt{\beta_2}x_{i,2} + \epsilon_i$                           & nicht linear \\
+    &                                                                                  & \\
+2   & $y_i = \beta_1x_{i,1} + \beta_2x_{i,2} + \beta_3x_{i,3} + \epsilon_i$            & linear  \\
+    &                                                                                  & \\
+3   & $y_i = \beta_1x_{i,1} + \beta_2\log{x_{i,2}} + \beta_3sin(x_{i,3}) + \epsilon_i$ & linear\\
+    &                                                                                  & \\
+4   & $y_i = \beta_1^2\log{x_{i,1}} + \sqrt{\beta_2}x_{i,2} + \epsilon_i$              & nicht linear\\
+    &                                                                                  & \\
+\hline
+\end{tabular}
+
+
+## Aufgabe 2:
+Während der Vorlesung habe wir das Beispiel mit der Zunahme nach dem Absetzen als Zielgrösse betrachtet. Wir haben aber nirgends die Koeffizienten und die geschätzte Restvarianz berechnet. Stellen Sie für dieses kleine Beispiel das lineare Modell gemäss Vorlesungsunterlagen auf und berechnen Sie die Koeffizienten des linearen Modells und die geschätzte Restvarianz. 
+
+### Lösung
+Zuerst werden die Daten in ein `data.frame` abgelegt.
+
+```{r BwDataFrame}
+dfBwWgData <- data.frame(BW = c(35.0, 25.3, 34.2, 31.2, 38.7),
+                         WWG = c(0.90, 0.58, 0.78, 0.70, 1.00),
+                         PWG = c(1.36, 1.00, 1.36, 1.20, 1.50))
+```
+
+Mit diesem `data.frame` können wir schon ein lineares Modell anpassen.
+
+```{r BwLinearModel}
+lmBwWg <- lm(PWG ~ ., data = dfBwWgData)
+summary(lmBwWg)
+```
+
+Die Modellanpassung ohne Achsenabschnitt
+
+```{r BwWgLmNoInter}
+lmBwWgNI <- lm(PWG ~ -1 + BW + WWG, data = dfBwWgData)
+summary(lmBwWgNI)
+```
+
+Anstatt das Modell ohne Achsenabschnitt ganz neu anzugeben, gibt es auch die Möglichkeit ein bestehendes Modell mit der Funktion `update()` anzupassen. Dadurch können wir mit folgendem Befehl das ursprüngliche Modell in `lmBwWg` anpassen. Dabei ist das erste Argument von `update()` das ursprüngliche Objekt, welches das lineare Modell enthält (bei uns ist das `lmBwWg`). Das zweite Argument ist die neue Modellformel. Im nachfolgenden Aufruf von `update()` wird eine abgekürzte Schreibweise verwendet, wobei die Punkte als Platzhalter für die Komponenten im schon bestehenden Modell in `lmBwWg` stehen. Somit heisst die Abkürzung `. ~ . -1`: nimm das bestehenede Modell und entferne den Achsenabschnitt.
+
+```{r BwWgLmUpdate}
+lmBwGwUpd <- update(lmBwWg, . ~ . -1)
+summary(lmBwGwUpd)
+```
+
+Die Resultate der Modellanpassung mit und ohne Achsenabschnitte mögen auf den ersten Blick verwirrend aussehen. Aufgrund des höheren $R^2$-Wertes und basierend auf der tieferen Restvarianz des Modells ohne Achsenabschnitt, würde man dieses Modell ohne Achsenabschnitt als das bessere Modell bezeichnen. Aufgrund der biologischen Zusammenhänge macht aber ein Modell ohne Achsenabschnitt wenig Sinn. Als Erklärung dafür gilt wohl, dass nur fünf Beobachtungen wohl zu wenig sind um zwischen zwei Modellen sicher unterschieden zu können. Des Weiteren sind die Unterschiede zwischen den Modellen sehr gering und würden eine Rangierung der Modelle kaum erlauben. 
+

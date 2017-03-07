@@ -1,0 +1,53 @@
+---
+title: "ASMNW - Übung 3"
+author: "Peter von Rohr"
+date: "03/13/2017"
+output: 
+  pdf_document:
+    keep_tex: FALSE
+output_file: asmas_w4_u3.pdf
+---
+
+## Kontrollfrage 1
+1. Aus welchen Komponenten besteht ein lineares Modell? 
+2. Welcher Zusammenhang besteht zwischen diesen Komponenten
+
+
+## Kontrollfrage 2
+1. Welche fixen und welche zufälligen Effekte gibt es in einer multiplen linearen Regression
+2. Wie lauten Erwartungswerte und Varianzen der zufälligen Effekte
+
+
+## Kontrollfrage 3
+Welche vier Ziele wollen wir mit einer multiplen linearen Regression erreichen?
+
+
+## Kontrollfrage 4
+1. Was bedeutet der Ausdruck $$\hat{\mathbf{\beta}} = arg min_{\beta} ||\mathbf{y} - \mathbf{X}\mathbf{\beta}||^2$$
+2. Welcher Schätzer resultiert aus dem Ausdruck unter 1?
+
+
+## Aufgabe 1: 
+In der Vorlesung wurden die Eigenschaften von linearen Modellen besprochen. Die folgende Tabelle enthält vier verschiedene Modelle. Tragen Sie in die Kolonne ganz rechts ein, ob es sich jeweilen um ein lineares oder nicht-lineares Modell handelt.
+
+\vspace{2ex}
+\begin{tabular}{lll}
+\hline
+Nr  &  Model  &  Typ(linear/nicht-linear)\\
+\hline
+    &                                                                                  & \\
+1   & $y_i = \beta_1^2 + \sqrt{\beta_2}x_{i,2} + \epsilon_i$                           &  \\
+    &                                                                                  & \\
+2   & $y_i = \beta_1x_{i,1} + \beta_2x_{i,2} + \beta_3x_{i,3} + \epsilon_i$            &  \\
+    &                                                                                  & \\
+3   & $y_i = \beta_1x_{i,1} + \beta_2\log{x_{i,2}} + \beta_3sin(x_{i,3}) + \epsilon_i$ & \\
+    &                                                                                  & \\
+4   & $y_i = \beta_1^2\log{x_{i,1}} + \sqrt{\beta_2}x_{i,2} + \epsilon_i$              & \\
+    &                                                                                  & \\
+\hline
+\end{tabular}
+
+
+## Aufgabe 2:
+Während der Vorlesung habe wir das Beispiel mit der Zunahme nach dem Absetzen als Zielgrösse betrachtet. Wir haben aber nirgends die Koeffizienten und die geschätzte Restvarianz berechnet. Stellen Sie für dieses kleine Beispiel das lineare Modell gemäss Vorlesungsunterlagen auf und berechnen Sie die Koeffizienten des linearen Modells und die geschätzte Restvarianz. 
+

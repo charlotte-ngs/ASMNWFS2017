@@ -198,7 +198,38 @@ Anhand dieses Tests können wir die Relevanz der erklärenden Variablen quantifi
 2. __Korrelation der erklärenden Variablen__: Falls die erklärenden Variablen untereinander korreliert sind, dann beeinflusst dies auch die Testergebnisse und kann diese verzerren.
 
 ### Globaler Test
-Wenn wir testen wollen, ob (abgesehen vom Achsenabschnitt) überhaupt eine erklärende Variable einen Einfluss auf die Zielgrösse hat, dann können wir diese mit folgender Nullhypothese $H_0: \beta_2 = \ldots = \beta_p = 0$ versus die Alternative $H_A: \beta_j \ne 0$ für $j=2,\ldots, p$ tun.
+Wenn wir testen wollen, ob (abgesehen vom Achsenabschnitt) überhaupt eine erklärende Variable einen Einfluss auf die Zielgrösse hat, dann können wir diese mit folgender Nullhypothese $H_0: \beta_2 = \ldots = \beta_p = 0$ versus die Alternative $H_A: \beta_j \ne 0$ für $j=2,\ldots, p$ tun. Solch ein Test kann mit der Zerlegung der Varianz der Beobachtungen $y_i$ um das globale Mittel $\bar{y} = n^{-1}\sum_{i=1}^ny_i$ konstruiert werden. In Vektor-Schreibweise sieht diese Zerlegung wie folgt aus
+
+$$\|y - \bar{y}\|^2 = \|\hat{y} - \bar{y}\|^2 + \|y - \hat{y}\|^2$$
+
+Diese Zerlegung teilt die quadrierten Abweichungen der Beobachtungen $y$ vom allgemeinen Mittel $\bar{y}$ in die quadrierten Abweichungen der gefitteten Werte $\hat{y}$ vom allgemeinen Mittel plus die quadrierten Residuen $y-\hat{y}$ auf. Eine solche Zerlegung lässt sich am einfachsten in einer Varianzanalysetabelle zusammenfassen.
+
+\begin{tabular}{llll}
+\hline
+            &   Summenquadrate             &  Freiheitsgrade &  mittlere Summenquadrate          \\
+\hline
+Regression  &   $\|\hat{y} - \bar{y}\|^2$  &  $p-1$          &  $\|\hat{y} - \bar{y}\|^2/(p-1)$  \\
+Rest        &   $\|y - \hat{y}\|^2$        &  $n-p$          &  $\|y - \hat{y}\|^2/(n-p)$        \\
+\hline
+Total       &   $\|y - \bar{y}\|^2$        &  $n-1$          &
+\end{tabular}
+
+Im Falle der globalen Nullhypothese haben die erklärenden Variablen keinen Einfluss auf die Zielgrösse. Somit ist $E\left[y \right] = const. = E\left[\bar{y}\right]$. Daraus folgt, dass der Erwartungswert der mittleren Summenquadrate der Regression gleich $\sigma^2$ ist. Teilen wir die mittleren Summenquadrate der Regression durch die mittleren Summenquadrate des Rests (Schätzung von $\sigma^2$) erhalten wir eine dimensionslose Grösse, welcher einer $F$-Statistik entspricht. Unter der Nullhypothese gilt, dass 
+
+$$F = \frac{\|\hat{y} - \bar{y}\|^2/(p-1)}{\|y - \hat{y}\|^2/(n-p)} = F_{p-1,n-p}$$
+
+Dies wird als globaler $F$-Test der Regression bezeichnet.
+
+Abgesehen von der Bewertung der statistischen Signifikanz mit dem globalen $F$-Test, sind wir auch daran interessiert, wie gut die Anpassung des Modells an die Daten ist. Eine mögliche Grösse für die Qualität der Anpassung ist das sogenannten $R^2$. Dies ist definiert als das folgende Verhältnis.
+
+$$R^2 = \frac{\|\hat{y} - \bar{y}\|^2}{\|y - \bar{y}\|^2}$$
+
+Das $R^2$ entspricht dem Verhältnis der Variation der Beobachtungen um das globale Mittel, welcher durch die Regression erklärt werden kann. Aus dieser Definition ist klar, dass wir nach Modellen suchen mit einem möglichst grossen $R^2$. 
+
+### Vertrauensintervalle
+In Anlehnung an den $t$-Test der einzelnen Parameter $\beta_j$ können wir Vertrauensintervalle ableiten. Das zwei-seitige Vertraunensintervall auf dem Niveau $1-\alpha$ für $\beta_j$ ist definiert als
+
+$$\hat{\beta}_j \plusminus \sqrt{}$$
 
 
 
