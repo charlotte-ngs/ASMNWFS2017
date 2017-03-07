@@ -229,7 +229,17 @@ Das $R^2$ entspricht dem Verhältnis der Variation der Beobachtungen um das glob
 ### Vertrauensintervalle
 In Anlehnung an den $t$-Test der einzelnen Parameter $\beta_j$ können wir Vertrauensintervalle ableiten. Das zwei-seitige Vertraunensintervall auf dem Niveau $1-\alpha$ für $\beta_j$ ist definiert als
 
-$$\hat{\beta}_j \plusminus \sqrt{}$$
+$$\hat{\beta}_j \pm \sqrt{\hat{\sigma}^2(X^TX)_{jj}^{-1}} \ \cdot t_{n-p;1-\alpha/2}$$
+
+Hier $t_{n-p;1-\alpha/2}$ ist das $1-\alpha/2$-Quantil der $t_{n-p}$-Verteilung.
 
 
+## Output von R
+In R wird eine lineare Regression mit der Funktion `lm()` angepasst. Die Zusammenfassung der Resultate von `lm()` ist in der nachfolgenden Diagramm gezeigt.
+
+```{r LinModResults, conv.odg=TRUE, odg.path="odg", odg.graph.cache=TRUE, fig.align='center', echo=FALSE, results='asis'}
+knitr::include_graphics(path = "LinModResults")
+```
+
+Die verschiedenen Bereiche der Resultate sind durch farbige Rechtecke gekennzeichnet.
 
