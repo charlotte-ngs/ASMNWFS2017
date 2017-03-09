@@ -1,9 +1,9 @@
 # Multiple Lineare Regression {#linreg}
 Das Material dieses Kapitels ist eine Zusammenfassung aus den Vorlesungsunterlagen von [@BM2014].
 
-Die multiple lineare Regression ist wie folgt definiert. Jedes Individuum oder jedes Objekt in einem Datensatz ist charakterisiert durch eine __Zielgrösse__ und einer Menge von __erklärenden Variablen__. Zusammengefasst besteht die bekannte Information für jedes Individuum oder jedes Objekt $i$ aus einem Datensatz aus der folgenden Menge 
+Die multiple lineare Regression ist wie folgt definiert. Jedes Individuum $i$ oder jedes Objekt $i$ in einem Datensatz ist charakterisiert durch eine __Zielgrösse__ $y_i$ und durch eine Menge von __erklärenden Variablen__ $\left\{x_{i,1}, x_{i,2}, \ldots, x_{i,p}\right\}$. Zusammengefasst besteht die bekannte Information für jedes Individuum oder jedes Objekt $i$ aus einem Datensatz aus der folgenden Menge 
 
-$$\{x_{i,1}, x_{i,2}, \ldots, x_{i,p}, y_i\}$$
+$$\left\{x_{i,1}, x_{i,2}, \ldots, x_{i,p}, y_i\right\}$$
 Das multiple lineare Regressionsmodell versucht die Zielgrösse bis auf einen zufälligen Restterm $\epsilon$ als lineare Funktion der erklärenden Variablen auszudrücken. Unser Ziel besteht in der Schätzung der unbekannten Parameter, welche im Regressionsmodell enthalten sind. Die nachfolgend gezeigte Modellformel soll die Unterscheidung zwischen erklärenden Variablen und unbekannten Parametern verdeutlichen.
 
 \begin{equation}
@@ -315,13 +315,20 @@ verwenden.
 ### Modellwahl mit dem $C_p$-Kriterium
 Für das volle Modell mit $p$ erklärenden Variablen gibt es $2^p-1$ Submodelle oder Vorhersagen $\mathcal{M}$. Somit ist ein Vergleich der $C_p$-Statistik aller Submodelle nur machbar, wenn $p$ nicht zu gross, d.h. kleiner als $16$ ist. Für $p \ge 16$ werden die folgenden zwei schrittweisen Algorithmen vorgeschlagen.
 
-#### "Forward" Selektion
+#### Vorwärts-Integration ("Forward Selection)
 1. Starte mit dem minimalen Modell $\mathcal{M}_0$, welches nur ein globales Mittel enthält
 2. Wähle die erklärende Variable, welche die Summe der quadrierten Residuen am meisten reduziert und nimm diese ins Modell auf
-3. Wiederhole Schritt 2, bis alle erklärenden Variablen im Modell aufgenommen wurden. Das produziert eine Sequenz von Submodellen $\mathcal{M}_0, \mathcal{M}_1, \mathcal{M}_2, \ldots$. 
+3. Wiederhole Schritt 2 bis alle erklärenden Variablen im Modell aufgenommen wurden. Das produziert eine Sequenz von Submodellen $\mathcal{M}_0, \mathcal{M}_1, \mathcal{M}_2, \ldots$. 
 4. Wähle aus der Sequenz der Submodelle dasjenige mit dem kleinsten Wert der $C_p$-Statistik
 
-#### "Backward" Selektion
+#### Rückwärts-Elimination (Backward Selection)
+1. Wir starten mit dem vollen Modell, welches alle erklärenden Variablen enthält
+2. Entferne die erklärende Variable vom vollen Modell, welche die Summe der quadrierten Residuen am wenigsten reduziert.
+3. Wiederhole Schritt 2 bis alle erklärenden Variablen entfernt wurden. Das führt zu einer Sequenz von Submodellen.
+4. Wähle dasjenige Submodell aus der Sequenz an Submodellen mit minimaler $C_p$-Statistik
 
+### Bemerkungen
+Rückwärts-Elimination von erklärenden Variablen funktioniert im allgemeinen besser als Vorwärts-Integration, aber ist auch teuerer im Bezug auf Rechenleistung. In [@BM2014] wird die Vorwärts-Integration für den Fall dass $p \ge n$ als taugliche Methode bezeichnet. Erfahrungen im Bereich der Effektschätzung in der genomischen Selektion haben aber gezeigt, dass Vorwärts-Integration zu keiner stabilen Prozedur für die Selektion eines guten Modells führt. 
 
+Schon die Autoren in [@MHG2001] haben für simulierte Daten gezeigt, dass die Vorwärts-Integration von SNP-Effekten als erklärende Variablen bei der Identifikation der wichtigen SNP-Effekte versagte. Offenbar gibt es bie einer sehr grossen Anzahl von erklärenden Variablen $p$ im Vergleich zur Anzahl der verfügbaren Beobachtungen $n$ das Problem, dass im Schritt 2 der Vorwärts-Integration viele erklärende Variablen die Summe der quadrierten Residuen um mehr oder weniger den gleich Betrag reduzieren. Dann haben wir das Problem, dass wir eine Auswahl zwischen fast gleichwertigen erklärenden Variablen treffen müssen. Diese Auswahl ist offensichtlich kritisch und kann zu sehr verschiedenen Endergebnissen in der Modellwahl führen. 
 
