@@ -62,6 +62,14 @@ bref <- c(bibentry(
      number = "41(1)",
      pages = "55",
      key = "GTF2009"
+  ),
+  bibentry(
+    bibtype = "Unpublished",
+    title = "Computational Statistics",
+    author = c(as.person("Peter Bühlmann [aut]"),as.person("Martin Mächler [aut]")),
+    year = "2014",
+    note = "Vorlesungsunterlagen ETHZ, 2014",
+    key = "BM2014"
   )
 )
 

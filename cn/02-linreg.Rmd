@@ -1,4 +1,6 @@
 # Multiple Lineare Regression {#linreg}
+Das Material dieses Kapitels ist eine Zusammenfassung aus den Vorlesungsunterlagen von [@BM2014].
+
 Die multiple lineare Regression ist wie folgt definiert. Jedes Individuum oder jedes Objekt in einem Datensatz ist charakterisiert durch eine __Zielgrösse__ und einer Menge von __erklärenden Variablen__. Zusammengefasst besteht die bekannte Information für jedes Individuum oder jedes Objekt $i$ aus einem Datensatz aus der folgenden Menge 
 
 $$\{x_{i,1}, x_{i,2}, \ldots, x_{i,p}, y_i\}$$
@@ -241,5 +243,85 @@ In R wird eine lineare Regression mit der Funktion `lm()` angepasst. Die Zusamme
 knitr::include_graphics(path = "LinModResults")
 ```
 
-Die verschiedenen Bereiche der Resultate sind durch farbige Rechtecke gekennzeichnet.
+Die verschiedenen Bereiche der Resultate sind numeriert durch farbige Rechtecke gekennzeichnet. Im ersten Bereich ist unter der Überschrift `Call` der Funktionsaufruf nochmals aufgeführt. So ist dokumentiert, wie die nachfolgenden Resultate zustande kamen. Der zweite Bereich gibt einige Informationen zur empirischen Verteilung der Residuen. Diese Kennzahlen der Residuen-Verteilung sind nützlich um gewisse Annahmen bezüglich der Residuen im Modell grob überprüfen zu können. Block drei enthält die Resultate der Parameterschätzungen. Abgesehen von den Schätzwerten sind auch die Standardfehler und die Quantile des entsprechenden t-Tests für jeden Parameter enthalten. Die Kolonne ganz links im Block drei zeigt das Signifikanz-Niveau der t-Tests für jeden Parameterschätzwert. Der vierte und letzte Block enthält die Schätzung der Rest-Standardabweichung (residual standard error) und das Testergebnis des globalen F-Tests. Zur Beurteilung der Anpassungsqualität ist das $R^2$ und eine korrigierte Version des $R^2$ aufgeführt. Die korrigierte Version des $R^2$ berücksichtigt die Anzahl der geschätzten Parameter und ist definiert als 
+
+$$\bar{R}^2 = R^2 - (1-R^2)\frac{p-1}{n-p}$$
+
+
+## Analyse der Residuen und Überprüfung der Modellannahmen
+Die Residuen $r_i = y_i - \hat{y}_i$ dienen als Annäherungen an die unbekannten Resteffekte $\epsilon_i$ und zur Überprüfung der Modellannahmen. 
+
+### Tukey-Anscombe Plot
+Der Tukey-Anscombe Plot ist ein graphisches Tool zur Feststellung von Abhängigkeiten zwischen den Residuen $r_i$ und den gefitteten Werten $\hat{y}_i$. Im Tukey-Anscombe Plot werden auf der x-Achse die gefitteten Werte und auf der y-Achse die Resiuden aufgetragen. Idealerweise sind die Resiuden zufällig verteilt und zeigen kein Muster. In R erzeugt man den Tukey-Anscombe Plot über die Hilfsfunktionen `fitted()` und `residuals()`. Die Ergebnisse der beiden Funktionen werden einfach an die `plot()`-Funktion übergeben.
+
+```{r TukeyAnscombe, fig.show=TRUE}
+data("anscombe")
+fit.lm.ta <- lm(y1 ~ ., data = anscombe)
+plot(fitted(fit.lm.ta), residuals(fit.lm.ta))
+```
+
+Der obige Plot zeigt eine ideale Situation, wo keine systematischen Muster zu erkennen sind. Die folgenden vier Plots sind [@BM2014] entnommen und zeigen Probleme bei der Anpassung von linearen Modellen auf.
+
+```{r TukeyAnscombProblem, conv.odg=TRUE, odg.path="odg", odg.graph.cache=TRUE, fig.align='center', echo=FALSE, results='asis'}
+knitr::include_graphics(path = "TukeyAnscombProblem")
+```
+
+
+### Der QQ-Plot
+`r r6objTableAbbrev$add_abbrev(psAbbrev = "QQ", psMeaning = "Quantil Quantil", pbOut = FALSE)`
+Annahmen zur Verteilung der zufälligen Grössen im linearen Modell können mit dem sogenannten QQ-Plot überprüft werden. Die Abkürzung "QQ" steht hier für Quantil-Quantil und meint, dass wir die empirischen Quantile den theoretischen Quantilen einer bestimmten Verteilung gegenüberstellen. Im Fall, dass wir gegen die theoretischen Quantile einer Normalverteilung testen, heisst der QQ-Plot auch Normal Plot.
+
+In R können wir den QQ-Plot für die Residuen, wie folgt erzeugen.
+
+```{r QQPlot, fig.show=TRUE}
+qqnorm(residuals(fit.lm.ta))
+qqline(residuals(fit.lm.ta))
+```
+
+Stimmen die Quantile der empirische Verteilung der Residuen gut mit den theoretischen Quantilen überein, dann liegen die Punkte im QQ-Plot auf einer Geraden. Falls die empirische Verteilung bedeutende Abweichungen zeigt von der angenommenen Verteilung, so zeigt der Verlauf der Punkte systematische Abweichungen, wie das in den folgenden Graphiken der Fall ist.
+
+```{r QQPlotProblems, conv.odg=TRUE, odg.path="odg", odg.graph.cache=TRUE, fig.align='center', echo=FALSE, results='asis'}
+knitr::include_graphics(path = "QQPlotProblems")
+```
+
+
+## Selektion eines Modells
+Gegeben sei das lineare Modell
+
+$$y_i = \sum_{i=1}^n \beta_j x_{ij} + \epsilon_i \quad (i = 1,\ldots,n)$$
+
+mit $\epsilon_1,\ldots,\epsilon_n \text{ i.i.d. }$, $E\left[\epsilon_i \right] = 0$ und $Var(\epsilon_i) = \sigma^2$. 
+
+Bis anhin hatten wir immer alle erklärenden Variablen $x_1,\ldots,x_p$ im Modell berücksichtigt. Wir können uns aber auch fragen, ob dies Sinn macht, wenn gewisse erklärende Variablen nicht relevant sind für die Modellierung der Zielgrössen. Hinzu kommt noch, dass für jede erklärende Variablen ein unbekannter Parameter $\beta_j$ geschätzt werden muss. Jeder geschätzte Parameter trägt zur Variabilität der gefitteten Werte bei, ob die erklärende Variable relevant ist oder nicht. Somit wird oft nach dem __optimalen__ Modell und nicht nach dem wahren Modell gesucht.  Das optimale Modell ist definiert als das Modell mit dem minimalen Subset an erklärenden Variablen, welche alle relevant sind für die Modellierung der Zielgrösse. 
+
+Formell können wir das soeben Erklärte wie folgt zusammenfassen. Angenommen, wir wollen die folgende Vorhersage, nennen wir sie $\mathcal{M}$, optimieren. 
+
+$$\sum_{r=1}^q \hat{\beta}_{j_r}x_{ij_r}$$
+
+welche die $q$ erklärenden Variablen mit den Indices $j_1,\ldots,j_q \in \{1,\ldots,p\}$ enthält. Wir brauchen ein Entscheidungskriterium um die Vorhersage $\mathcal{M}$ mit den $q$ Parametern mit dem vollen Modell, welches alle erklärenden Variablen enthält vergleichen zu können. 
+
+
+### Mallows $C_p$-Statistik
+Die Summenquadrate der Residuen $SSE(\mathcal{M})$ für die Vorhersage $\mathcal{M}$ können wir nicht als Kriterium verwenden, denn $SSE(\mathcal{M})$ nimmt ab mit zunehmener Anzahl $q$ an Parametern. Der mittlere quadrierte Fehler bei der Verwendung von $\mathcal{M}$ anstelle vom vollen Modell, kann als 
+
+$$n^{-1} SSE(\mathcal{M}) - \hat{\sigma}^2 + 2\hat{\sigma}^2q/n$$
+geschätzt werden, wobei $\hat{\sigma}^2$ der geschätzte Restvarianz aus dem vollen Modell entspricht. Da $n$ und $\hat{\sigma}^2$ für alle Submodelle $\mathcal{M}$ konstant sind, können wir als Kriterium für den Modellvergleich die Statistik
+
+$$C_p(\mathcal{M}) = \frac{SSE(\mathcal{M})}{\hat{\sigma}^2} - n + 2q$$ 
+
+verwenden.
+
+
+### Modellwahl mit dem $C_p$-Kriterium
+Für das volle Modell mit $p$ erklärenden Variablen gibt es $2^p-1$ Submodelle oder Vorhersagen $\mathcal{M}$. Somit ist ein Vergleich der $C_p$-Statistik aller Submodelle nur machbar, wenn $p$ nicht zu gross, d.h. kleiner als $16$ ist. Für $p \ge 16$ werden die folgenden zwei schrittweisen Algorithmen vorgeschlagen.
+
+#### "Forward" Selektion
+1. Starte mit dem minimalen Modell $\mathcal{M}_0$, welches nur ein globales Mittel enthält
+2. Wähle die erklärende Variable, welche die Summe der quadrierten Residuen am meisten reduziert und nimm diese ins Modell auf
+3. Wiederhole Schritt 2, bis alle erklärenden Variablen im Modell aufgenommen wurden. Das produziert eine Sequenz von Submodellen $\mathcal{M}_0, \mathcal{M}_1, \mathcal{M}_2, \ldots$. 
+4. Wähle aus der Sequenz der Submodelle dasjenige mit dem kleinsten Wert der $C_p$-Statistik
+
+#### "Backward" Selektion
+
+
 
