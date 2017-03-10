@@ -33,21 +33,21 @@ Die Reste $\epsilon_i$ im Modell (\ref{eq:MultLinRegForm}) haben wir als zufäll
 ### Regression mit Achsenabschnitt
 Die erste erklärende Variable wir oft als eine Konstante angenommen. Das bedeutet, dass der erste Kolonnenvektor in der Matrix $X$ gleich dem Eins-Vektor ist. Die konstante erklärende Variable erlaubt es einen sogenannten __Achsenabschnitt__ anzupassen. In skalarer Schreibweise hat das lineare Modell mit Achsenabschnitt die folgende Form
 
-$$y_i = \beta_1 + \beta_2x_{i2} + \ldots + \beta_px_{ip} + \epsilon_i \qquad (i = 1,\ldots,n)$$
+\begin{equation}y_i = \beta_1 + \beta_2x_{i2} + \ldots + \beta_px_{ip} + \epsilon_i \qquad (i = 1,\ldots,n)\end{equation}
 
 ### Regression durch den Ursprung
 Im Gegensatz zur Regression mit Achsenabschnitt steht die Regression durch den Ursprung. Diese kennt keine konstante erklärende Variable. Das Modell ohne Achsenabschnitt sieht dann wie folgt aus.
 
-$$y_i = \beta_1x_{i1}+ \ldots + \beta_px_{ip} + \epsilon_i \qquad (i = 1,\ldots,n)$$
+\begin{equation}y_i = \beta_1x_{i1}+ \ldots + \beta_px_{ip} + \epsilon_i \qquad (i = 1,\ldots,n)\end{equation}
 
 ### Regression mit transformierten Variablen
 Regressionen können auch auf Transformationen der erklärenden Variablen oder auf transformierte Zielgrössen angepasst werden. Als Beispiel verwendet die sogenannte "quadratische" Regression die $x_{ij}$ und die $x_{ij}^2$ als erklärende Variablen. Das Modell entspricht dann einer quadratischen Funktion in den $x_j$ ist aber immer noch eine lineare Funktion im Bezug auf die Parameter $\beta_j$.
 
-$$y_i = \beta_1 + \beta_2 x_{i2} + \beta_3 x_{i2}^2 + \epsilon_i \qquad (i = 1,\ldots,n)$$
+\begin{equation}y_i = \beta_1 + \beta_2 x_{i2} + \beta_3 x_{i2}^2 + \epsilon_i \qquad (i = 1,\ldots,n)\end{equation}
 
 Abgesehen von der quadratischen Regression sind auch andere Arten von Transformationen der erklärenden Variablen denkbar. Ein Beipsiel ist in der folgenden Gleichung gezeigt. 
 
-$$y_i = \beta_i + \beta_2 \log(x_{i2}) + \beta_3 sin(\pi x_{i3}) + \epsilon_i \qquad (i = 1,\ldots,n)$$
+\begin{equation}y_i = \beta_i + \beta_2 \log(x_{i2}) + \beta_3 sin(\pi x_{i3}) + \epsilon_i \qquad (i = 1,\ldots,n)\end{equation}
 
 Auch dieses Modell ist _linear_ in den Parametern $\beta_j$ und wird somit als lineare Regression bezeichnet.
 
@@ -58,7 +58,7 @@ Damit eine Voraussage für die Zielgrösse aufgrund der erklärenden Variablen m
 
 Bei diesem ersten Beispiel handelt es sich um eine einfache lineare Regression. Das verwendete Regressionsmodelle hat nur eine erklärende Variable (`Brustumfang`) und eine Zielvariable (`Gewicht`). Das zu dieser Anwendung zugehörige Modell lautet
 
-$$y_{G,i} = \beta_1 + \beta_2 x_{B,i} + \epsilon_i$$
+\begin{equation}y_{G,i} = \beta_1 + \beta_2 x_{B,i} + \epsilon_i\end{equation}
 
 ### Ziele der linearen Regression
 - __Gute Anpassung__: das Modell soll so sein, dass die erklärenden Variablen möglichst präzise Voraussagen zu den Zielvariablen machen. Das Standardtool für die Anpassung ist die Methode der kleinsten Quadrate (`Least Squares`).
@@ -83,27 +83,27 @@ Die Punkte stehen für die Beobachtungen $y_i$. Die rote Linie steht für die Re
 
 Position und Verlauf der Regressionsgeraden können durch die Wahl des Vektors $\beta$ beeinflusst werden. Gemäss der Methode der kleinsten Quadrate soll $\beta$ so bestimmt werden, dass die Summe der quadrierten Residuen minimal wird. Der so bestimmte Vektor $\beta$ wird dann als Least-Squares-Schätzer bezeichnet. In einer Formel können wir die Berechnung des Least-Squares-Schätzers ($\hat{\beta}$), wie folgt ausdrücken. 
 
-$$\hat{\beta} = argmin_{\beta} \| y - X\beta \| ^2$$
+\begin{equation}\hat{\beta} = argmin_{\beta} \| y - X\beta \| ^2\end{equation}
 
 wobei $\| .\|$ für die Euklidsche Norm oder die Euklidsche Distanz steht. In einem ersten Schritt geht es darum das Minimum für den Ausdruck $\| y - X\beta \| ^2$ zu finden. Dabei ist es einfacher, wenn wir folgende Umformung verwenden.
 
-$$\| y - X\beta \| ^2 = (y - X\beta)^T(y - X\beta) = y^Ty - y^TX\beta - \beta^TX^Ty + \beta^TX^TX\beta$$
+\begin{equation}\| y - X\beta \| ^2 = (y - X\beta)^T(y - X\beta) = y^Ty - y^TX\beta - \beta^TX^Ty + \beta^TX^TX\beta\end{equation}
 
 Leiten wir diesen Ausdruck nach $\beta$ ab und setzen die erste Ableitung gleich $0$, dann erhalten wir eine Gleichung für den Least-Squares-Schätzer $\hat{\beta}$.
 
-$$-y^TX - y^TX + 2\hat{\beta}^TX^TX = 0$$
+\begin{equation}-y^TX - y^TX + 2\hat{\beta}^TX^TX = 0\end{equation}
 
 Aus der obigen Formel können wir die sogenannte __Normalgleichung__ herleiten. Diese lautet 
 
-$$X^TX\hat{\beta} = X^Ty$$
+\begin{equation}X^TX\hat{\beta} = X^Ty\end{equation}
 
 Unter der Annahme, dass die Matrix $X$ vollen Kolonnenrang $p$ hat, können wir explizit nach $\hat{\beta}$ auflösen.
 
-$$\hat{\beta} = (X^TX)^{-1}X^Ty$$
+\begin{equation}\hat{\beta} = (X^TX)^{-1}X^Ty\end{equation}
 
 Die Residuen $r_i = y_i - x_i^T\hat{\beta}$ sind Schätzungen für die Resteffekte $\epsilon_i$ und können somit für die Schätzung von $\sigma^2$ verwendet werden. 
 
-$$\hat{\sigma}^2 = \frac{1}{n-p}\sum_{i=1}^{n} r_i^2$$
+\begin{equation}\hat{\sigma}^2 = \frac{1}{n-p}\sum_{i=1}^{n} r_i^2\end{equation}
 
 Der Faktor $1/(n-p)$ scheint ungewöhnlich, aber es kann gezeigt werden, dass die Wahl dieses Faktors zur Erwartungstreue von $\hat{\sigma}^2$ führt. Das heisst, es gilt $E\left[ \hat{\sigma}^2 \right] = \sigma^2$. 
 
@@ -133,20 +133,25 @@ Eine multiple Regression (mit mehreren erklärenden Variablen) soll nicht durch 
 
 Wir betrachten die folgenden erklärenden Variablen $x^{(1)}$ und $x^{(2)}$ und die Zielgrösse $y$ mit folgenden Werten
 
+
+`r if (!knitr:::is_html_output()) '\\begin{center}'`
+
 ```{r MultRegXval, echo=FALSE, results='asis'}
 x1 <- c(0, 1, 2, 3, 0, 1, 2, 3)
 x2 <- c(-1, 0, 1, 2, 1, 2, 3, 4)
 y <- 2*x1-x2
 knitr::kable(data.frame(x1,x2,y))
 ```
+`r if (!knitr:::is_html_output()) '\\end{center}'`
+
 
 Die multiple Regression führt zur Lösung der kleinsten Quadrate, welche die Daten exakt beschreibt, so wie diese erzeugt wurden.
 
-$$y_i = \hat{y_i} = 2x_{i1} - x_{i2} \qquad \text{für alle } i \text{ mit } \hat{\sigma}^2 = 0$$
+\begin{equation}y_i = \hat{y_i} = 2x_{i1} - x_{i2} \qquad \text{für alle } i \text{ mit } \hat{\sigma}^2 = 0\end{equation}
 
 Wird an die Daten nur eine einfache Regression mit der erklärenden Variablen $x^{(2)}$ und ignoriert $x^{(1)}$, so erhalten wir das folgende Resultat
 
-$$\hat{y_i} = {1\over 9}x_{i2} + {4\over 3} \qquad \text{für alle } i \text{ mit } \hat{\sigma}^2 = 1.72$$
+\begin{equation}\hat{y_i} = {1\over 9}x_{i2} + {4\over 3} \qquad \text{für alle } i \text{ mit } \hat{\sigma}^2 = 1.72\end{equation}
 
 Der Grund dafür ist, dass die erklärenden Variablen $x^{(1)}$ und $x^{(2)}$ korreliert sind. Falls $x^{(1)}$ steigt, dann steigt auch $x^{(2)}$. Da aber in der multiplen Regression $x^{(1)}$ einen grösseren Koeffizienten hat als $x^{(2)}$, muss dieser Effekt in der einfachen Regression durch $x^{(2)}$ kompensiert werden. Dies führt zur Abweichung zwischen den Resultaten der beiden Analysen.
 
@@ -157,7 +162,7 @@ Die Least-Squares-Schätzer sind Zufallsvariablen, da für jeden Datensatz den w
 ### Momente der Least-Squares Schätzungen
 Wir nehmen das folgende lineare Modell an
 
-$$y = X\beta + \epsilon \text{, } E\left[\epsilon \right] = 0 \text{, } Cov(\epsilon) = E\left[\epsilon\epsilon^T \right] = \sigma^2I_{n\times n}$$
+\begin{equation}y = X\beta + \epsilon \text{, } E\left[\epsilon \right] = 0 \text{, } Cov(\epsilon) = E\left[\epsilon\epsilon^T \right] = \sigma^2I_{n\times n}\end{equation}
 
 Zusammen mit den oben getroffenen Annahmen können wir folgende Aussagen machen
 
@@ -168,7 +173,7 @@ Zusammen mit den oben getroffenen Annahmen können wir folgende Aussagen machen
 
 Die Matrix $P$ ist definiert als Projektionsmatrix aus $\hat{y} = Py$. Setzen wir die Least-Squares-Schätzer ein, dann folgt
 
-$$\hat{y} = X\hat{\beta} = X(X^TX)^{-1}X^Ty = Py$$
+\begin{equation}\hat{y} = X\hat{\beta} = X(X^TX)^{-1}X^Ty = Py\end{equation}
 
 Somit ist die Matrix $P$ definiert als $P=X(X^TX)^{-1}X^T$. 
 
@@ -188,11 +193,11 @@ Wir nehmen an, dass das lineare Modell korrekt ist und dass die Resteffekte $\ep
 
 Im Allgemeinen sind wir daran interessiert, ob ein bestimmter Parameter $\beta_j$ einen Einfluss hat. Dies lässt sich mit der Nullhypothese $H_{0,j}: \beta_j = 0$ gegenüber der Alternativen $H_{A,j}: \beta_j \ne 0$ überprüfen. Da $\hat{\beta}$ einer Normalverteilung folgt, können wir herleiten, dass unter der Nullhypothese $H_{0,j}$ gilt
 
-$$\frac{\hat{\beta_j}}{\sqrt{\sigma^2(X^TX)_{jj}^{-1}}} \sim \mathcal{N}(0,1)$$
+\begin{equation}\frac{\hat{\beta_j}}{\sqrt{\sigma^2(X^TX)_{jj}^{-1}}} \sim \mathcal{N}(0,1)\end{equation}
 
 Da $\sigma^2$ unbekannt ist, ist die obige Teststatistk in der Praxis nicht brauchbar. Ersetzen wir $\sigma^2$ durch den Schätzwert $\hat{\sigma}^2$ so erhalten wir die sogenannte t-Teststatistik.
 
-$$T_j = \frac{\hat{\beta_j}}{\sqrt{\hat{\sigma}^2(X^TX)_{jj}^{-1}}} \sim t_{n-p}$$
+\begin{equation}T_j = \frac{\hat{\beta_j}}{\sqrt{\hat{\sigma}^2(X^TX)_{jj}^{-1}}} \sim t_{n-p}\end{equation}
 
 Anhand dieses Tests können wir die Relevanz der erklärenden Variablen quantifizieren, indem wir die Teststatistiken $T_j$ für $j=1,\ldots,p$ analysieren. Die Beurteilung der Relevanz der erklärenden Variablen aufgrund dieser einzelnen t-Tests birgt zwei Probleme.
 
@@ -202,9 +207,11 @@ Anhand dieses Tests können wir die Relevanz der erklärenden Variablen quantifi
 ### Globaler Test
 Wenn wir testen wollen, ob (abgesehen vom Achsenabschnitt) überhaupt eine erklärende Variable einen Einfluss auf die Zielgrösse hat, dann können wir diese mit folgender Nullhypothese $H_0: \beta_2 = \ldots = \beta_p = 0$ versus die Alternative $H_A: \beta_j \ne 0$ für $j=2,\ldots, p$ tun. Solch ein Test kann mit der Zerlegung der Varianz der Beobachtungen $y_i$ um das globale Mittel $\bar{y} = n^{-1}\sum_{i=1}^ny_i$ konstruiert werden. In Vektor-Schreibweise sieht diese Zerlegung wie folgt aus
 
-$$\|y - \bar{y}\|^2 = \|\hat{y} - \bar{y}\|^2 + \|y - \hat{y}\|^2$$
+\begin{equation}\|y - \bar{y}\|^2 = \|\hat{y} - \bar{y}\|^2 + \|y - \hat{y}\|^2\end{equation}
 
 Diese Zerlegung teilt die quadrierten Abweichungen der Beobachtungen $y$ vom allgemeinen Mittel $\bar{y}$ in die quadrierten Abweichungen der gefitteten Werte $\hat{y}$ vom allgemeinen Mittel plus die quadrierten Residuen $y-\hat{y}$ auf. Eine solche Zerlegung lässt sich am einfachsten in einer Varianzanalysetabelle zusammenfassen.
+
+`r if (!knitr:::is_html_output()) '\\begin{center}'`
 
 \begin{tabular}{llll}
 \hline
@@ -215,23 +222,25 @@ Rest        &   $\|y - \hat{y}\|^2$        &  $n-p$          &  $\|y - \hat{y}\|
 \hline
 Total       &   $\|y - \bar{y}\|^2$        &  $n-1$          &
 \end{tabular}
+`r if (!knitr:::is_html_output()) '\\end{center}'`
+
 
 Im Falle der globalen Nullhypothese haben die erklärenden Variablen keinen Einfluss auf die Zielgrösse. Somit ist $E\left[y \right] = const. = E\left[\bar{y}\right]$. Daraus folgt, dass der Erwartungswert der mittleren Summenquadrate der Regression gleich $\sigma^2$ ist. Teilen wir die mittleren Summenquadrate der Regression durch die mittleren Summenquadrate des Rests (Schätzung von $\sigma^2$) erhalten wir eine dimensionslose Grösse, welcher einer $F$-Statistik entspricht. Unter der Nullhypothese gilt, dass 
 
-$$F = \frac{\|\hat{y} - \bar{y}\|^2/(p-1)}{\|y - \hat{y}\|^2/(n-p)} = F_{p-1,n-p}$$
+\begin{equation}F = \frac{\|\hat{y} - \bar{y}\|^2/(p-1)}{\|y - \hat{y}\|^2/(n-p)} = F_{p-1,n-p}\end{equation}
 
 Dies wird als globaler $F$-Test der Regression bezeichnet.
 
 Abgesehen von der Bewertung der statistischen Signifikanz mit dem globalen $F$-Test, sind wir auch daran interessiert, wie gut die Anpassung des Modells an die Daten ist. Eine mögliche Grösse für die Qualität der Anpassung ist das sogenannten $R^2$. Dies ist definiert als das folgende Verhältnis.
 
-$$R^2 = \frac{\|\hat{y} - \bar{y}\|^2}{\|y - \bar{y}\|^2}$$
+\begin{equation}R^2 = \frac{\|\hat{y} - \bar{y}\|^2}{\|y - \bar{y}\|^2}\end{equation}
 
 Das $R^2$ entspricht dem Verhältnis der Variation der Beobachtungen um das globale Mittel, welcher durch die Regression erklärt werden kann. Aus dieser Definition ist klar, dass wir nach Modellen suchen mit einem möglichst grossen $R^2$. 
 
 ### Vertrauensintervalle
 In Anlehnung an den $t$-Test der einzelnen Parameter $\beta_j$ können wir Vertrauensintervalle ableiten. Das zwei-seitige Vertraunensintervall auf dem Niveau $1-\alpha$ für $\beta_j$ ist definiert als
 
-$$\hat{\beta}_j \pm \sqrt{\hat{\sigma}^2(X^TX)_{jj}^{-1}} \ \cdot t_{n-p;1-\alpha/2}$$
+\begin{equation}\hat{\beta}_j \pm \sqrt{\hat{\sigma}^2(X^TX)_{jj}^{-1}} \ \cdot t_{n-p;1-\alpha/2}\end{equation}
 
 Hier $t_{n-p;1-\alpha/2}$ ist das $1-\alpha/2$-Quantil der $t_{n-p}$-Verteilung.
 
@@ -245,7 +254,7 @@ knitr::include_graphics(path = "LinModResults")
 
 Die verschiedenen Bereiche der Resultate sind numeriert durch farbige Rechtecke gekennzeichnet. Im ersten Bereich ist unter der Überschrift `Call` der Funktionsaufruf nochmals aufgeführt. So ist dokumentiert, wie die nachfolgenden Resultate zustande kamen. Der zweite Bereich gibt einige Informationen zur empirischen Verteilung der Residuen. Diese Kennzahlen der Residuen-Verteilung sind nützlich um gewisse Annahmen bezüglich der Residuen im Modell grob überprüfen zu können. Block drei enthält die Resultate der Parameterschätzungen. Abgesehen von den Schätzwerten sind auch die Standardfehler und die Quantile des entsprechenden t-Tests für jeden Parameter enthalten. Die Kolonne ganz links im Block drei zeigt das Signifikanz-Niveau der t-Tests für jeden Parameterschätzwert. Der vierte und letzte Block enthält die Schätzung der Rest-Standardabweichung (residual standard error) und das Testergebnis des globalen F-Tests. Zur Beurteilung der Anpassungsqualität ist das $R^2$ und eine korrigierte Version des $R^2$ aufgeführt. Die korrigierte Version des $R^2$ berücksichtigt die Anzahl der geschätzten Parameter und ist definiert als 
 
-$$\bar{R}^2 = R^2 - (1-R^2)\frac{p-1}{n-p}$$
+\begin{equation}\bar{R}^2 = R^2 - (1-R^2)\frac{p-1}{n-p}\end{equation}
 
 
 ## Analyse der Residuen und Überprüfung der Modellannahmen
@@ -288,7 +297,7 @@ knitr::include_graphics(path = "QQPlotProblems")
 ## Selektion eines Modells
 Gegeben sei das lineare Modell
 
-$$y_i = \sum_{i=1}^n \beta_j x_{ij} + \epsilon_i \quad (i = 1,\ldots,n)$$
+\begin{equation}y_i = \sum_{i=1}^n \beta_j x_{ij} + \epsilon_i \quad (i = 1,\ldots,n)\end{equation}
 
 mit $\epsilon_1,\ldots,\epsilon_n \text{ i.i.d. }$, $E\left[\epsilon_i \right] = 0$ und $Var(\epsilon_i) = \sigma^2$. 
 
@@ -296,7 +305,7 @@ Bis anhin hatten wir immer alle erklärenden Variablen $x_1,\ldots,x_p$ im Model
 
 Formell können wir das soeben Erklärte wie folgt zusammenfassen. Angenommen, wir wollen die folgende Vorhersage, nennen wir sie $\mathcal{M}$, optimieren. 
 
-$$\sum_{r=1}^q \hat{\beta}_{j_r}x_{ij_r}$$
+\begin{equation}\sum_{r=1}^q \hat{\beta}_{j_r}x_{ij_r}\end{equation}
 
 welche die $q$ erklärenden Variablen mit den Indices $j_1,\ldots,j_q \in \{1,\ldots,p\}$ enthält. Wir brauchen ein Entscheidungskriterium um die Vorhersage $\mathcal{M}$ mit den $q$ Parametern mit dem vollen Modell, welches alle erklärenden Variablen enthält vergleichen zu können. 
 
@@ -304,10 +313,10 @@ welche die $q$ erklärenden Variablen mit den Indices $j_1,\ldots,j_q \in \{1,\l
 ### Mallows $C_p$-Statistik
 Die Summenquadrate der Residuen $SSE(\mathcal{M})$ für die Vorhersage $\mathcal{M}$ können wir nicht als Kriterium verwenden, denn $SSE(\mathcal{M})$ nimmt ab mit zunehmener Anzahl $q$ an Parametern. Der mittlere quadrierte Fehler bei der Verwendung von $\mathcal{M}$ anstelle vom vollen Modell, kann als 
 
-$$n^{-1} SSE(\mathcal{M}) - \hat{\sigma}^2 + 2\hat{\sigma}^2q/n$$
+\begin{equation}n^{-1} SSE(\mathcal{M}) - \hat{\sigma}^2 + 2\hat{\sigma}^2q/n\end{equation}
 geschätzt werden, wobei $\hat{\sigma}^2$ der geschätzte Restvarianz aus dem vollen Modell entspricht. Da $n$ und $\hat{\sigma}^2$ für alle Submodelle $\mathcal{M}$ konstant sind, können wir als Kriterium für den Modellvergleich die Statistik
 
-$$C_p(\mathcal{M}) = \frac{SSE(\mathcal{M})}{\hat{\sigma}^2} - n + 2q$$ 
+\begin{equation}C_p(\mathcal{M}) = \frac{SSE(\mathcal{M})}{\hat{\sigma}^2} - n + 2q\end{equation}
 
 verwenden.
 
@@ -331,4 +340,4 @@ Für das volle Modell mit $p$ erklärenden Variablen gibt es $2^p-1$ Submodelle 
 Rückwärts-Elimination von erklärenden Variablen funktioniert im allgemeinen besser als Vorwärts-Integration, aber ist auch teuerer im Bezug auf Rechenleistung. In [@BM2014] wird die Vorwärts-Integration für den Fall dass $p \ge n$ als taugliche Methode bezeichnet. Erfahrungen im Bereich der Effektschätzung in der genomischen Selektion haben aber gezeigt, dass Vorwärts-Integration zu keiner stabilen Prozedur für die Selektion eines guten Modells führt. 
 
 Schon die Autoren in [@MHG2001] haben für simulierte Daten gezeigt, dass die Vorwärts-Integration von SNP-Effekten als erklärende Variablen bei der Identifikation der wichtigen SNP-Effekte versagte. Offenbar gibt es bie einer sehr grossen Anzahl von erklärenden Variablen $p$ im Vergleich zur Anzahl der verfügbaren Beobachtungen $n$ das Problem, dass im Schritt 2 der Vorwärts-Integration viele erklärende Variablen die Summe der quadrierten Residuen um mehr oder weniger den gleich Betrag reduzieren. Dann haben wir das Problem, dass wir eine Auswahl zwischen fast gleichwertigen erklärenden Variablen treffen müssen. Diese Auswahl ist offensichtlich kritisch und kann zu sehr verschiedenen Endergebnissen in der Modellwahl führen. 
-
+ 
