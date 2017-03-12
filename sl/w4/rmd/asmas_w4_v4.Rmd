@@ -1,0 +1,58 @@
+---
+title: "Genomic Best Linear Unbiased Prediction (gBLUP)"
+author: "Peter von Rohr"
+date: "13 März 2017"
+output: beamer_presentation
+output_file: asmas_w4_v4.pdf
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, results ='asis')
+knitr::knit_hooks$set(conv.odg = rmddochelper::odg.graphics.conv.hook)
+```
+
+
+## Erklärungen
+
+- Heute: Paper-Study, das heisst: 
+    * Gruppen bilden
+    * Paper lesen 
+    * Fragen beantworten (ca 10 Min. pro Frage)
+    * Antworten zusammentragen (ca. 5 Min. pro Frage)
+- Paper: "Samuel A. Clark and Julius van der Werf, Genomic Best Linear Unbiased Prediction (gBLUP) for the Estimation of Genomic Breeding Values"
+- Link: https://charlotte-ngs.github.io/GELASMFS2017/w4/2013_CW_GBLUP.pdf
+
+
+## Frage 1: Review von BLUP
+
+- Aus der Züchtungslehre: BLUP Tiermodell für klassische Zuchtwertschätzung
+- Beantworten Sie die folgenden Fragen im Bezug auf das BLUP Tiermodell
+    1. Zu welcher Klasse von Modellen gehört das BLUP-Tiermodell?
+    2. Schreiben Sie die Gleichung für das BLUP-Tiermodell an und identifizieren Sie die einzelnen Komponenten, insbesondere auch im Bezug darauf ob diese bekannt oder unbekannt sind
+    3. Wie sehen die Daten aus, welche verfügbar sein müssen für die Zuchtwertschätzung mit dem BLUP-Tiermodell
+    4. Wie werden die unbekannten Parameter geschätzt
+
+
+## Frage 2: Einführung - DNA Markers
+
+- Was sind genetische Marker? 
+- Wie nennt man die aktuell gebräuchlichste Variante von genetischen Markern?
+- Wozu werden diese Marker gebraucht?
+- Welche statistischen Methoden werden eingesetzt in der Vorhersage von Markereffekten und wo liegen die Vorteile und die Probleme der einzelnen Methoden?
+
+
+## Frage 3: Methoden
+
+- Wo liegt der fundamentale Unterschied zwischen dem traditionellen BLUP-Tiermodell und gBLUP im Bezug auf die Modellierung der Varianzen und Covarianzen?
+- Wie lauten die beiden Methoden, welche im Paper angeschaut werden ?
+- Geben Sie die Modelle an, welche den beiden Methoden zugrunde liegen.
+- Welche Eigenschaften machen die eine der beiden Methoden attraktiver als die andere?
+
+
+## Zusatzfragen
+
+- Worauf basiert die Äquivalenz der beiden BLUP-Methoden für SNP-Daten?
+- Wie lauten die verschiedenen Arten der Berechnung der Genomische Verwandtschaftsmatrix?
+- Wie lauten die Mischmodellgleichungen für eine gBLUP Auswertung?
+
+
