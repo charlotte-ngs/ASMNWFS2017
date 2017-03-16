@@ -98,9 +98,20 @@ Die Komponenten des Modells in Gleichung (\ref{eq:Task1RegModel}) lauten wie fol
 - Die Resteffekte $e$ sind unbekannt. Deren Varianz $\sigma^2$ muss aus den Daten geschätzt werden
 - Die anderen Modellkomponenten $y$ und $W$ sind bekannt und sind wie folgt definiert
 
-```{r KnownModelComponent}
-vecY <- dfT1Data$Phenotype
-cat("$$y = ")
+```{r KnownModelComponentVecY, results='asis'}
+vecY <- dfT1Data$Phentype
+cat("$$y = \\left[")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecY, ncol=1)), collapse = "\n"))
+cat("\\right]$$\n")
+```
+
+$W$ ist eigentlich eine Matrix, aber da wir nur einen SNP anschauen, reduziert sie sich auf einen Vektor.
+
+```{r KnownModelComponentMatW, results='asis'}
+matW <- as.integer(dfT1Data$SnpAllele1 + dfT1Data$SnpAllele2 - 2)
+cat("$$W = \\left[")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(matW, ncol=1)), collapse = "\n"))
+cat("\\right]$$\n")
 ```
 
 
@@ -134,7 +145,36 @@ Da wir `r nAnzTiere` Beobachtungen und nur einen SNP betrachten ist die Bedingun
 Berechnen Sie aufgrund der Gleichungen in (\ref{eq:Task1LeastSquSol}) die Lösungen für $\hat{\mu}$ und $\hat{g}$.
 
 ### Lösung
+Mit den oben angegebenen Komponenten $y$ und $W$ lautet das Gleichungssystem (\ref{eq:Task1LeastSquSol})
 
+```{r PrepSystemEqs, results='asis'}
+vecOneN <- rep(1,nAnzTiere)
+matCoeff <- cbind(rbind(crossprod(vecOneN),crossprod(matW,vecOneN)),rbind(crossprod(matW,vecOneN),crossprod(matW)))
+matRhs <- rbind(crossprod(vecOneN,vecY),crossprod(matW,vecY))
+vecSol <- solve(matCoeff,matRhs)
+```
+
+```{r ShowSystemEqs, results='asis'}
+cat("$$\\left[ 
+  \\begin{array}{c}
+  \\hat{\\mu}\\\\
+  \\hat{g}
+  \\end{array}  
+\\right]")
+cat(" = \\left[")
+cat(paste0(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = matCoeff)))
+cat("\\right]^{-1}\n")
+cat("\\left[")
+cat(paste0(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = matRhs)))
+cat("\\right]\n")
+cat(" = \\left[")
+cat(paste0(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = vecSol)))
+cat("\\right]\n")
+cat("$$")
+```
+
+
+\pagebreak
 
 ## Aufgabe 2: Modelle in RR-BLUP und GBLUP
 Im Paper von [@CV2013] basierend auf der Arbeit von [@MHG2001] wurde das sogenannten RR-BLUP Modell vorgeschlagen. In diesem Modell werden die SNP-Effekte an jeder Position für jedes Tier explizit modelliert. 
