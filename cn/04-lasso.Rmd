@@ -1,0 +1,9 @@
+# Least Absolute Shrinkage And Selection Operator {#lasso}
+Das lineare Modell
+
+\begin{equation}
+y = \beta_0 + \sum_{j=1}^p \beta_jx_j + \epsilon
+\label{eq:StandardLinMod}
+\end{equation}
+
+wird verwendet um Zusammenhänge zwischen den erklärenden Variablen $x_1,\ldots,x_p$ und der Zielgrösse $y$ zu modellieren. In einem Regressionsmodell werden die unbekannten Parameter $\beta_j \ (j=0,\ldots,p)$ mit Least Squares geschätzt.

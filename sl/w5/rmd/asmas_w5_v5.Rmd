@@ -1,0 +1,153 @@
+---
+title: "Least Absolute Shrinkage And Seletion Operator (LASSO)"
+author: "Peter von Rohr"
+date: "20 März 2017"
+output: beamer_presentation
+output_file: asmas_w5_v5.pdf
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, results = 'asis')
+knitr::knit_hooks$set(conv.odg = rmddochelper::odg.graphics.conv.hook)
+```
+
+
+## Lineare Modell und Least Squares
+- Als Ausgangspunkt haben wir das Lineare Modell und Least Squares
+
+\begin{equation} 
+\mathbf{y} = \mathbf{X}\mathbf{\beta} + \mathbf{\epsilon}
+\label{eq:LinModelReg}
+\end{equation}
+
+\begin{equation} 
+\hat{\mathbf{\beta}} = arg min_{\beta} ||\mathbf{y} - \mathbf{X}\mathbf{\beta}||^2
+\label{eq:BetaHatLeastSquares}
+\end{equation}
+
+\begin{equation} 
+\hat{\mathbf{\beta}} =  (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}
+\label{eq:SolutionBetaHatLS}
+\end{equation}
+
+- Bedinung, dass $\hat{\mathbf{\beta}}$ in Gleichung (\ref{eq:SolutionBetaHatLS}) berechenbar: $\mathbf{X}$ muss vollen Kolonnenrang haben, d.h. $p < n$ (mehr Beobachtungen als Parameter)
+
+
+## Genomische Selektion
+- Paper: Meuwissen, Hayes und Goddard (2001) Prediction of Total Genetic Value Using Genome-Wide Dense Marker Maps. Genetics 157: 1819–1829 (April 2001). (abgekürzt als MHG2001)
+- Simulationsstudie: effektive Populationsgrösse: $N_e = 100$, Genom: $10$ Chromosomen, pro Chromosom: $100$ QTL und $101$ SNP $\rightarrow$ $n = 100$, $p = 1010$ und somit $n << p$
+- Aktuelle Populationen: Anzahl typisierte Tiere: $\approx 10^4$, Genom: $50k$ oder $150k$
+- __Achtung__: kein Overfitting! Auch wenn Anzahl typisierter Tiere $>$ Anzahl SNP, soll Least Squares nicht verwendet werden. Beispiel: Pläne von SEMEX $800000$ Kühe zu typisieren. (Siehe auch: \url{https://de.wikipedia.org/wiki/Überanpassung})
+
+
+## Lösungsansätze in MHG2001 (I): Stepwise
+- Idee: Schrittweises Hinzufügen von SNP-Effekten als fixe erklärende Variablen zu einem Regressionsmodell. 
+- Im Paper wird das als __stepwise-approach__ bezeichnet, besser wäre __stepwise-forward-approach__ 
+- Problem: wie finde ich die "richtigen" SNPs? Anzahl möglicher Kombinationen: $2^p$, wobei $p$: Anzahl SNPs
+- Lösung in MHG2001: Likelihood Ratio Test mit Single-Marker Modell
+
+## Wie funktionieren Stepwise Ansätze
+- Bisher: Zielgrösse als lineare Funktion aller erklärender Variablen
+- __Neu__: Nur erklärende Variablen mit "relevantem" Effekt auf Zielgrösse berücksichtigen
+- Suche nach dem __optimalen__ Modells anstelle des kompletten Modells
+- Forward: 
+    + Starte mit minimalen Modell
+    + hinzufügen von neuen erklärenden Variablen bis gewähltes Kriterium optimiert
+    + Mögliche Kriterien: $C_p$, AIC oder BIC
+- Backward:
+    + Starte mit vollem Modell
+    + entfernen von erklärenden Variablen aus dem Modell 
+    + bis gewähltes Kriterium optimal
+
+
+## Lösungsansätze in MHG2001 (II): BLUP
+
+- __BLUP__ für SNP-allel Effekte ($a$-Werte) können berechnet werden. 
+- Wir weisen aber a-priori allen SNPs den gleichen Varianzanteil zu
+- Bei totaler genetischer Varianz $V_g$ ohne polygene Effekte erklärt jeder SNP fix die Varianz $V_g/p$
+- Vorteil: nur ein Varianzparameter muss geschätzt werden
+- Kaum realistische Annahme, dass alle SNP-Loci gleich wichtig sind
+- Bei dichteren Markerkarten erhöht sich die Anzahl der Loci mit erklärendem Einfluss 
+- Kaum sinnvoll, da von fixer Anzahl von Gene im Genom ausgegangen wird
+- Mit BLUP ist keine Auswahl der erklärenden Loci möglich
+
+
+## Lösungsansätze in MHG2001 (III): Bayes
+- Bayes'sche Statistik basiert Parameterschätzung auf a posteriori Verteilungen
+- A posteriori Verteilungen sind proportional zu der a priori Verteilung und der Likelihood
+- A priori, d.h. vor der Beobachtung der Daten sind die Parameter, so zum Beispiel die durch einen SNP-Locus erklärten Varianzanteil, durch die a-priori Verteilung bestimmt. 
+- Im Gegensatz zu BLUP, erlaubt Dies eine Variabilität zwischen den Varianzanteilen der einzelnen SNP-Loci
+
+
+## Lösungsansatz nicht in MHG2001: LASSO
+- LASSO steht für Least Absolute Shrinkage and Selection Operator
+- LASSO ist Teil einer grösseren Klasse von Methoden zur Selektion und Regularisierung von Parameterschätzungen in linearen Modellen
+- Weshalb braucht es solche Methoden?
+    + Falls $n >> p$ funktioniert Least Squares gut, d.h. Parameterschätzungen sind unbiased und haben tiefe Varianz
+    + Ist $n \approx p$ dann zeigen Least Square Schätzer erhöhte Variabilität und das Problem des Overfitting tritt auf
+    + Ist $n < p$, dann können Least Squares Schätzer nicht berechnet werden.
+- Positive Eigenschaften des Linearen Modells möchten wir trotzdem erhalten, somit suchen wir nach Alternativen zu Least Squares    
+
+
+## Selektion und Regularisierung (I)
+Drei mögliche Alternativen zu Least Squares sind
+
+- __Subset Selection__: Identifikation einer Teilmenge der $p$ Parameter. Lineares Modell wird mit dieser Teilmenge an Parametern angepasst
+
+```{r SubsetSelection, conv.odg=TRUE, odg.path="../odg", odg.graph.cache=TRUE,fig.align='center', out.width='8cm'}
+knitr::include_graphics(path = "SubsetSelection")
+```
+
+## Selektion und Regularisierung (II)
+__Shrinkage__: 
+
+- Alle $p$ Parameter werden verwendet um Modell anzupassen
+- Variabilität der geschätzten Parameter wird kontrolliert durch Schrumpfung (Shrinkage, wird auch als Regularisierung bezeichnet) der Parameterschätzungen zum Nullpunkt. 
+- Je nach verwendeter Art der Regularisierung, werden dadurch gewisse Parameterschätzwerten auf Null gesetzt. 
+- Dadurch wird Regularisierung und Parameterselektion kombiniert
+
+
+## Regularisierung
+
+```{r Regularisierung, conv.odg=TRUE, odg.path="../odg", odg.graph.cache=TRUE,fig.align='center', out.width='10cm'}
+knitr::include_graphics(path = "Regularisierung")
+```
+
+
+## Selektion und Regularisierung (III)
+__Reduktion der Dimensionen__:
+
+- Projektion der $p$ erklärenden Variablen in einen $M$-dimensionalen Unterraum, wobei $M<p$
+- Projektion wird erreicht durch Berechnung von $M$ linearen Kombinationen aus den $p$ erklärenden Variablen
+- Least Squares wird mit den $M$ Projektionen gemacht
+- Techniken sind: Principal Components Analysis (PCA), Faktoranalyse, ...
+- Problem: Interpretation der Ergebnisse, da Linearkombinationen oft keine Bedeutung (Bsp genomische Selektion, was bedeuten lineare Kombinationen aus SNP-Effekten?)
+
+
+## LASSO
+- LASSO kombiniert Regularisierung und Parameterselektion durch geschickte Veränderung der Zielgrösse aus Least Squares
+
+```{r Lasso, conv.odg=TRUE, odg.path="../odg", odg.graph.cache=TRUE,fig.align='center', out.width='10cm'}
+knitr::include_graphics(path = "Lasso")
+```
+
+
+## Vergleich Ridge Regression
+- Ridge Regression führt zu Regularisierung aber nicht zu Parameterselektion
+
+```{r Ridge, conv.odg=TRUE, odg.path="../odg", odg.graph.cache=TRUE,fig.align='center', out.width='10cm'}
+knitr::include_graphics(path = "Ridge")
+```
+
+
+## Parameterschätzung
+
+- Residual Sums of Squares: $RSS = \sum_{i=1}^n \left(y_i - \beta_0 - \sum_{j=1}^p \beta_j x_{ij} \right)^2$
+- Least Squares
+$$ \hat{\beta}_{LS} = argmin_{\beta} \{RSS\}$$
+
+- LASSO
+$$ \hat{\beta}_{LASSO} = argmin_{\beta} \{RSS + \lambda \sum_{j=1}^p |\beta_j|\}$$
+
+- Ridge
+$$ \hat{\beta}_{Ridge} = argmin_{\beta} \{RSS + \lambda \sum_{j=1}^p \beta_j^2\}$$

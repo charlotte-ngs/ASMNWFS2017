@@ -1,0 +1,142 @@
+---
+title: "ASMNW - Lösung 5"
+author: "Peter von Rohr"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document:
+    keep_tex: FALSE
+output_file: asmas_w6_l5.pdf
+bibliography: ["asmas_w6_l5.bib"]
+biblio-style: apalike
+link-citations: yes
+---
+
+```{r DocumentSetup, echo=FALSE, results='hide'}
+knitr::opts_chunk$set(echo = FALSE, results = 'hide')
+r6objTableAbbrev <- rmddochelper::R6ClassTableAbbrev$new()
+```
+
+
+```{r BLUPAbbrev}
+r6objTableAbbrev$add_abbrev(psAbbrev = "BLUP", psMeaning = "Best Linear Unbiased Prediction", pbOut = FALSE)
+r6objTableAbbrev$add_abbrev(psAbbrev = "RR", psMeaning = "Ridge Regression (Random Regression)", pbOut = FALSE)
+r6objTableAbbrev$add_abbrev(psAbbrev = "GBLUP", psMeaning = "Genomic Best Linear Unbiased Prediction", pbOut = FALSE)
+```
+
+## Aufgabe 1: Modelle in RR-BLUP und GBLUP
+Im Paper von [@CV2013] basierend auf der Arbeit von [@MHG2001] wurde das sogenannten RR-BLUP Modell vorgeschlagen. In diesem Modell werden die SNP-Effekte an jeder Position für jedes Tier explizit modelliert. 
+
+In Matrix-Vektorschreibweise sieht das RR-BLUP Modell wie folgt aus
+
+\begin{equation}
+y = 1_n\mu + \sum_{i = 1}^p W_i g_i + e
+\label{eq:RRBlupModel}
+\end{equation}
+
+\begin{tabular}{lll}
+wobei  &  & \\
+       & $y$ & Vektor der Länge $n$ mit phänotypischen Beobachtungen \\
+       & $\mu$ & allgemeines Mittel \\
+       & $g_i$ & Vektor der additiven Effekte des SNP $i$ für alle Tiere\\
+       & $W_i$ & Inzidenzmatrix, welche Genotypen für SNP $i$ codiert\\
+       & $e$   & Vektor der Resteffekte
+\end{tabular}
+
+Die SNP-Genotypen in Matrix $W$ sind mit $0$, $1$ oder $2$ codiert in Abhängigkeit der Anzahl an positiven Allelen.
+
+### Ihre Aufgabe
+Wir nehmen den kleinst-möglichen Datensatz mit zwei Tieren, welche je eine Beobachtung $y$ haben und drei SNPs pro Tier. Dieser Datensatz ist in der folgenden Tabelle gezeigt.
+
+```{r TaskInit, echo=FALSE, results='asis'}
+minAlleleFreq <- 0.45
+nAnzTiere <- 2
+nAnzSnp <- 3
+nAnzAllelPerSnp <- 2
+nAnzAllelTot <- nAnzAllelPerSnp * nAnzSnp * nAnzTiere
+### # specify the allele which has positive effect,
+### # in this context, this can only be 0 or 1
+nAllelePosEffect <- 0
+### # rng stuff
+set.seed(986)
+### # sample matrix of alleles for all snps and all animals
+matAlleles <- matrix(data = rbinom(n = nAnzAllelTot, size = 1, prob = minAlleleFreq), ncol = nAnzTiere)
+### # generate matrix of genotypes
+matGenotypes <- matrix(NA, nrow = nAnzSnp, ncol = nAnzTiere)
+### # matrix with counts of 1-Alleles
+matSumG1Alleles <- matrix(NA, nrow = nAnzSnp, ncol = nAnzTiere)
+for (i in 1:nAnzSnp){
+  matGenotypes[i,] <- unlist(sapply(c(1:ncol(matAlleles)), 
+                                    function(x) {
+                                      ### # extracting the two rows of alleles for i-th SNP
+                                      curAllele <- matAlleles[((i-1)*2 + 1):(i*2),x]
+                                      ### # we are only having genotypes, so heterozygotes should always
+                                      ### # have the same order
+                                      curAllele <- curAllele[order(curAllele)]
+                                      paste0("$G_", curAllele[1], "G_", curAllele[2], "$", collapse = " ")
+                                      }
+                                    ))
+  
+ matSumG1Alleles[i,] <- apply(matAlleles[((i-1)*2 + 1):(i*2),], 2, sum)
+}
+### # generate phenotypes, assume a-effects for each snp
+vecAddEff <- c(3.5, 7.3, 1.9)
+matAddGeno <- 2-matSumG1Alleles-1
+y <- crossprod(matAddGeno,vecAddEff) + rnorm(2)
+### # put together dataframe for table
+dfGenotypes <- data.frame(rbind(matGenotypes,t(round(y, digits = 2))), 
+                          row.names = c(unlist(sapply(c(1:nAnzSnp), function(x) paste0("SNP",x,collapse = ""))),"y"),
+                          stringsAsFactors = FALSE)
+colnames(dfGenotypes) <- unlist(sapply(c(1:nAnzTiere), function(x) paste0("Tier ",x,collapse = "")))
+### # generate table
+knitr::kable(dfGenotypes)
+```
+
+Stellen Sie für den gegebenen Datensatz das RR-Modell aus Gleichung (\ref{eq:RRBlupModel}) auf. 
+
+### Lösung
+
+
+\pagebreak
+
+```{r WriteTableOfAbbreviations}
+if (!r6objTableAbbrev$is_empty_abbr())
+  r6objTableAbbrev$writeToTsvFile()
+```
+
+```{r AbrTableToDocument, results='asis'}
+r6objTableAbbrev$include_abbr_table(psAbbrTitle = "## Abkürzungen")
+```
+
+
+## References
+```{r References}
+bref <- c(bibentry(
+     bibtype = "Article",
+     title = "Prediction of total genetic value using genome-wide dense marker maps",
+     author = c(as.person("Theo HE Meuwissen [aut]"), 
+                as.person("Ben J Hayes [aut]]"),
+                as.person("Mike E Goddard [aut]")),
+     year = "2001",
+     journal = "Genetics",
+     number = "157",
+     pages = "1819-1829",
+     key = "MHG2001"),
+     bibentry(
+       bibtype = "InBook",
+       title   = "Genomic Best Linear Unbiased Prediction (gBLUP) for the Estimation of Genomic Breeding Values",
+       author  = c(as.person("Samuel A. Clark [aut]"),as.person("Julius van der Werf [aut]")),
+       year    = "2013",
+       booktitle = "Genome-Wide Association Studies and Genomic Prediction, Methods in Molecular Biology, vol 1019",
+       chapter   = 13,
+       editor    = c(as.person("Cedric Gondro"), 
+                     as.person("Julius van der Werf"),
+                     as.person("Ben Hayes")),
+       publisher = "Springer",
+       doi       = "10.1007/978-1-62703-447-0_13",
+       key       = "CV2013"
+     ))
+sBibFile <- "asmas_w6_l5.bib"
+if(!file.exists(sBibFile))
+  cat(paste(toBibtex(bref), collapse = "\n"), "\n", file = sBibFile)
+```
+

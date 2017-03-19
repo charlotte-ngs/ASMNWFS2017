@@ -1,11 +1,11 @@
 ---
-title: "ASMNW - Lösung 4"
+title: "ASMNW - Übung 4"
 author: "Peter von Rohr"
 date: "`r Sys.Date()`"
 output: 
   pdf_document:
     keep_tex: FALSE
-output_file: asmas_w5_l4.pdf
+output_file: asmas_w5_u4.pdf
 ---
 
 ```{r DocumentSetup, echo=FALSE, results='hide'}
@@ -81,32 +81,6 @@ Die Inzidenzmatrix $W$ hat $n$ Zeilen und so viele Kolonnen, wie SNP-Marker. Fü
 ### Ihre Aufgabe
 Stellen Sie das Modell aus Gleichung (\ref{eq:Task1RegModel}) für den gegebenen Datensatz auf und bestimmen Sie welche Modellkomponenten bekannt und welche unbekannt sind.
 
-\pagebreak
-
-### Lösung
-Die Komponenten des Modells in Gleichung (\ref{eq:Task1RegModel}) lauten wie folgt
-
-- Parameter $\mu$ und $g$ sind unbekannt und müssen aus den Daten geschätzt werden. 
-- Die Resteffekte $e$ sind unbekannt. Deren Varianz $\sigma^2$ muss aus den Daten geschätzt werden
-- Die anderen Modellkomponenten $y$ und $W$ sind bekannt und sind wie folgt definiert
-
-```{r KnownModelComponentVecY, results='asis'}
-vecY <- dfT1Data$Phentype
-cat("$$y = \\left[")
-cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecY, ncol=1)), collapse = "\n"))
-cat("\\right]$$\n")
-```
-
-$W$ ist eigentlich eine Matrix, aber da wir nur einen SNP anschauen, reduziert sie sich auf einen Vektor.
-
-```{r KnownModelComponentMatW, results='asis'}
-matW <- as.integer(dfT1Data$SnpAllele1 + dfT1Data$SnpAllele2 - 2)
-cat("$$W = \\left[")
-cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(matW, ncol=1)), collapse = "\n"))
-cat("\\right]$$\n")
-```
-
-
 
 ## Aufgabe 2: Least Squares Lösungen
 Da wir `r nAnzTiere` Beobachtungen und nur einen SNP betrachten ist die Bedingung für die Schätzung der unbekannten Parameter mit Least Squares erfüllt. Somit können wir die unbekannten Parameter $\mu$ und $g$ mit der folgenden Gleichung schätzen.
@@ -136,34 +110,6 @@ Da wir `r nAnzTiere` Beobachtungen und nur einen SNP betrachten ist die Bedingun
 
 Berechnen Sie aufgrund der Gleichungen in (\ref{eq:Task1LeastSquSol}) die Lösungen für $\hat{\mu}$ und $\hat{g}$.
 
-### Lösung
-Mit den oben angegebenen Komponenten $y$ und $W$ lautet das Gleichungssystem (\ref{eq:Task1LeastSquSol})
-
-```{r PrepSystemEqs, results='asis'}
-vecOneN <- rep(1,nAnzTiere)
-matCoeff <- cbind(rbind(crossprod(vecOneN),crossprod(matW,vecOneN)),rbind(crossprod(matW,vecOneN),crossprod(matW)))
-matRhs <- rbind(crossprod(vecOneN,vecY),crossprod(matW,vecY))
-vecSol <- solve(matCoeff,matRhs)
-```
-
-```{r ShowSystemEqs, results='asis'}
-cat("$$\\left[ 
-  \\begin{array}{c}
-  \\hat{\\mu}\\\\
-  \\hat{g}
-  \\end{array}  
-\\right]")
-cat(" = \\left[")
-cat(paste0(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = matCoeff)))
-cat("\\right]^{-1}\n")
-cat("\\left[")
-cat(paste0(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = matRhs)))
-cat("\\right]\n")
-cat(" = \\left[")
-cat(paste0(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = vecSol)))
-cat("\\right]\n")
-cat("$$")
-```
 
 ## Aufgabe 3
 Überprüfen Sie die unter Aufgabe 2 erhaltenen Least Squares Lösungen für $\mu$ und $g$ mit der Funktion `lm()` R. 
@@ -183,20 +129,3 @@ dfAufgabe3 <- data.frame(
 -  Fügen Sie dem Dataframe eine zusätzliche Kolonne namens `Genotype`hinzu, welche die Genotypen-Codes enthält. Diese Codes entsprechen den Anzahl an "2" Allelen mit positiver Wirkung.
 
 - Verwenden Sie die phänotypischen Beobachtungen in `dfAufgabe3$Phenotype` als Zielgrösse und `dfAufgabe3$Genotype` als erklärende Variable und passen Sie das Regressionsmodell mit der Funktion `lm()` an.
-
-
-### Lösung
-Aus den Alleleinformationen im gegebenen Datenframe, bilden wir zuerst den Vektor der Genotypen-Codes und fügen diese zum Dataframe als zusätzliche Kolonne hinzu.
-
-```{r GenerateGenotype, echo=TRUE, results='markup'}
-Genotype <- dfAufgabe3$SnpAllele1 + dfAufgabe3$SnpAllele2 - 2
-dfAufgabe3 <- cbind(dfAufgabe3, Genotype)
-```
-
-Jetzt passen wir das Regressionsmodell an und berechnen die Least Squares Schätzungen
-
-```{r LeastSquaresSol, echo=TRUE, results='markup'}
-lmSnp <- lm(dfAufgabe3$Phentype ~ dfAufgabe3$Genotype, data = dfAufgabe3)
-summary(lmSnp)
-```
-
