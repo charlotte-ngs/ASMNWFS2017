@@ -80,7 +80,7 @@ for (i in 1:nAnzSnp){
 }
 ### # generate phenotypes, assume a-effects for each snp
 vecAddEff <- round(rnorm(n=nAnzSnp, mean=5.3, sd=1.42), digits = 1)
-matAddGeno <- 2-matSumG1Alleles-1
+matAddGeno <- 2-matSumG1Alleles
 y <- crossprod(matAddGeno,vecAddEff) + rnorm(nAnzTiere)
 ### # put together dataframe for table
 dfGenotypes <- data.frame(rbind(matGenotypes,t(round(y, digits = 2))), 
@@ -97,8 +97,59 @@ Stellen Sie für den gegebenen Datensatz das RR-Modell aus Gleichung (\ref{eq:RR
 Die Komponenten $\mu$ und $g$ sind unbekannt und müssen aus den Daten geschätzt werden. Da wir jetzt nicht mehr nur einen SNP-Locus sondern $5$ Loci betrachten ist $g$ ein Vektor mit fünf Komponenten.
 
 ```{r VecGSnp, results='asis'} 
-matG <- rmddochelper::vecGetVecElem(psBaseElement = "g", pnVecLen = nAnzSnp, psResult = "latex")
+vecG <- rmddochelper::vecGetVecElem(psBaseElement = "g", pnVecLen = nAnzSnp, psResult = "latex")
+cat("$$g = \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecG, ncol=1)), collapse = "\n"))
+cat("\\right]$$\n")
+```
 
+Die Matrix $W$ verbindet die genetischen Effekte mit den Tieren. Die Elemente sind codiert als $0$, $1$ oder $2$ je nachdem wie viele Allele mit positiver Wirkung in einem Genotyp enthalten sind. Die Matrix $W$ lautet somit
+
+```{r MatDesignW, results='asis'}
+matAddGenoT <- t(matAddGeno)
+cat("$$W = \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = matAddGenoT), 
+          collapse = "\n"))
+cat("\\right]$$\n")
+```
+
+Der Vektor der Beobachtungen $y$ ist definiert als
+
+```{r VecPhen, results='asis'}
+cat("$$y = \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(y, ncol=1)), collapse = "\n"))
+cat("\\right]$$\n")
+```
+
+Der Vektor der unbekannten Resteffekte $\epsilon$ ist definiert als
+
+```{r VecResidual, results='asis'}
+vecEps <- rmddochelper::vecGetVecElem(psBaseElement = "\\epsilon", pnVecLen = nAnzTiere, psResult = "latex")
+cat("$$\\epsilon = \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecEps, ncol=1)), collapse = "\n"))
+cat("\\right]$$\n")
+```
+
+
+Das Gleichungssystem als Ganzes lautet somit
+
+```{r SysEqRrBlup, results='asis'}
+cat("$$\\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(y, ncol=1)), collapse = "\n"))
+cat("\\right]\n")
+cat(" = \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(rep(1,nAnzTiere), ncol=1)), collapse = "\n"))
+cat("\\right] \\mu \n")
+cat("+ \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = matAddGenoT), 
+          collapse = "\n"))
+cat("\\right]\n")
+cat("\\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecG, ncol=1)), collapse = "\n"))
+cat("\\right]\n")
+cat(" + \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecEps, ncol=1)), collapse = "\n"))
+cat("\\right]$$\n")
 ```
 
 
