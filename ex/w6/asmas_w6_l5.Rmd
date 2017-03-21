@@ -29,7 +29,7 @@ Im Paper von [@CV2013] basierend auf der Arbeit von [@MHG2001] wurde das sogenan
 In Matrix-Vektorschreibweise sieht das RR-BLUP Modell wie folgt aus
 
 \begin{equation}
-y = 1_n\mu + \sum_{i = 1}^p W_i g_i + e
+y = 1_n\mu + W g + e
 \label{eq:RRBlupModel}
 \end{equation}
 
@@ -37,20 +37,20 @@ y = 1_n\mu + \sum_{i = 1}^p W_i g_i + e
 wobei  &  & \\
        & $y$ & Vektor der Länge $n$ mit phänotypischen Beobachtungen \\
        & $\mu$ & allgemeines Mittel \\
-       & $g_i$ & Vektor der additiven Effekte des SNP $i$ für alle Tiere\\
-       & $W_i$ & Inzidenzmatrix, welche Genotypen für SNP $i$ codiert\\
+       & $g$   & Vektor der additiven Effekte aller SNPs\\
+       & $W$   & Inzidenzmatrix, welche Genotypen für die SNPscodiert\\
        & $e$   & Vektor der Resteffekte
 \end{tabular}
 
 Die SNP-Genotypen in Matrix $W$ sind mit $0$, $1$ oder $2$ codiert in Abhängigkeit der Anzahl an positiven Allelen.
 
 ### Ihre Aufgabe
-Wir nehmen den kleinst-möglichen Datensatz mit zwei Tieren, welche je eine Beobachtung $y$ haben und drei SNPs pro Tier. Dieser Datensatz ist in der folgenden Tabelle gezeigt.
+Wir nehmen einen kleinen Datensatz mit drei Tieren, welche je eine Beobachtung $y$ haben und fünf SNPs pro Tier. Dieser Datensatz ist in der folgenden Tabelle gezeigt.
 
 ```{r TaskInit, echo=FALSE, results='asis'}
 minAlleleFreq <- 0.45
-nAnzTiere <- 2
-nAnzSnp <- 3
+nAnzTiere <- 3
+nAnzSnp <- 5
 nAnzAllelPerSnp <- 2
 nAnzAllelTot <- nAnzAllelPerSnp * nAnzSnp * nAnzTiere
 ### # specify the allele which has positive effect,
@@ -79,9 +79,9 @@ for (i in 1:nAnzSnp){
  matSumG1Alleles[i,] <- apply(matAlleles[((i-1)*2 + 1):(i*2),], 2, sum)
 }
 ### # generate phenotypes, assume a-effects for each snp
-vecAddEff <- c(3.5, 7.3, 1.9)
+vecAddEff <- round(rnorm(n=nAnzSnp, mean=5.3, sd=1.42), digits = 1)
 matAddGeno <- 2-matSumG1Alleles-1
-y <- crossprod(matAddGeno,vecAddEff) + rnorm(2)
+y <- crossprod(matAddGeno,vecAddEff) + rnorm(nAnzTiere)
 ### # put together dataframe for table
 dfGenotypes <- data.frame(rbind(matGenotypes,t(round(y, digits = 2))), 
                           row.names = c(unlist(sapply(c(1:nAnzSnp), function(x) paste0("SNP",x,collapse = ""))),"y"),
@@ -91,9 +91,15 @@ colnames(dfGenotypes) <- unlist(sapply(c(1:nAnzTiere), function(x) paste0("Tier 
 knitr::kable(dfGenotypes)
 ```
 
-Stellen Sie für den gegebenen Datensatz das RR-Modell aus Gleichung (\ref{eq:RRBlupModel}) auf. 
+Stellen Sie für den gegebenen Datensatz das RR-Modell aus Gleichung (\ref{eq:RRBlupModel}) auf. In diesem Datensatz hat das Allel $G_0$ die positive Wirkung. 
 
 ### Lösung
+Die Komponenten $\mu$ und $g$ sind unbekannt und müssen aus den Daten geschätzt werden. Da wir jetzt nicht mehr nur einen SNP-Locus sondern $5$ Loci betrachten ist $g$ ein Vektor mit fünf Komponenten.
+
+```{r VecGSnp, results='asis'} 
+matG <- rmddochelper::vecGetVecElem(psBaseElement = "g", pnVecLen = nAnzSnp, psResult = "latex")
+
+```
 
 
 \pagebreak

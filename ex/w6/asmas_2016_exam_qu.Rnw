@@ -1,0 +1,259 @@
+\documentclass{scrartcl}
+
+%\usepackage{fancyhdr}
+
+\newcommand{\points}[1]
+{\begin{flushright}\textbf{#1}\end{flushright}}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+<<PointsQ1, echo=FALSE>>=
+# Assign Points for Q1
+lPointsQ1 <- list(TaskA = 6,
+                  TaskB = 4,
+                  TaskC = 0)
+nPointQ1Total <- sum(unlist(lPointsQ1))
+@
+<<PointsQ2, echo=FALSE>>=
+# Assign Points for Q2
+lPointsQ2 <- list(TaskA = 3,
+                  TaskB = 5,
+                  TaskC = 3,
+                  TaskD = 2)
+nPointQ2Total <- sum(unlist(lPointsQ2))
+@
+<<PointsQ3, echo=FALSE>>=
+# Assign Points for Q3
+lPointsQ3 <- list(TaskA = 1,
+                  TaskB = 3,
+                  TaskC = 2)
+nPointQ3Total <- sum(unlist(lPointsQ3))
+@
+<<PointsQ4, echo=FALSE>>=
+# Assign Points for Q4
+lPointsQ4 <- list(TaskA = 2,
+                  TaskB = 3,
+                  TaskC = 1)
+nPointQ4Total <- sum(unlist(lPointsQ4))
+@
+<<PointsTotal, echo=FALSE>>=
+nPointOverallTotal <- nPointQ1Total + nPointQ2Total + nPointQ3Total + nPointQ4Total
+@
+
+
+\thispagestyle{empty}
+
+\titlehead
+{
+	ETH Z\"urich\\%
+	D-USYS\\%
+	Institut f\"ur Agrarwissenschaften
+}
+
+\title{\vspace{5ex} L\"osungen zur Pr\"ufung \\
+       Angewandte Statistische Methoden in den Nutzierwissenschaften\\
+       FS 2016 \vspace{3ex}}
+\author{Peter von Rohr \vspace{3ex}}
+\date{
+  \begin{tabular}{lr}
+  \textsc{Datum}  & \textsc{\emph{30. Mai 2016}} \\
+  \textsc{Beginn} & \textsc{\emph{08:00 Uhr}}\\
+  \textsc{Ende}  & \textsc{\emph{08:45 Uhr}}\vspace{3ex}
+\end{tabular}}
+\maketitle
+
+% Table with Name
+\begin{tabular}{p{3cm}p{6cm}}
+Name:     &  \\
+         &  \\
+Legi-Nr:  & \\
+\end{tabular}
+
+% Table with Points
+
+\vspace{3ex}
+\begin{center}
+\begin{tabular}{|p{3cm}|c|c|}
+\hline
+Aufgabe  &  Maximale Punktzahl  &  Erreichte Punktzahl\\
+\hline
+1        &  \Sexpr{nPointQ1Total}  & \\
+\hline
+2        &  \Sexpr{nPointQ2Total}  & \\
+\hline
+3        &  \Sexpr{nPointQ3Total}  & \\
+\hline
+4        &  \Sexpr{nPointQ4Total}  & \\
+\hline
+Total    &  \Sexpr{nPointOverallTotal} & \\
+\hline
+\end{tabular}
+\end{center}
+
+\clearpage
+\pagebreak
+
+\section*{Aufgabe 1: Modellierung vor und nach Einf\"uhrung der Genomischen Selektion}
+\begin{enumerate}
+\item[a)] Wo liegen die Unterschiede im Bezug auf die Modellierung von Tierzuchtdaten vor und nach der Einf\"uhrung der genomischen Selektion (GS) im Bezug auf die folgendne Punkte?
+\end{enumerate}
+\points{\Sexpr{lPointsQ1$TaskA}}
+
+\vspace{5ex}
+\begin{tabular}{|l|p{6cm}|p{6cm}|}
+\hline
+Punkt  &  vor GS  &  nach GS \\
+\hline
+Informationsquellen   &  
+                      &   \vspace{20ex}\\
+\hline
+statistisches Modell  &  
+                      &  \vspace{25ex}\\
+\hline
+genetisches Modell    &  
+                      &  \vspace{25ex}\\
+\hline
+\end{tabular}
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[b)] In der genomischen Selektion werden h\"aufig gesch\"atzte BLUP-Zuchtwerte aus einem Tiermodell als Beobachtungen verwendet.
+\end{enumerate}
+
+\begin{itemize}
+\item Nennen sie je einen Vorteil und einen Nachteil der Verwendung von BLUP Zuchtwerten als Beobachtungen
+
+
+\item Welches Verfahren wird verwendet, um den Nachteil von der Verwendung von BLUP-Zuchtwerten als Beobachtungen, zu beheben und nach welchem Prinzip funktioniert dieses Verahren?
+
+
+\end{itemize}
+\points{\Sexpr{lPointsQ1$TaskB}}
+
+
+\clearpage
+\pagebreak
+
+\section*{Aufgabe 2: Lineare Regression}
+Gegeben sind die folgenden Resultate einer linearen Regression
+<<LinRegData, echo=FALSE, results=verbatim>>=
+set.seed(1554)
+n = 30
+k = 2
+x = matrix(sample(c(0, 1, 2), n * k, replace = T), nrow = n, ncol = k)
+X = cbind(1, x)
+betaTrue = c(1, -3, 7)
+y = X %*% betaTrue + rnorm(n, 0, 5)
+dfSnpData <- data.frame(snp1 = x[,1], snp2 = x[,2], y = y)
+summary(snp_reg <- lm(y ~ snp1 + snp2, data = dfSnpData))
+@
+
+\begin{enumerate}
+\item[a)] Aus welchen Komponenten besteht das lineare Modell?
+\end{enumerate}
+\points{\Sexpr{lPointsQ2$TaskA}}
+
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[b)] Wie sieht das Modell aus, welches zu den oben gezeigten Resultaten gef\"uhrt hat?
+\end{enumerate}
+\points{\Sexpr{lPointsQ2$TaskB}}
+
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[c)] Berechnen Sie aus den oben gezeigten Resultaten das Vertrauensinterval f\"ur die erkl\"arende Variable \verb+snp1+. Wie gross ist die Irrtumswahrscheinlichkeit f\"ur dieses Vertrauensintervall?
+\end{enumerate}
+\points{\Sexpr{lPointsQ2$TaskC}}
+
+
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[d)] Wie heisst der folgende Plot und wozu kann dieser Plot verwendet werden?
+\end{enumerate}
+\points{\Sexpr{lPointsQ2$TaskD}}
+
+<<TukeyAnscombePlot, echo=FALSE, fig=TRUE>>=
+plot(fitted(snp_reg), resid(snp_reg))
+@
+
+
+
+\clearpage
+\pagebreak
+
+\noindent\textbf{Zusatz:} Durch welches Statement wird der oben gezeigte Plot in R erzeugt?
+
+\points{2}
+
+
+
+\clearpage
+\pagebreak
+
+\section*{Aufgabe 3: LASSO}
+
+\begin{enumerate}
+\item[a)] Was bedeutet die Abk\"urzung LASSO?
+\end{enumerate}
+\points{\Sexpr{lPointsQ3$TaskA}}
+
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[b)] Sobald in einem linearen Modell die Anzahl Parameter gr\"osser ist als die Anzahl Beobachtungen k\"onnen wir Least Squares nicht verwenden. Was sind in einem solchen Fall Alternativen zu Least Squares?
+\end{enumerate}
+\points{\Sexpr{lPointsQ3$TaskB}}
+
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[c)] Wie unterscheiden sich die Sch\"atzer durch Least Squares vom Sch\"atzer durch LASSO und wie wird die Selektion der Variablen erreicht?
+\end{enumerate}
+\points{\Sexpr{lPointsQ3$TaskC}}
+
+
+\clearpage
+\pagebreak
+
+\section*{Aufgabe 4: Bayes}
+
+\begin{enumerate}
+\item[a)] In welche Kategorien unterteilen Bayesianer die Komponenten eines Modells?
+\end{enumerate}
+\points{\Sexpr{lPointsQ4$TaskA}}
+
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[b)] Worauf basieren Sch\"atzungen in der Bayes'schen Statistik, aus welchen Komponente besteht das gesuchte Objekt und wie wird dieses berechnet?
+\end{enumerate}
+\points{\Sexpr{lPointsQ4$TaskB}}
+
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[c)] Angenommen, Sie haben vor der Sch\"atzung eines Parameters keine Information \"uber den Parameter. Wie lassen Sie diese Tatsache in einer Bayes'schen Analyse einfliessen?
+\end{enumerate}
+\points{\Sexpr{lPointsQ4$TaskC}}
+
+
+\end{document}
