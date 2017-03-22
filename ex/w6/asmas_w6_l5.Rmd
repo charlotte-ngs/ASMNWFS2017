@@ -42,7 +42,7 @@ wobei  &  & \\
        & $e$   & Vektor der Resteffekte
 \end{tabular}
 
-Die SNP-Genotypen in Matrix $W$ sind mit $0$, $1$ oder $2$ codiert in Abhängigkeit der Anzahl an positiven Allelen. Da es sich bei RR-BLUP um eine Methode mit den BLUP-Eigenschaften handelt ist das Modell in (\ref{eq:RRBlupModel}) ein gemischtes lineares Modell und somit ist $g$ ein Vektor von zufälligen Effekten. Wir müssen für $g$ also auch eine Covarianzmatrix angeben. Diese beträgt $Var(g) = WW^T\sigma_q^2$, wobei $\sigma_q^2$ die additiv genetische Varianz der SNPs ist. Bei diesem einfachen RR-BLUP Modell nehmen wir an, dass die Varianz unter den SNPs konstant ist. In der Praxis ist $\sigma_q^2$ unbekannt und muss aus den Daten geschätzt werden.
+Die SNP-Genotypen in Matrix $W$ sind mit $0$, $1$ oder $2$ codiert in Abhängigkeit der Anzahl an positiven Allelen. Da es sich bei RR-BLUP um eine Methode mit den BLUP-Eigenschaften handelt ist das Modell in (\ref{eq:RRBlupModel}) ein gemischtes lineares Modell und somit ist $q$ ein Vektor von zufälligen Effekten. Wir müssen für $q$ also auch eine Covarianzmatrix angeben. Diese beträgt $Var(g) = WW^T\sigma_q^2$, wobei $\sigma_q^2$ die additiv genetische Varianz der SNPs ist. Bei diesem einfachen RR-BLUP Modell nehmen wir an, dass die Varianz unter den SNPs konstant ist. In der Praxis ist $\sigma_q^2$ unbekannt und muss aus den Daten geschätzt werden.
 
 ### Ihre Aufgabe
 Wir nehmen einen kleinen Datensatz mit drei Tieren, welche je eine Beobachtung $y$ haben und fünf SNPs pro Tier. Dieser Datensatz ist in der folgenden Tabelle gezeigt.
@@ -94,12 +94,12 @@ knitr::kable(dfGenotypes)
 Stellen Sie für den gegebenen Datensatz das RR-Modell aus Gleichung (\ref{eq:RRBlupModel}) auf. In diesem Datensatz hat das Allel $G_0$ die positive Wirkung. 
 
 ### Lösung
-Die Komponenten $\mu$ und $g$ sind unbekannt und müssen aus den Daten geschätzt werden. Da wir jetzt nicht mehr nur einen SNP-Locus sondern $5$ Loci betrachten ist $g$ ein Vektor mit fünf Komponenten.
+Die Komponenten $\mu$ und $q$ sind unbekannt und müssen aus den Daten geschätzt werden. Da wir jetzt nicht mehr nur einen SNP-Locus sondern $5$ Loci betrachten ist $q$ ein Vektor mit fünf Komponenten.
 
-```{r VecGSnp, results='asis'} 
-vecG <- rmddochelper::vecGetVecElem(psBaseElement = "g", pnVecLen = nAnzSnp, psResult = "latex")
-cat("$$g = \\left[\n")
-cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecG, ncol=1)), collapse = "\n"))
+```{r vecQSnp, results='asis'} 
+vecQ <- rmddochelper::vecGetVecElem(psBaseElement = "q", pnVecLen = nAnzSnp, psResult = "latex")
+cat("$$q = \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecQ, ncol=1)), collapse = "\n"))
 cat("\\right]$$\n")
 ```
 
@@ -145,7 +145,7 @@ cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = matAddGenoT),
           collapse = "\n"))
 cat("\\right]\n")
 cat("\\left[\n")
-cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecG, ncol=1)), collapse = "\n"))
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecQ, ncol=1)), collapse = "\n"))
 cat("\\right]\n")
 cat(" + \\left[\n")
 cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecEps, ncol=1)), collapse = "\n"))
@@ -180,7 +180,7 @@ In der Zusammenfassung der Resultate gibt R den Hinweise, dass nicht alle Parame
 
 Auch der in einer früheren Übung eingeführte Tukey-Anscomb-Plot als Modelldiagnose zeigt, dass mit dem hier angepassten Modell etwas nicht stimmt. Die Residuen sollten zufällig verteilt sein. Hier sind diese aber auf einer Geraden $r_i = 0$ angeordnet. Dies ist ein definitives Zeichen, dass etwas nicht stimmt mit dem angepassten Modell.
 
-```{r TukeyAnscombPlot, fig.show=TRUE}
+```{r TukeyAnscombPlot, fig.show=TRUE, fig.align='center', out.width='13cm'}
 plot(fitted(lmSnpYNoLs), residuals(lmSnpYNoLs))
 ```
 
@@ -189,7 +189,7 @@ plot(fitted(lmSnpYNoLs), residuals(lmSnpYNoLs))
 Bei RR-BLUP in Aufgabe 1 werden die Genotypen aller SNP für jedes Individuum im Modell (\ref{eq:RRBlupModel}) berücksichtigt. Im Gegensatz dazu werden bei GBLUP die additiven Effekte aller SNP pro Individuum mit nur einem Effekt modelliert. Unter der Annahme, dass jedes Tier sowohl eine Beobachtung als auch SNP-Informationen aufweist, führt dies zum folgenden Modell
 
 \begin{equation}
-y = 1_n\mu + Z u + \epsilon
+y = 1_n\mu + Z g + \epsilon
 \label{eq:GBlupModel}
 \end{equation}
 
@@ -197,12 +197,12 @@ y = 1_n\mu + Z u + \epsilon
 wobei  &              &  \\
        &  $y$         &  Vektor der Länge $n$ mit phänotypischen Beobachtungen \\
        &  $\mu$       &  allgemeines Mittel \\
-       &  $u$         &  Vektor der Länge $n$ mit zufälligen additiven SNP-Effekten pro Individuum \\
+       &  $g$         &  Vektor der Länge $n$ mit zufälligen additiven SNP-Effekten pro Individuum \\
        &  $Z$         &  Inzidenzmatrix, welche SNP-Effekte mit Beobachtungen verknüpft\\
        &  $\epsilon$  &  Vektor von zufälligen Resteffekten
 \end{tabular}
 
-Das Modell (\ref{eq:GBlupModel}) ist ein gemischtes lineares Modell mit den zufälligen Effekten $u$. Die Varianz $Var(u) = G \sigma_u^2$ wobei $G$ der __genomischen Verwandtschaftsmatrix__ entspricht und $\sigma_u^2$ der genetisch additiven Varianz entspricht. 
+Das Modell (\ref{eq:GBlupModel}) ist ein gemischtes lineares Modell mit den zufälligen Effekten $g$. Die Varianz $Var(g) = G \sigma_g^2$ wobei $G$ der __genomischen Verwandtschaftsmatrix__ entspricht und $\sigma_g^2$ der genetisch additiven Varianz entspricht. Die genomische Verwandtschaftsmatrix $G$ baisert auf SNP-Informationen der typisierten Individuen und kann auf verschiedene Arten berechnet werden. 
 
 \pagebreak
 
