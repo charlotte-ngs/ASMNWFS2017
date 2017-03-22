@@ -23,13 +23,13 @@ r6objTableAbbrev$add_abbrev(psAbbrev = "RR", psMeaning = "Ridge Regression (Rand
 r6objTableAbbrev$add_abbrev(psAbbrev = "GBLUP", psMeaning = "Genomic Best Linear Unbiased Prediction", pbOut = FALSE)
 ```
 
-## Aufgabe 1: Modelle in RR-BLUP und GBLUP
+## Aufgabe 1: RR-BLUP
 Im Paper von [@CV2013] basierend auf der Arbeit von [@MHG2001] wurde das sogenannten RR-BLUP Modell vorgeschlagen. In diesem Modell werden die SNP-Effekte an jeder Position für jedes Tier explizit modelliert. 
 
 In Matrix-Vektorschreibweise sieht das RR-BLUP Modell wie folgt aus
 
 \begin{equation}
-y = 1_n\mu + W g + e
+y = 1_n\mu + W q + e
 \label{eq:RRBlupModel}
 \end{equation}
 
@@ -37,12 +37,12 @@ y = 1_n\mu + W g + e
 wobei  &  & \\
        & $y$ & Vektor der Länge $n$ mit phänotypischen Beobachtungen \\
        & $\mu$ & allgemeines Mittel \\
-       & $g$   & Vektor der additiven Effekte aller SNPs\\
+       & $q$   & Vektor der zufälligen additiven Effekte aller SNPs\\
        & $W$   & Inzidenzmatrix, welche Genotypen für die SNPscodiert\\
        & $e$   & Vektor der Resteffekte
 \end{tabular}
 
-Die SNP-Genotypen in Matrix $W$ sind mit $0$, $1$ oder $2$ codiert in Abhängigkeit der Anzahl an positiven Allelen.
+Die SNP-Genotypen in Matrix $W$ sind mit $0$, $1$ oder $2$ codiert in Abhängigkeit der Anzahl an positiven Allelen. Da es sich bei RR-BLUP um eine Methode mit den BLUP-Eigenschaften handelt ist das Modell in (\ref{eq:RRBlupModel}) ein gemischtes lineares Modell und somit ist $g$ ein Vektor von zufälligen Effekten. Wir müssen für $g$ also auch eine Covarianzmatrix angeben. Diese beträgt $Var(g) = WW^T\sigma_q^2$, wobei $\sigma_q^2$ die additiv genetische Varianz der SNPs ist. Bei diesem einfachen RR-BLUP Modell nehmen wir an, dass die Varianz unter den SNPs konstant ist. In der Praxis ist $\sigma_q^2$ unbekannt und muss aus den Daten geschätzt werden.
 
 ### Ihre Aufgabe
 Wir nehmen einen kleinen Datensatz mit drei Tieren, welche je eine Beobachtung $y$ haben und fünf SNPs pro Tier. Dieser Datensatz ist in der folgenden Tabelle gezeigt.
@@ -152,6 +152,57 @@ cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecEp
 cat("\\right]$$\n")
 ```
 
+
+## Aufgabe 2: Least Squares nicht möglich
+Im Datensatz aus Aufgabe 1 ist die Bedingung für Least Squares nicht erfüllt. Überzeugen Sie sich, dass Least Squares nicht funktioniert, indem Sie versuchen den Datensatz aus Aufgabe 1 mit der Funktion `lm()` in R analysieren. 
+
+### Hinweise
+Die folgenden Vorbereitungen sind für die Analyse mit `lm` nötig. Wir definieren den folgenden Dataframe mit allen SNP und den phänotypischen Beobachtungen
+
+```{r PrepareLm, results='markup'}
+dfSnpYdata <- data.frame(snp1 = c(2,0,1),
+                         snp2 = c(1,0,1),
+                         snp3 = c(2,1,1),
+                         snp4 = c(0,1,1),
+                         snp5 = c(1,1,2),
+                         y    = c(33.43,12.11,29.7))
+```
+
+### Lösung
+Das lineare Modell mit `lm()`
+
+```{r LmModellSnpNotRun, results='markup'}
+lmSnpYNoLs <- lm(y ~ ., data = dfSnpYdata)
+summary(lmSnpYNoLs)
+```
+
+In der Zusammenfassung der Resultate gibt R den Hinweise, dass nicht alle Parameter geschätzt werden konnten. Dies wird als `Singularity` bezeichnet. Dies bedeutet, dass die Bedingung $n>p$ für Least Squares nicht erfüllt ist. R gibt aber trotzdem noch für zwei erklärende Variablen Schätzwerte an. Diese haben aber keine biologische Bedeutung und sollten nicht berücksichtigt werden. 
+
+Auch der in einer früheren Übung eingeführte Tukey-Anscomb-Plot als Modelldiagnose zeigt, dass mit dem hier angepassten Modell etwas nicht stimmt. Die Residuen sollten zufällig verteilt sein. Hier sind diese aber auf einer Geraden $r_i = 0$ angeordnet. Dies ist ein definitives Zeichen, dass etwas nicht stimmt mit dem angepassten Modell.
+
+```{r TukeyAnscombPlot, fig.show=TRUE}
+plot(fitted(lmSnpYNoLs), residuals(lmSnpYNoLs))
+```
+
+
+## Aufgabe 3: GBLUP
+Bei RR-BLUP in Aufgabe 1 werden die Genotypen aller SNP für jedes Individuum im Modell (\ref{eq:RRBlupModel}) berücksichtigt. Im Gegensatz dazu werden bei GBLUP die additiven Effekte aller SNP pro Individuum mit nur einem Effekt modelliert. Unter der Annahme, dass jedes Tier sowohl eine Beobachtung als auch SNP-Informationen aufweist, führt dies zum folgenden Modell
+
+\begin{equation}
+y = 1_n\mu + Z u + \epsilon
+\label{eq:GBlupModel}
+\end{equation}
+
+\begin{tabular}{lll}
+wobei  &              &  \\
+       &  $y$         &  Vektor der Länge $n$ mit phänotypischen Beobachtungen \\
+       &  $\mu$       &  allgemeines Mittel \\
+       &  $u$         &  Vektor der Länge $n$ mit zufälligen additiven SNP-Effekten pro Individuum \\
+       &  $Z$         &  Inzidenzmatrix, welche SNP-Effekte mit Beobachtungen verknüpft\\
+       &  $\epsilon$  &  Vektor von zufälligen Resteffekten
+\end{tabular}
+
+Das Modell (\ref{eq:GBlupModel}) ist ein gemischtes lineares Modell mit den zufälligen Effekten $u$. Die Varianz $Var(u) = G \sigma_u^2$ wobei $G$ der __genomischen Verwandtschaftsmatrix__ entspricht und $\sigma_u^2$ der genetisch additiven Varianz entspricht. 
 
 \pagebreak
 
