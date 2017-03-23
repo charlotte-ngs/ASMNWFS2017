@@ -106,9 +106,9 @@ cat("\\right]$$\n")
 Die Matrix $W$ verbindet die genetischen Effekte mit den Tieren. Die Elemente sind codiert als $0$, $1$ oder $2$ je nachdem wie viele Allele mit positiver Wirkung in einem Genotyp enthalten sind. Die Matrix $W$ lautet somit
 
 ```{r MatDesignW, results='asis'}
-matAddGenoT <- t(matAddGeno)
+matDesignW <- t(matAddGeno)
 cat("$$W = \\left[\n")
-cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = matAddGenoT), 
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = matDesignW), 
           collapse = "\n"))
 cat("\\right]$$\n")
 ```
@@ -141,7 +141,7 @@ cat(" = \\left[\n")
 cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(rep(1,nAnzTiere), ncol=1)), collapse = "\n"))
 cat("\\right] \\mu \n")
 cat("+ \\left[\n")
-cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = matAddGenoT), 
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = matDesignW), 
           collapse = "\n"))
 cat("\\right]\n")
 cat("\\left[\n")
@@ -202,7 +202,65 @@ wobei  &              &  \\
        &  $\epsilon$  &  Vektor von zufälligen Resteffekten
 \end{tabular}
 
-Das Modell (\ref{eq:GBlupModel}) ist ein gemischtes lineares Modell mit den zufälligen Effekten $g$. Die Varianz $Var(g) = G \sigma_g^2$ wobei $G$ der __genomischen Verwandtschaftsmatrix__ entspricht und $\sigma_g^2$ der genetisch additiven Varianz entspricht. Die genomische Verwandtschaftsmatrix $G$ baisert auf SNP-Informationen der typisierten Individuen und kann auf verschiedene Arten berechnet werden. 
+Das Modell (\ref{eq:GBlupModel}) ist ein gemischtes lineares Modell mit den zufälligen Effekten $g$. Die Varianz $Var(g) = G \sigma_g^2$ wobei $G$ der __genomischen Verwandtschaftsmatrix__ entspricht und $\sigma_g^2$ der genetisch additiven Varianz entspricht. Die genomische Verwandtschaftsmatrix $G$ baisert auf SNP-Informationen der typisierten Individuen und ersetzt die addtiv genetische Verwandtschaftsmatrix $A$ im BLUP-Tiermodell. 
+
+Eine Art der Berechnung der genomischen Verwandtschaftsmatrix $G$ ist im Artikel von [@CV2013] beschrieben und diese soll hier noch etwas genauer erklärt werden. 
+
+```{r SmallExampleGrmDataSimulation, echo=FALSE}
+### # Code taken from ImpGWH2013a
+### # fix rng seed
+set.seed(1234)
+### # Generate a small SNP-data matrix
+nNrSnp <- 50
+nNrSamples <- 10
+matSnp <- matrix(data = sample(c(0,1,2),nNrSnp*nNrSamples,replace=T), nrow = nNrSnp, ncol = nNrSamples)
+### # generate the objects that are used in @CV2013
+nmarkers <- nNrSamples
+data <- matSnp
+
+### # use the data from task1
+data <- matDesignW
+nmarkers <- ncol(data)
+```
+
+Hier folgt nun der Abschnitt des R-Codes aus [@CV2013], welcher die genomische Verwandtschaftsmatrix berechnet. Wir nehmen an, dass das Objekt `data` die SNP-Datenmatrix enthält. Diese entspricht der mit 0, 1, und 2 codierten Genotypen analog zur Matrix $W$ aus dem RR-BLUP Modell in (\ref{eq:RRBlupModel}).
+
+```{r CV2013Code, echo = TRUE, results='hide'}
+sumpq <- 0
+freq <- dim(data)[1]
+P <- freq
+for(i in 1:ncol(data)){
+  (freq[i] <- ((mean(data[,i])/2)))
+  (P[i] <- (2*(freq[i]-0.5)))
+  (sumpq <- sumpq+(freq[i]*(1-freq[i])))
+}
+Z <- data
+for(i in 1:nrow(data)){
+  for(j in 1:ncol(data)){
+    (Z[i,j] <- ((data[i,j]-1)-(P[j])))
+  }
+}
+Zt <- t(Z)
+ZtZ <- Z%*%Zt
+G <- ZtZ/(2*sumpq)
+```
+
+Im folgenden Abschnitt wollen wir das obige R-Programm zur Berechnung der genomischen Verwandtschaftsmatrix noch etwas genauer erklären. Das Programm ist mit Ausnahme der Formatierung und dem Ersetzen des Zuweisungsoperators unverändert aus [@CV2013] übernommen worden. Im Bezug auf den Programmierstil ist das gezeigte Programm nicht optimal, aber das soll hier nicht das Thema sein. 
+
+Bei der Berechnung der genomischen Verwandtschaftsmatrix $G$ mit dem obigen R-Programm werden vor dem `for()`-Loop die Variablen `sumpq`, `freq` und `P` initialisiert. Die Werte, welche für die Initialisierung verwendet werden sind bei `freq` und `P` für den weiteren Verlauf nicht wichtig. Die Variable `sumpq` muss zwingend mit $0$ initialisiert werden.
+
+### Ihre Aufgabe
+1. Stellen Sie das GBLUP-Modell mit dem Datensatz aus Aufgabe 1 auf
+2. Berechnen Sie die genomische Verwandtschaftsmatrix $G$ anhand des R-Programms aus [@CV2013]
+
+### Lösung
+
+Die Genomische Verwandtschaftsmatrix, wie sie nach dem R-Programm aus [@CV2013] berechnet wird lautet
+
+```{r ShowGenomicRelationshipMatrix, echo=TRUE, results='markup'}
+cat(" * Genomische Verwandtschaftsmatrix G:\n")
+print(G)
+```
 
 \pagebreak
 
