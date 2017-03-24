@@ -1,0 +1,250 @@
+---
+title: "ASMNW - Übung 5"
+author: "Peter von Rohr"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document:
+    keep_tex: FALSE
+output_file: asmas_w6_u5.pdf
+bibliography: ["asmas_w6_l5.bib"]
+biblio-style: apalike
+link-citations: yes
+---
+
+```{r DocumentSetup, echo=FALSE, results='hide'}
+knitr::opts_chunk$set(echo = FALSE, results = 'hide')
+r6objTableAbbrev <- rmddochelper::R6ClassTableAbbrev$new()
+```
+
+
+```{r BLUPAbbrev}
+r6objTableAbbrev$add_abbrev(psAbbrev = "BLUP", psMeaning = "Best Linear Unbiased Prediction", pbOut = FALSE)
+r6objTableAbbrev$add_abbrev(psAbbrev = "RR", psMeaning = "Ridge Regression (Random Regression)", pbOut = FALSE)
+r6objTableAbbrev$add_abbrev(psAbbrev = "GBLUP", psMeaning = "Genomic Best Linear Unbiased Prediction", pbOut = FALSE)
+```
+
+## Aufgabe 1: RR-BLUP
+Im Paper von [@CV2013] basierend auf der Arbeit von [@MHG2001] wurde das sogenannten RR-BLUP Modell vorgeschlagen. In diesem Modell werden die SNP-Effekte an jeder Position für jedes Tier explizit modelliert. 
+
+In Matrix-Vektorschreibweise sieht das RR-BLUP Modell wie folgt aus
+
+\begin{equation}
+y = 1_n\mu + W q + e
+\label{eq:RRBlupModel}
+\end{equation}
+
+\begin{tabular}{lll}
+wobei  &  & \\
+       & $y$ & Vektor der Länge $n$ mit phänotypischen Beobachtungen \\
+       & $\mu$ & allgemeines Mittel \\
+       & $q$   & Vektor der zufälligen additiven Effekte aller SNPs\\
+       & $W$   & Inzidenzmatrix, welche Genotypen für die SNPscodiert\\
+       & $e$   & Vektor der Resteffekte
+\end{tabular}
+
+Die SNP-Genotypen in Matrix $W$ sind mit $0$, $1$ oder $2$ codiert in Abhängigkeit der Anzahl an positiven Allelen. Da es sich bei RR-BLUP um eine Methode mit den BLUP-Eigenschaften handelt ist das Modell in (\ref{eq:RRBlupModel}) ein gemischtes lineares Modell und somit ist $q$ ein Vektor von zufälligen Effekten. Wir müssen für $q$ also auch eine Covarianzmatrix angeben. Diese beträgt $Var(g) = WW^T\sigma_q^2$, wobei $\sigma_q^2$ die additiv genetische Varianz der SNPs ist. Bei diesem einfachen RR-BLUP Modell nehmen wir an, dass die Varianz unter den SNPs konstant ist. In der Praxis ist $\sigma_q^2$ unbekannt und muss aus den Daten geschätzt werden.
+
+### Ihre Aufgabe
+Wir nehmen einen kleinen Datensatz mit drei Tieren, welche je eine Beobachtung $y$ haben und fünf SNPs pro Tier. Dieser Datensatz ist in der folgenden Tabelle gezeigt.
+
+```{r TaskInit, echo=FALSE, results='asis'}
+minAlleleFreq <- 0.45
+nAnzTiere <- 3
+nAnzSnp <- 5
+nAnzAllelPerSnp <- 2
+nAnzAllelTot <- nAnzAllelPerSnp * nAnzSnp * nAnzTiere
+### # specify the allele which has positive effect,
+### # in this context, this can only be 0 or 1
+nAllelePosEffect <- 0
+### # rng stuff
+set.seed(986)
+### # sample matrix of alleles for all snps and all animals
+matAlleles <- matrix(data = rbinom(n = nAnzAllelTot, size = 1, prob = minAlleleFreq), ncol = nAnzTiere)
+### # generate matrix of genotypes
+matGenotypes <- matrix(NA, nrow = nAnzSnp, ncol = nAnzTiere)
+### # matrix with counts of 1-Alleles
+matSumG1Alleles <- matrix(NA, nrow = nAnzSnp, ncol = nAnzTiere)
+for (i in 1:nAnzSnp){
+  matGenotypes[i,] <- unlist(sapply(c(1:ncol(matAlleles)), 
+                                    function(x) {
+                                      ### # extracting the two rows of alleles for i-th SNP
+                                      curAllele <- matAlleles[((i-1)*2 + 1):(i*2),x]
+                                      ### # we are only having genotypes, so heterozygotes should always
+                                      ### # have the same order
+                                      curAllele <- curAllele[order(curAllele)]
+                                      paste0("$G_", curAllele[1], "G_", curAllele[2], "$", collapse = " ")
+                                      }
+                                    ))
+  
+ matSumG1Alleles[i,] <- apply(matAlleles[((i-1)*2 + 1):(i*2),], 2, sum)
+}
+### # generate phenotypes, assume a-effects for each snp
+vecAddEff <- round(rnorm(n=nAnzSnp, mean=5.3, sd=1.42), digits = 1)
+matAddGeno <- 2-matSumG1Alleles
+y <- crossprod(matAddGeno,vecAddEff) + rnorm(nAnzTiere)
+### # put together dataframe for table
+dfGenotypes <- data.frame(rbind(matGenotypes,t(round(y, digits = 2))), 
+                          row.names = c(unlist(sapply(c(1:nAnzSnp), function(x) paste0("SNP",x,collapse = ""))),"y"),
+                          stringsAsFactors = FALSE)
+colnames(dfGenotypes) <- unlist(sapply(c(1:nAnzTiere), function(x) paste0("Tier ",x,collapse = "")))
+### # generate table
+knitr::kable(dfGenotypes)
+```
+
+Stellen Sie für den gegebenen Datensatz das RR-Modell aus Gleichung (\ref{eq:RRBlupModel}) auf. In diesem Datensatz hat das Allel $G_0$ die positive Wirkung. 
+
+\pagebreak
+
+## Aufgabe 2: Least Squares nicht möglich
+Im Datensatz aus Aufgabe 1 ist die Bedingung für Least Squares nicht erfüllt. Überzeugen Sie sich, dass Least Squares nicht funktioniert, indem Sie versuchen den Datensatz aus Aufgabe 1 mit der Funktion `lm()` in R analysieren. 
+
+### Hinweise
+Die folgenden Vorbereitungen sind für die Analyse mit `lm` nötig. Wir definieren den folgenden Dataframe mit allen SNP und den phänotypischen Beobachtungen
+
+```{r PrepareLm, results='markup'}
+dfSnpYdata <- data.frame(snp1 = c(2,0,1),
+                         snp2 = c(1,0,1),
+                         snp3 = c(2,1,1),
+                         snp4 = c(0,1,1),
+                         snp5 = c(1,1,2),
+                         y    = c(33.43,12.11,29.7))
+```
+
+
+## Aufgabe 3: GBLUP
+Bei RR-BLUP in Aufgabe 1 werden die Genotypen aller SNP für jedes Individuum im Modell (\ref{eq:RRBlupModel}) berücksichtigt. Im Gegensatz dazu werden bei GBLUP die additiven Effekte aller SNP pro Individuum mit nur einem Effekt modelliert. Unter der Annahme, dass jedes Tier sowohl eine Beobachtung als auch SNP-Informationen aufweist, führt dies zum folgenden Modell
+
+\begin{equation}
+y = 1_n\mu + Z g + \epsilon
+\label{eq:GBlupModel}
+\end{equation}
+
+\begin{tabular}{lll}
+wobei  &              &  \\
+       &  $y$         &  Vektor der Länge $n$ mit phänotypischen Beobachtungen \\
+       &  $\mu$       &  allgemeines Mittel \\
+       &  $g$         &  Vektor der Länge $n$ mit zufälligen additiven SNP-Effekten pro Individuum \\
+       &  $Z$         &  Inzidenzmatrix, welche SNP-Effekte mit Beobachtungen verknüpft\\
+       &  $\epsilon$  &  Vektor von zufälligen Resteffekten
+\end{tabular}
+
+Das Modell (\ref{eq:GBlupModel}) ist ein gemischtes lineares Modell mit den zufälligen Effekten $g$. Die Varianz $Var(g) = G \sigma_g^2$ wobei $G$ der __genomischen Verwandtschaftsmatrix__ entspricht und $\sigma_g^2$ der genetisch additiven Varianz entspricht. Die genomische Verwandtschaftsmatrix $G$ baisert auf SNP-Informationen der typisierten Individuen und ersetzt die addtiv genetische Verwandtschaftsmatrix $A$ im BLUP-Tiermodell. 
+
+Eine Art der Berechnung der genomischen Verwandtschaftsmatrix $G$ ist im Artikel von [@CV2013] beschrieben und diese soll hier noch etwas genauer erklärt werden. 
+
+```{r SmallExampleGrmDataSimulation, echo=FALSE}
+### # Code taken from ImpGWH2013a
+### # fix rng seed
+set.seed(1234)
+### # Generate a small SNP-data matrix
+nNrSnp <- 50
+nNrSamples <- 10
+matSnp <- matrix(data = sample(c(0,1,2),nNrSnp*nNrSamples,replace=T), nrow = nNrSnp, ncol = nNrSamples)
+### # generate the objects that are used in @CV2013
+nmarkers <- nNrSamples
+data <- matSnp
+
+### # use the data from task1
+matDesignW <- t(matAddGeno)
+data <- matDesignW
+nmarkers <- ncol(data)
+```
+
+Hier folgt nun der Abschnitt des R-Codes aus [@CV2013], welcher die genomische Verwandtschaftsmatrix berechnet. Wir nehmen an, dass das Objekt `data` die SNP-Datenmatrix enthält. Diese entspricht der mit 0, 1, und 2 codierten Genotypen analog zur Matrix $W$ aus dem RR-BLUP Modell in (\ref{eq:RRBlupModel}).
+
+```{r CV2013Code, echo = TRUE, results='hide'}
+sumpq <- 0
+freq <- dim(data)[1]
+P <- freq
+for(i in 1:ncol(data)){
+  (freq[i] <- ((mean(data[,i])/2)))
+  (P[i] <- (2*(freq[i]-0.5)))
+  (sumpq <- sumpq+(freq[i]*(1-freq[i])))
+}
+Z <- data
+for(i in 1:nrow(data)){
+  for(j in 1:ncol(data)){
+    (Z[i,j] <- ((data[i,j]-1)-(P[j])))
+  }
+}
+Zt <- t(Z)
+ZtZ <- Z%*%Zt
+G <- ZtZ/(2*sumpq)
+```
+
+Im folgenden Abschnitt wollen wir das obige R-Programm zur Berechnung der genomischen Verwandtschaftsmatrix noch etwas genauer erklären. Das Programm ist mit Ausnahme der Formatierung und dem Ersetzen des Zuweisungsoperators unverändert aus [@CV2013] übernommen worden. Im Bezug auf den Programmierstil ist das gezeigte Programm nicht optimal, aber das soll hier nicht das Thema sein. 
+
+Bei der Berechnung der genomischen Verwandtschaftsmatrix $G$ mit dem obigen R-Programm werden vor dem `for()`-Loop die Variablen `sumpq`, `freq` und `P` initialisiert. Die Werte, welche für die Initialisierung verwendet werden sind bei `freq` und `P` für den weiteren Verlauf nicht wichtig. Die Variable `sumpq` muss zwingend mit $0$ initialisiert werden.
+
+Im ersten `for()`-loop werden die Werte der Variablen `freq`, `P` und `sumpq`  berechnet. Die Variable `freq` referenziert ein Vektor der Länge der Anzahl SNPs, in welchem die Frequenzen der Allele mit positiver Wirkung gespeichert sind. `P` ist ein Vektor der gleichen Länge wie `freq` und enhält die doppelten Differenzen der Frequenzen in `freq` minus $0.5$. Somit sind die Einträge in `P` positive für alle SNP, welche eine Frequenz des Allels mit positiver Wirkung von $>0.5$ haben. Bei allen anderen SNPs ist der Eintrag in `P` negativ. In der Variablen `sumpq` werden die Produkte der Frequenzen der beiden Allele an allen SNPs aufaddiert. 
+
+Im zweiten `for`-loop wird von der Matrix $W$ aus dem Modell (\ref{eq:RRBlupModel}), welche unter der Variablen `data` gespeichert ist, bei allen Elementen $1$ abgezogen und der Wert aus dem Vektor `P` des entsprechenden SNPs abgezogen. Die so korrigierte Matrix wird mit `Z` bezeichnet. Die genomische Verwandtschaftsmatrix $G$ wird zum Schluss berechnet als $Z * Z^T / (2\sum_jp_jq_j)$ wobei die Variable `sumpq` die summierten Produkte der Allelfrequenzen aller SNPs gespeichert hat. 
+
+### Ihre Aufgabe
+1. Stellen Sie das GBLUP-Modell mit dem Datensatz aus Aufgabe 1 auf
+2. Berechnen Sie die genomische Verwandtschaftsmatrix $G$ anhand des oben gezeigten R-Programms aus [@CV2013]
+3. Stellen Sie die Mischmodellgleichungen für das GBLUP-Modell auf und berechnen Sie die Lösungen mit Hilfe des folgenden R-Programms
+
+```{r GBlupSolution, echo=TRUE, results='markup'}
+lamda <- ncol(data)
+matG <- G
+for(i in 1:nrow(G)){
+  (matG[i,i] <- ((matG[i,i]+0.01)))
+}
+# matrix X
+matX <- matrix(1,nrow=nAnzTiere,1)
+matXtX <- crossprod(matX)
+matZ <- diag(1,nAnzTiere)
+matXtZ <- crossprod(matX,matZ)
+matZtZ <- crossprod(matZ)
+matCoeff <- cbind(rbind(matXtX,t(matXtZ)),rbind(matXtZ,matZtZ + lamda * solve(matG)))
+vecRhs <- rbind(crossprod(matX,y),crossprod(matZ,y))
+vecSol <- solve(matCoeff,vecRhs)
+```
+
+
+
+\pagebreak
+
+```{r WriteTableOfAbbreviations}
+if (!r6objTableAbbrev$is_empty_abbr())
+  r6objTableAbbrev$writeToTsvFile()
+```
+
+```{r AbrTableToDocument, results='asis'}
+r6objTableAbbrev$include_abbr_table(psAbbrTitle = "## Abkürzungen")
+```
+
+
+## References
+```{r References}
+bref <- c(bibentry(
+     bibtype = "Article",
+     title = "Prediction of total genetic value using genome-wide dense marker maps",
+     author = c(as.person("Theo HE Meuwissen [aut]"), 
+                as.person("Ben J Hayes [aut]]"),
+                as.person("Mike E Goddard [aut]")),
+     year = "2001",
+     journal = "Genetics",
+     number = "157",
+     pages = "1819-1829",
+     key = "MHG2001"),
+     bibentry(
+       bibtype = "InBook",
+       title   = "Genomic Best Linear Unbiased Prediction (gBLUP) for the Estimation of Genomic Breeding Values",
+       author  = c(as.person("Samuel A. Clark [aut]"),as.person("Julius van der Werf [aut]")),
+       year    = "2013",
+       booktitle = "Genome-Wide Association Studies and Genomic Prediction, Methods in Molecular Biology, vol 1019",
+       chapter   = 13,
+       editor    = c(as.person("Cedric Gondro"), 
+                     as.person("Julius van der Werf"),
+                     as.person("Ben Hayes")),
+       publisher = "Springer",
+       doi       = "10.1007/978-1-62703-447-0_13",
+       key       = "CV2013"
+     ))
+sBibFile <- "asmas_w6_l5.bib"
+if(!file.exists(sBibFile))
+  cat(paste(toBibtex(bref), collapse = "\n"), "\n", file = sBibFile)
+```
+
