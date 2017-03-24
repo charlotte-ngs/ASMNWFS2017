@@ -93,11 +93,16 @@ knitr::kable(dfGenotypes)
 
 Stellen Sie für den gegebenen Datensatz das RR-Modell aus Gleichung (\ref{eq:RRBlupModel}) auf. In diesem Datensatz hat das Allel $G_0$ die positive Wirkung. 
 
+\pagebreak
+
 ### Lösung
 Die Komponenten $\mu$ und $q$ sind unbekannt und müssen aus den Daten geschätzt werden. Da wir jetzt nicht mehr nur einen SNP-Locus sondern $5$ Loci betrachten ist $q$ ein Vektor mit fünf Komponenten.
 
 ```{r vecQSnp, results='asis'} 
-c
+vecQ <- rmddochelper::vecGetVecElem(psBaseElement = "q", pnVecLen = nAnzSnp, psResult = "latex")
+cat("$$q = \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecQ, ncol=1)), collapse = "\n"))
+cat("\\right]$$\n")
 ```
 
 Die Matrix $W$ verbindet die genetischen Effekte mit den Tieren. Die Elemente sind codiert als $0$, $1$ oder $2$ je nachdem wie viele Allele mit positiver Wirkung in einem Genotyp enthalten sind. Die Matrix $W$ lautet somit
@@ -276,7 +281,7 @@ vecSol <- solve(matCoeff,vecRhs)
 ### Lösung
 1. Die Elemente $y$, $1_n$, $\mu$ und $\epsilon$ sind gleich wie im RR-BLUP Modell ((\ref{eq:RRBlupModel})). Die Matrix $Z$ und der Vektor $g$ sind wie folgt definiert.
 
-```{r MatDesignZ, results='asis'}
+```{r MatDesignZ, echo=FALSE, results='asis'}
 matDesignZ <- diag(1,nAnzTiere)
 cat("$$Z = \\left[\n")
 cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = matDesignZ), 
@@ -298,6 +303,36 @@ cat("\\right]$$\n")
 ```{r ShowGenomicRelationshipMatrix, echo=TRUE, results='markup'}
 cat(" * Genomische Verwandtschaftsmatrix G:\n")
 print(G)
+```
+
+3. Zur Berechnung der Lösung mit GBLUP müssen wir die entsprechenden Mischmodellgleichungen aufstellen. Diese lauten
+
+```{r GblupMmg, echo=FALSE, results='asis'}
+vecEstFix <- rmddochelper::vecGetVecElem(psBaseElement = "\\hat{\\mu}", pnVecLen = 1, psResult = "latex")
+vecEstRand <- rmddochelper::vecGetVecElem(psBaseElement = "\\hat{g}", pnVecLen = nAnzTiere, psResult = "latex")
+vecEst <- c(vecEstFix,vecEstRand)
+cat("$$\\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = matCoeff), collapse = "\n"))
+cat("\\right]\n")
+cat("\\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecEst, ncol=1)), collapse = "\n"))
+cat("\\right]\n")
+cat(" = \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecRhs, ncol=1)), collapse = "\n"))
+cat("\\right]\n")
+cat("$$\n")
+```
+
+Der Lösungsvektor lautet
+
+```{r VecSol, echo=FALSE, results='asis'}
+cat("$$\\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecEst, ncol=1)), collapse = "\n"))
+cat("\\right]\n")
+cat(" = \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecSol, ncol=1)), collapse = "\n"))
+cat("\\right]\n")
+cat("$$\n")
 ```
 
 \pagebreak
