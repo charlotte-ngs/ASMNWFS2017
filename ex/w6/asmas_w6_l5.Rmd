@@ -97,10 +97,7 @@ Stellen Sie für den gegebenen Datensatz das RR-Modell aus Gleichung (\ref{eq:RR
 Die Komponenten $\mu$ und $q$ sind unbekannt und müssen aus den Daten geschätzt werden. Da wir jetzt nicht mehr nur einen SNP-Locus sondern $5$ Loci betrachten ist $q$ ein Vektor mit fünf Komponenten.
 
 ```{r vecQSnp, results='asis'} 
-vecQ <- rmddochelper::vecGetVecElem(psBaseElement = "q", pnVecLen = nAnzSnp, psResult = "latex")
-cat("$$q = \\left[\n")
-cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecQ, ncol=1)), collapse = "\n"))
-cat("\\right]$$\n")
+c
 ```
 
 Die Matrix $W$ verbindet die genetischen Effekte mit den Tieren. Die Elemente sind codiert als $0$, $1$ oder $2$ je nachdem wie viele Allele mit positiver Wirkung in einem Genotyp enthalten sind. Die Matrix $W$ lautet somit
@@ -249,13 +246,54 @@ Im folgenden Abschnitt wollen wir das obige R-Programm zur Berechnung der genomi
 
 Bei der Berechnung der genomischen Verwandtschaftsmatrix $G$ mit dem obigen R-Programm werden vor dem `for()`-Loop die Variablen `sumpq`, `freq` und `P` initialisiert. Die Werte, welche für die Initialisierung verwendet werden sind bei `freq` und `P` für den weiteren Verlauf nicht wichtig. Die Variable `sumpq` muss zwingend mit $0$ initialisiert werden.
 
+Im ersten `for()`-loop werden die Werte der Variablen `freq`, `P` und `sumpq`  berechnet. Die Variable `freq` referenziert ein Vektor der Länge der Anzahl SNPs, in welchem die Frequenzen der Allele mit positiver Wirkung gespeichert sind. `P` ist ein Vektor der gleichen Länge wie `freq` und enhält die doppelten Differenzen der Frequenzen in `freq` minus $0.5$. Somit sind die Einträge in `P` positive für alle SNP, welche eine Frequenz des Allels mit positiver Wirkung von $>0.5$ haben. Bei allen anderen SNPs ist der Eintrag in `P` negativ. In der Variablen `sumpq` werden die Produkte der Frequenzen der beiden Allele an allen SNPs aufaddiert. 
+
+Im zweiten `for`-loop wird von der Matrix $W$ aus dem Modell (\ref{eq:RRBlupModel}), welche unter der Variablen `data` gespeichert ist, bei allen Elementen $1$ abgezogen und der Wert aus dem Vektor `P` des entsprechenden SNPs abgezogen. Die so korrigierte Matrix wird mit `Z` bezeichnet. Die genomische Verwandtschaftsmatrix $G$ wird zum Schluss berechnet als $Z * Z^T / (2\sum_jp_jq_j)$ wobei die Variable `sumpq` die summierten Produkte der Allelfrequenzen aller SNPs gespeichert hat. 
+
 ### Ihre Aufgabe
 1. Stellen Sie das GBLUP-Modell mit dem Datensatz aus Aufgabe 1 auf
-2. Berechnen Sie die genomische Verwandtschaftsmatrix $G$ anhand des R-Programms aus [@CV2013]
+2. Berechnen Sie die genomische Verwandtschaftsmatrix $G$ anhand des oben gezeigten R-Programms aus [@CV2013]
+3. Stellen Sie die Mischmodellgleichungen für das GBLUP-Modell auf und berechnen Sie die Lösungen mit Hilfe des folgenden R-Programms
+
+```{r GBlupSolution, echo=TRUE, results='markup'}
+lamda <- ncol(data)
+matG <- G
+for(i in 1:nrow(G)){
+  (matG[i,i] <- ((matG[i,i]+0.01)))
+}
+# matrix X
+matX <- matrix(1,nrow=nAnzTiere,1)
+matXtX <- crossprod(matX)
+matZ <- diag(1,nAnzTiere)
+matXtZ <- crossprod(matX,matZ)
+matZtZ <- crossprod(matZ)
+matCoeff <- cbind(rbind(matXtX,t(matXtZ)),rbind(matXtZ,matZtZ + lamda * solve(matG)))
+vecRhs <- rbind(crossprod(matX,y),crossprod(matZ,y))
+vecSol <- solve(matCoeff,vecRhs)
+```
+
 
 ### Lösung
+1. Die Elemente $y$, $1_n$, $\mu$ und $\epsilon$ sind gleich wie im RR-BLUP Modell ((\ref{eq:RRBlupModel})). Die Matrix $Z$ und der Vektor $g$ sind wie folgt definiert.
 
-Die Genomische Verwandtschaftsmatrix, wie sie nach dem R-Programm aus [@CV2013] berechnet wird lautet
+```{r MatDesignZ, results='asis'}
+matDesignZ <- diag(1,nAnzTiere)
+cat("$$Z = \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = matDesignZ), 
+          collapse = "\n"))
+cat("\\right]$$\n")
+```
+
+Der Vektor $g$ enthält die genetischen Effekte pro Individuum über alle SNP.
+
+```{r VecG, results='asis'}
+vecG <- rmddochelper::vecGetVecElem(psBaseElement = "g", pnVecLen = nAnzTiere, psResult = "latex")
+cat("$$g = \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecG, ncol=1)), collapse = "\n"))
+cat("\\right]$$\n")
+```
+
+2. Die Genomische Verwandtschaftsmatrix, wie sie nach dem R-Programm aus [@CV2013] berechnet wird lautet
 
 ```{r ShowGenomicRelationshipMatrix, echo=TRUE, results='markup'}
 cat(" * Genomische Verwandtschaftsmatrix G:\n")
