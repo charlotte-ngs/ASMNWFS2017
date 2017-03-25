@@ -1,0 +1,132 @@
+---
+title: "Bayes'scher Ansatz"
+author: "Peter von Rohr"
+date: "27 März 2017"
+output: beamer_presentation
+output_file: asmas_w6_v6.pdf
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, results = 'asis')
+knitr::knit_hooks$set(conv.odg = rmddochelper::odg.graphics.conv.hook)
+```
+
+## Frequentisten und Bayesianer
+
+Unterschiede zwischen Frequentisten und Bayesianern bestehen hauptsächlich in 
+
+- deren Verständnis von Wahrscheinlichkeiten
+- deren Unterteilung von Modell- und Datenkomponenten
+- deren Techniken zur Schätzung von Parametern
+
+
+## Bekannte und Unbekannte Grössen
+
+Angenommen: einfaches lineares Regressionsmodell
+
+\begin{equation}
+y_i = \beta_0 + \beta_1 x_{i1} + \epsilon_i
+\label{eq:BayLinMod}
+\end{equation}
+
+```{r BayesianUnKnowsTab}
+Was <- c("$y_i$", "$x_{i1}$", "$\\beta_0$", "$\\beta_1$", "$\\sigma^2$")
+bekannt <- c("X", "X", "", "", "")
+unbekannt <- c("", "", "X", "X", "X")
+knitr::kable(data.frame(Was = Was,
+                        bekannt = bekannt,
+                        unbekannt = unbekannt, 
+                        row.names = NULL,
+                        stringsAsFactors = FALSE))
+```
+
+## Schätzung Unbekannter Grössen 
+
+- Parameterschätzung
+- a posteriori Verteilung der unbekannten Grössen gegeben die bekannten Grössen
+
+```{r AprioriAposteriori, conv.odg=TRUE, odg.path="../odg", odg.graph.cache=TRUE,fig.align='center', out.width='8cm'}
+knitr::include_graphics(path = "AprioriAposteriori")
+```
+
+
+## A Posteriori Verteilung
+
+- Für unser Regressionsmodell
+    + Annahme: $\sigma^2$ sei bekannt und ist im Folgenden nicht mehr erwähnt
+    + a posteriori Verteilung für $\beta$: $f(\beta | \mathbf{y})$
+- Berechnung durch __Satz von Bayes__, dieser basiert auf der Definition der bedingten Wahrscheinlichkeit
+
+\begin{eqnarray}
+f(\mathbf{\beta} | \mathbf{y}) & = & \frac{f(\mathbf{\beta}, \mathbf{y})}{f(\mathbf{y})} \nonumber \\
+                               & = & \frac{f(\mathbf{y} | \mathbf{\beta})f(\mathbf{\beta})}{f(\mathbf{y})}
+\label{LinModAPostProb}
+\end{eqnarray}
+
+
+## Komponenten der A Posteriori Verteilung
+
+- $f(\mathbf{y} | \mathbf{\beta})$: Likelihood
+- $f(\mathbf{\beta})$: a priori Verteilung von $\beta$
+- $f(\mathbf{y})$: Normalisierungskonstante
+
+
+## Problem
+
+- A Posteriori Verteilung häufig nicht explizit als Verteilung darstellbar
+- Lösung durch
+    1. Julian Besag 1974:  A Posteriori Verteilung ist bestimmt durch vollbedingte Verteilungen
+    2. Gute Pseudozufallszahlen-Generatoren in Software   
+- A Posteriori Verteilung für Regression: $f(\mathbf{\beta} | \mathbf{y})$
+- Vollbedingte Verteilungen für Regression: 
+    + $f(\beta_0 | \beta_1, \mathbf{y})$
+    + $f(\beta_1 | \beta_0, \mathbf{y})$
+    
+wobei $\beta$ der Vektor bestehen aus $\beta^T = \left[\begin{array}{cc}\beta_0 & \beta_1 \end{array} \right]$    
+
+
+## Ablauf einer Analyse: Vorbereitung
+
+- Schritt 1: Festlegung der a priori Verteilungen
+- Schritt 2: Bestimmung der Likelihood aufgrund von Daten und Modell
+- Schritt 3: Berechnung der a posteriori Verteilung
+- Schritt 4: Bestimmung der vollbedingten Verteilungen
+
+
+## Ablauf einer Analyse: Umsetzung
+
+Beispiel der Regression
+
+- Schritt 5: Initialisierung aller unbekannten Grössen ($\beta_0$, $\beta_1$) auf einen Startwert
+- Schritt 6: Bestimme neuen Wert für $\beta_0$ durch Ziehen einer Zufallszahl aus $f(\beta_0 | \beta_1, \mathbf{y})$
+- Schritt 7: Bestimme neuen Wert für $\beta_1$ durch Ziehen einer Zufallszahl aus $f(\beta_1 | \beta_0, \mathbf{y})$
+- Schritt 8: Loop viele Wiederholungen über Schritte 6-7 und speichere alle gezogenen Zahlen
+- Schritt 9: Parameterschätzungen als Mittelwerte der gespeicherten Zufallszahlen
+
+
+## R-Programm
+
+```{r BayesExample, echo=TRUE, eval=FALSE}
+beta = c(0, 0); meanBeta = c(0, 0)
+niter = 10000 # number of samples
+for (iter in 1:niter) {# loop for Gibbs sampler
+  # sampling intercept
+  w = y - X[, 2] * beta[2]; x = X[, 1]
+  xpxi = 1/(t(x) %*% x); betaHat = t(x) %*% w * xpxi
+  # using residual var = 1
+  beta[1] = rnorm(1, betaHat, sqrt(xpxi))
+  # sampling slope
+  w = y - X[, 1] * beta[1]; x = X[, 2]
+  xpxi = 1/(t(x) %*% x)
+  betaHat = t(x) %*% w * xpxi
+  # using residual var = 1
+  beta[2] = rnorm(1, betaHat, sqrt(xpxi))
+  meanBeta = meanBeta + beta
+}
+```
+
+
+## Fragen und Dank
+
+- Fragen?
+- Vielen Dank!!
