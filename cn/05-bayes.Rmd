@@ -23,7 +23,7 @@ Die Unterschiede zwischen Frequentisten und Bayesianern bestehen hauptsächlich 
 
 Die folgende Tabelle gibt eine Übersicht über die Unterschiede.
 
-```{r FreqBayesTable, echo=FALSE, results='asis'}
+```{r FreqBayesTable, eval=FALSE, echo=FALSE, results='asis'}
 Was <- c("Wahrscheinlichkeiten", "Modell- und Datenkomponenten", "Schätztungen von Parametern")
 Frequentisten <- c("Eigenschaften von Zufallsvariablen, welche bei grossen Stichproben eintreten",
                    "Unterscheidung zwischen Modellparametern und Daten. Parameter sind unbekannt, Daten sind bekannt. Fehlende Daten werden ignoriert",
@@ -37,6 +37,19 @@ dfTabCaptOut <- data.frame(Was           = Was,
                            stringsAsFactors = FALSE)
 knitr::kable(dfTabCaptOut)
 ```
+
+\begin{tabular}{p{3cm}p{6cm}p{6cm}}
+\hline
+Was                            &  Frequentisten  &  Bayesianer \\
+\hline
+Wahrscheinlichkeiten           &  Eigenschaften von Zufallsvariablen, welche bei grossen Stichproben eintreten
+                               &  Mass für Informationsgehalt unabhängig von Stichprobengrösse \\
+Modell- und Datenkomponenten   &  Unterscheidung zwischen Modellparametern und Daten. Parameter sind unbekannt, Daten sind bekannt. Fehlende Daten werden ignoriert
+                               &  Unterscheidung zwischen unbekannten und bekannten Grössen, unabhängig ob Parameter oder Daten. Fehlende Daten können simuliert werden \\
+Schätztungen von Parametern    &  ML oder REML werden für Parameterschätzung verwendet
+                               &  MCMC Zufallszahlen zur Approximation der gewünschten a posteriori Verteilungen \\
+\hline
+\end{tabular}
 
 
 ## Das Lineare Modell
@@ -54,7 +67,7 @@ wobei $y_i$ die $i$-te Beobachtung einer Zielgrösse ist, $\beta_0$ für den Ach
 Unter der Annahme, dass wir für die Zielgrösse $y_i$ und die erklärende Variable $x_1$ keine fehlenden Daten haben, dann machen wir als Bayesianer folgende Einteilung in bekannte und unbekannte Grössen. 
 
  und  als __bekannte__ Grössen
-```{r BayesianUnKnowsTab}
+```{r BayesianUnKnowsTab, eval=FALSE, echo=FALSE}
 Was <- c("$y_i$", "$x_1$", "$\\beta_0$", "$\\beta_1$", "$\\sigma^2$")
 bekannt <- c("X", "X", "", "", "")
 unbekannt <- c("", "", "X", "X", "X")
@@ -65,40 +78,48 @@ knitr::kable(data.frame(Was = Was,
                         stringsAsFactors = FALSE))
 ```
 
+\begin{center}
+\begin{tabular}{p{3cm}cc}
+\hline
+Was         &  bekannt  &  unbekannt \\
+\hline
+$y_i$       &    X      & \\
+$x_1$       &    X      & \\
+$\beta_0$   &           &      X \\
+$\beta_1$   &           &      X \\
+$\sigma^2$  &           &      X \\
+\hline
+\end{tabular}
+\end{center}
 
 ### Vorgehen bei Parameterschätzung
 Bayesianer basieren Schätzungen von unbekannten Grössen auf der sogenannten __a posteriori Verteiung__ der unbekannten Grössen gegeben die bekannten Grössen. Die a posteriori Verteilung wird mithilfe des __Satzes von Bayes__ aufgrund der a priori Verteilung der unbekannten und aufgrund der Likelihood berechnet. 
 
 Die Bezeichnungen "a priori"  und "a posteriori" beziehen sich immer auf den Zeitpunkt der Beobachtung der analysierten Daten. Die jeweiligen Verteilungen quantifizieren den Informationsstand zu den Unbekannten um jeweiligen Zeitpunkt. Dieses Konzept soll anhand der folgenden Grafik verdeutlicht werden.
 
-```{r AprioriAposteriori, conv.odg=TRUE, odg.path="odg", odg.graph.cache=TRUE,fig.align='center', out.width='8cm'}
+```{r AprioriAposteriori, echo=FALSE, conv.odg=TRUE, odg.path="odg", odg.graph.cache=TRUE,fig.align='center', out.width='8cm'}
 knitr::include_graphics(path = "AprioriAposteriori")
 ```
 
 Für unser Beispiel des einfachen linearen Modells, definieren wir zuerst den Vektor $\mathbf{\beta}$ als 
 
-$$\mathbf{\beta} = \left[\begin{array}{c} \beta_0  \\  \beta_1 \end{array} \right].$$
+$$\beta = \left[\begin{array}{c} \beta_0  \\  \beta_1 \end{array} \right].$$
 
-Die Beobachtungen $y_i$ fassen wir ebenfalls in einem Vektor $\mathbf{y}$ zusammen. Die a posteriori Verteilung $f(\mathbf{\beta}, \sigma^2 | \mathbf{y})$ der Unbekannten $\mathbf{\beta}$ und $\sigma^2$ gegeben die Bekannten $\mathbf{y}$ lässt sich nun wie folgt berechnen
+Die Beobachtungen $y_i$ fassen wir ebenfalls zu einem Vektor $y$ zusammen. Für den Moment nehmen wir an, dass $\sigma^2$ bekannt sei. Eine Bayes'sche Parameterschätzung für $\beta$ basiert dann auf der a posteriori Verteilung $f(\beta | y, \sigma^2)$ der Unbekannten $\beta$ gegeben die Bekannten $y$ und $\sigma^2$. Diese a posteriori Verteilung lässt sich mit dem Satz von Bayes, wie folgt berechnen
 
 \begin{eqnarray}
-f(\mathbf{\beta}, \sigma^2 | \mathbf{y}) & = & \frac{f(\mathbf{\beta}, \sigma^2, \mathbf{y})}{f(\mathbf{y})} \nonumber \\
-                                         & = & \frac{f(\mathbf{y} | \mathbf{\beta}, \sigma^2)f(\mathbf{\beta})f(\sigma^2)}{f(\mathbf{y})}
+f(\beta | y, \sigma^2) & =       & \frac{f(\beta, \sigma^2, y)}{f(y, \sigma^2)} \nonumber \\
+                       & =       & \frac{f(y | \beta, \sigma^2)f(\beta)f(\sigma^2)}{f(y, \sigma^2)} \nonumber \\
+                       & \propto & f(y | \beta, \sigma^2)f(\beta)f(\sigma^2)
 \label{LinModAPostProb}
 \end{eqnarray}
 
-In Gleichung (\ref{LinModAPostProb}) konnten wir die a posteriori Verteilung $f(\mathbf{\beta}, \sigma^2 | \mathbf{y})$ als Produkt der a priori Verteilungen ($f(\mathbf{\beta})$ und $f(\sigma^2)$) der unbekannten Grössen $\mathbf{\beta}$ und $\sigma^2$ und der Likelihood $f(\mathbf{y} | \mathbf{\beta}, \sigma^2)$ ausdrücken. Der Faktor $f(\mathbf{y})^{-1}$ (Term im Nenner) entspricht der sogenannten Normalisierungskonstanten und ist nicht weiter von Interesse.
+In Gleichung (\ref{LinModAPostProb}) konnten wir die a posteriori Verteilung $f(\beta | y, \sigma^2)$ als Produkt der a priori Verteilungen ($f(\beta)$ und $f(\sigma^2)$) der unbekannten Grössen $\beta$ und $\sigma^2$ und der Likelihood $f(y | \beta, \sigma^2)$ ausdrücken. Der Faktor $f(y, \sigma^2)^{-1}$ (Term im Nenner) entspricht der sogenannten Normalisierungskonstanten und ist nicht weiter von Interesse. Somit wird die a posteriori Verteilung oft als Proporzionalitätsbeziehung angegeben. 
 
-\rule{16cm}{.1pt}
+Die a posteriori Verteilung $f(\beta | y, \sigma^2)$ ist in vielen Fällen nicht explizit darstellbar. Das war lange ein Problem, welches die Anwendung von Bayes'schen Analysen sehr einschränkte. Zwei Entwicklungen haben dieses Problem beseitigt.
 
-__Kontrollfrage 3__: Aus welchen Bestandteilen berechnen wir die a posteriori Verteiung der unbekannten Grössen gegeben die bekannten Grössen, wenn wir den Satz von Bayes anwenden?
-
-\rule{16cm}{.1pt}
-
-Die a posteriori Verteilung $f(\mathbf{\beta}, \sigma^2 | \mathbf{y})$ ist in vielen Fällen nicht explizit darstellbar. Das war lange ein Problem, welches die Anwendung von Bayes'schen Analysen sehr einschränkte. Zwei Entwicklungen haben dieses Problem beseitigt.
-
-1. In seinem Paper (@Besa1974) zeigte Julian Besag, dass jede posteriori Verteilung durch eine Serie von Zufallszahlen aus den voll-bedingten Verteilungen bestimmt ist. Für unser Beispiel lauten die voll-bedingten Verteilungen: Bedingte Verteilung von $\beta_0$ gegeben alle anderen Grössen: $f(\beta_0 | \beta_1, \sigma^2, \mathbf{y})$, bedingte Verteilung von $\beta_1$ gegeben alle anderen Grössen: $f(\beta_1 | \beta_0, \sigma^2, \mathbf{y})$ und bedingte Verteilung von $\sigma^2$ gegeben alle anderen Grössen: $f(\sigma^2 | \beta_0, \beta_1, \mathbf{y})$ (mehr Details dazu in einem späteren Abschnitt).
-2. Die Entwicklung von effizienten Pseudo-Zufallszahlen-Generatoren auf dem Computer
+1. In seinem Paper (@Besa1974) zeigte Julian Besag, dass jede posteriori Verteilung durch eine Serie von Zufallszahlen aus den voll-bedingten Verteilungen bestimmt ist. Für unser Beispiel lauten die voll-bedingten Verteilungen: Bedingte Verteilung von $\beta_0$ gegeben alle anderen Grössen: $f(\beta_0 | \beta_1, \sigma^2, y)$, bedingte Verteilung von $\beta_1$ gegeben alle anderen Grössen: $f(\beta_1 | \beta_0, \sigma^2, y)$.
+2. Die Entwicklung von effizienten Pseudo-Zufallszahlen-Generatoren auf dem Computer.
 
 
 ## Gibbs Sampler
@@ -109,31 +130,20 @@ Die Umsetzung der beiden oben aufgelisteten Punkte führt zu einer Prozedur, wel
 3. Bestimmung der voll-bedingten Verteilungen
 
 ### A priori Verteilungen
-In unserem Bespiel handelt es sich dabei um $f(\mathbf{\beta})$ und $f(\sigma^2)$. In den meisten Fällen, wenn man das erste Mal eine bestimmte Art von Daten analysisern soll, empfielt es sich eine sogenannte uniformative a priori Verteilung zu wählen. Eine uninformative a priori Verteilung bedeutet einfach, dass deren Dichtewert überall gleich, also eine Konstante ist. Wenden wir zum Beispiel für die Unbekannte $\mathbf{\beta}$  eine uninformative a priori Verteilung an, dann bedeutet das, dass wir $f(\mathbf{\beta}) = c$. 
+In unserem Bespiel handelt es sich dabei um $f(\beta)$ und $f(\sigma^2)$. In den meisten Fällen, wenn man das erste Mal eine bestimmte Art von Daten analysisern soll, empfielt es sich eine sogenannte uniformative a priori Verteilung zu wählen. Eine uninformative a priori Verteilung bedeutet einfach, dass deren Dichtewert überall gleich, also eine Konstante ist. Wenden wir zum Beispiel für die Unbekannte $\beta$  eine uninformative a priori Verteilung an, dann bedeutet das, dass wir $f(\beta) = c$. 
 
 Alternativ zu der uniformativen a priori Verteilung gibt es auch a priori Verteiungen für bestimmte unbekannte Grössen, welche als de-facto Standard aktzeptiert sind. Ein Bespiel dafür ist die a priori Verteilung der unbekannten Restvarianz, welche üblicherweise als Inverse-Chi-Quadrat Verteilung angenommen wird.   
 
-\rule{16cm}{.1pt}
-
-__Kontrollfrage 4__: Welche Möglichkeiten zur Bestimmung einer a priori Verteilung gibt es?
-
-\rule{16cm}{.1pt}
 
 ### Likelihood
-Die Likelihood ist wie bei den Frequentisten als begingte Verteilung ($f(\mathbf{y} | \mathbf{\beta}, \sigma^2)$) der Daten $\mathbf{y}$ gegeben die Parameter ($\mathbf{\beta}$ und $\sigma^2$). Falls keine Daten fehlen, dann ist die Bayes'sche Likelihood und die frequentistische Likelihood gleich.
-
-\rule{16cm}{.1pt}
-
-__Kontrollfrage 5__: Welche bedingte Verteilung wird sowohl bei den Frequentisten als auch bei den Bayesianern als Likelihood bezeichnet?
-
-\rule{16cm}{.1pt}
+Die Likelihood ist wie bei den Frequentisten als begingte Verteilung ($f(y | \beta, \sigma^2)$) der Daten $y$ gegeben die Parameter ($\beta$ und $\sigma^2$). Falls keine Daten fehlen, dann ist die Bayes'sche Likelihood und die frequentistische Likelihood gleich.
 
 
 ### Vollbedingte Verteilungen
-Mit vollbedingten Verteilungen ist gemeint, dass für jede unbekannte Grösse die bedingte Verteilung gegeben alle anderen Grössen bestimmt wird. In unserem Bespiel des linearen Regressionsmodells haben wir drei unbekannte Grössen $\beta_0$, $\beta_1$ und $\sigma^2$. Somit haben wir auch drei vollbedingte Verteilungen
+Mit vollbedingten Verteilungen ist gemeint, dass für jede unbekannte Grösse die bedingte Verteilung gegeben alle anderen Grössen bestimmt wird. In unserem Bespiel des linearen Regressionsmodells haben wir zwei unbekannte Grössen $\beta_0$ und $\beta_1$. Somit haben wir auch zwei vollbedingte Verteilungen. Unter der Annahme, dass unsere Daten ($y$) einer Normalverteilung folgen, resultieren die folgenden vollbedingten Verteilungen.
 
 \vspace{2ex}
-```{r FullCondTable}
+```{r FullCondTable, eval=FALSE, echo=FALSE}
 dfFullCond <- data.frame(unknown = c("$\\beta_0$","$\\beta_1$","$\\sigma^2$"),
                          fullcond = c("$f(\\beta_0 | \\beta_1, \\sigma^2, \\mathbf{y})$",
                                       "$f(\\beta_1 | \\beta_0, \\sigma^2, \\mathbf{y})$",
@@ -145,11 +155,16 @@ names(dfFullCond) <- c("unbekannte Grösse", "vollbedingte Verteilung", "resulti
 knitr::kable(dfFullCond)
 ```
 
-\rule{16cm}{.1pt}
-
-__Kontrollfrage 6__: Was versteht man unter vollbedingter Verteilung?
-
-\rule{16cm}{.1pt}
+\begin{center}
+\begin{tabular}{lll}
+\hline
+unbekannte Grösse  &  unbekannte Grösse                    &  resultierende Verteilung \\
+\hline
+$\beta_0$          &  $f(\beta_0 | \beta_1, \sigma^2, y)$  &  $\mathcal{N}\left(\hat{\beta}_0, var(\hat{\beta}_0)\right)$ \\
+$\beta_1$          &  $f(\beta_1 | \beta_0, \sigma^2, y)$  &  $\mathcal{N}\left(\hat{\beta}_1, var(\hat{\beta}_1)\right)$ \\
+\hline
+\end{tabular}
+\end{center}
 
 
 Aufgrund von Berechnungen, welche hier nicht gezeigt sind, können wir die oben aufgelisteten vollbedingten Verteilungen bestimmen. Die entsprechenden Verteilungen sind in der Kolonnen ganz rechts, welche mit "resultierende Verteilung" überschrieben ist, aufgelistet. Dabei steht $\mathcal{N}()$ für die Normalverteilung. Für die Erwartungswerte und Varianzen wird das Modell in Gleichung (\ref{eq:BayLinMod}) leicht umformuliert.
@@ -180,7 +195,7 @@ var(\hat{\beta}_0) = (\mathbf{1}^T\mathbf{1})^{-1}\sigma^2
 \label{eq:VarBeta0LsEst}
 \end{equation}
 
-Analog dazu berechnen wir den Least Squares Schätzer für $\beta_0$ und dessen Varianz.
+Analog zu $\beta_0$ berechnen wir den Least Squares Schätzer für $\beta_1$ und dessen Varianz.
 
 \begin{equation}
 \hat{\beta}_1 = (\mathbf{x}^T\mathbf{x})^{-1}\mathbf{x}^T\mathbf{w}_1
@@ -194,11 +209,9 @@ var(\hat{\beta}_1) = (\mathbf{x}^T\mathbf{x})^{-1}\sigma^2
 \label{eq:VarBeta1LsEst}
 \end{equation}
 
-Die resultiertende vollbedingte Verteilung von $\sigma^2$ wurde in obiger Tabelle mit $\propto \chi^{-2}$ angegeben. Das heisst, wir können diese Verteilung nur bis auf einen Proportionalitätsfaktor angeben und die Verteilung ist proportional zu einer inversen $\chi^2$ Verteilung.
-
 
 ### Umsetzung des Gibbs Samplers
-Der Gibbs Sampler wird durch wiederholtes ziehen von Zufallszahlen aus den oben angegebenen vollbedingten Verteilungen umgesetzt. Das heisst, wir setzen für alle unbekannten Grössen sinnvolle Startwerte ein. Für $\beta_0$ und $\beta_1$ wählen wir $0$ als Startwert und für $\sigma^2$ wählen wir die empirische Varianz von $\mathbf{y}$ als Startwert. Dann berechnen wir den Erwartungswert und die Varianz für die vollbedingte Verteilung von $\beta_0$. Aus dieser Verteilung ziehen wir einen neuen Wert für $\beta_0$. In einem zweiten Schritt berechnen wir den Erwartungswert und die Varianz für die vollbedingte Verteilung von $\beta_1$, wobei wir für $\beta_0$ schon den neuen Wert einsetzen. Aus der Verteilung für $\beta_1$ ziehen wir einen neuen Wert für $\beta_1$. Im dritten Schritt verfahren wir analog für $\sigma^2$. Danach beginnen wir die Schritte wieder bei $\beta_0$. Diese Schrittabfolge wiederholen wir $10000$ mal und speichern alle gezogenen Werte für $\beta_0$, $\beta_1$ und $\sigma^2$. Die Bayes'schen Parameterschätzungen entsprechen dann den Mittelwerten der gespeicherten Werte.
+Der Gibbs Sampler wird durch wiederholtes ziehen von Zufallszahlen aus den oben angegebenen vollbedingten Verteilungen umgesetzt. Das heisst, wir setzen für alle unbekannten Grössen sinnvolle Startwerte ein. Für $\beta_0$ und $\beta_1$ wählen wir $0$ als Startwert. Dann berechnen wir den Erwartungswert und die Varianz für die vollbedingte Verteilung von $\beta_0$. Aus dieser Verteilung ziehen wir einen neuen Wert für $\beta_0$. In einem zweiten Schritt berechnen wir den Erwartungswert und die Varianz für die vollbedingte Verteilung von $\beta_1$, wobei wir für $\beta_0$ schon den neuen Wert einsetzen. Aus der Verteilung für $\beta_1$ ziehen wir einen neuen Wert für $\beta_1$. Danach beginnen wir die Schritte wieder bei $\beta_0$. Diese Schrittabfolge wiederholen wir $10000$ mal und speichern alle gezogenen Werte für $\beta_0$ und $\beta_1$. Die Bayes'schen Parameterschätzungen entsprechen dann den Mittelwerten der gespeicherten Werte.
 
 Der folgende R-Codeblock soll die Umsetzung des Gibbs Samplers für $\beta_0$ und $\beta_1$ als Programm zeigen. Der Einfachheit halber wurde $\sigma^2$ konstant $\sigma^2=1$ angenommen.
 
@@ -230,58 +243,4 @@ for (iter in 1:niter) {
 cat(sprintf("Achsenabschnitt = %6.3f \n", meanBeta[1]/iter))
 cat(sprintf("Steigung = %6.3f \n", meanBeta[2]/iter))
 
-=======
-#knitr::kable
-#pander::pandoc.table
-xtable::xtable(data.frame(Was           = Was,
-                          Frequentisten = Frequentisten,
-                          Bayesianer    = Bayesianer,
-                          row.names     = NULL),
-               align = c("l","p{3.5cm}","p{5cm}","p{5cm}") )
->>>>>>> f29d84432b5b1ef4b8137e53ef39038a61382d24
 ```
-
-
-\pagebreak
-
-# Antworten zu den Kontrollfragen
-
-__Antwort 1__:
-
-Bayesianer unterscheiden zwischen bekannten und unbekannten Grössen unabhängig, ob das Parameter oder Daten sind.
-
-
-__Antwort 2__:
-
-Die Einteilung in bekannte und unbekannte Grössen entspricht unter der Annahme, dass keine Daten fehlen, der frequentistischen Einteilung in Daten und Parameter. Dabei entsprechen die Daten den bekannten Grössen und die Parameter den unbekannten Grössen.
-
-
-__Antwort 3__:
-
-Die Bestandteile der a posteriori Verteiung der unbekannten Grössen gegeben die bekannten Grössen lauten
-
-- a priori Verteilungen der unbekannten Grössen
-- Likelihood
-- Normalisierungskonstante
-
-
-__Antwort 4__:
-
-Wir haben zwei Möglichkeiten angeschaut. 
-
-1. uninformative a priori Verteilungen, d.h. die Dichte wird konstant angenommen, z.B. $f(\mathbf{\beta}) = c$
-2. für gewisse unbekannte Grössen gibt es de-facto Standards. Zum Beispiel für $f(\sigma^2)$ wird häufig eine inverse $\chi^2$ Verteilung verwendet.
-
-
-__Antwort 5__:
-
-Die Likelihood entspricht der bedingten Verteilung der Daten gegeben die Parameter. In unserem Beispiel des einfachen linearen Modells war das $f(\mathbf{y}|\mathbf{\beta}, \sigma^2)$.
-
-
-__Antwort 6__:
-
-Die vollbedingte Verteilung einer bestimmten unbekannten Grösse ist die bedingte Verteilung dieser unbekannten Grösse gegeben alle anderen Grössen. Zum Beispiel ist die vollbedingte Verteilung für $\beta_0$ gleich der bedingten Verteilung von $\beta_0$ gegeben alle die anderen Grössen also: $f(\beta_0 | \beta_1, \sigma^2)$.
-
-\pagebreak
-
-# References

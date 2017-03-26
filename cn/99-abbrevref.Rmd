@@ -80,6 +80,17 @@ bref <- c(bibentry(
     publisher = "Springer",
     doi = "10.1007/978-1-4614-7138-7",
     key = "JWHT2013"
+  ),
+  bibentry(
+    bibtype = "Article",
+    title   = "Spatial Interaction and the Statistical Analysis of Lattice Systems",
+    author  = c(as.person("J. Besag")),
+    year    = "1974",
+    journal = "Journal of the Royal Statistical Society. Series B (Methodological)",
+    number = "36",
+    pages = "192-236",
+    url = "http://www.jstor.org/stable/2984812",
+    key = "Besa1974"
   )
 )
 

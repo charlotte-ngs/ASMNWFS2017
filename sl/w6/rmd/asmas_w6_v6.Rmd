@@ -53,22 +53,32 @@ knitr::include_graphics(path = "AprioriAposteriori")
 ## A Posteriori Verteilung
 
 - Für unser Regressionsmodell
-    + Annahme: $\sigma^2$ sei bekannt und ist im Folgenden nicht mehr erwähnt
-    + a posteriori Verteilung für $\beta$: $f(\beta | \mathbf{y})$
+    + Annahme: $\sigma^2$ sei bekannt 
+    + a posteriori Verteilung für $\beta$: $f(\beta | y, \sigma^2)$
 - Berechnung durch __Satz von Bayes__, dieser basiert auf der Definition der bedingten Wahrscheinlichkeit
 
 \begin{eqnarray}
-f(\mathbf{\beta} | \mathbf{y}) & = & \frac{f(\mathbf{\beta}, \mathbf{y})}{f(\mathbf{y})} \nonumber \\
-                               & = & \frac{f(\mathbf{y} | \mathbf{\beta})f(\mathbf{\beta})}{f(\mathbf{y})}
+f(\beta | y, \sigma^2) & = & \frac{f(\beta, y, \sigma^2)}{f(y, \sigma^2)} \nonumber \\
+                       & = & \frac{f(y | \beta, \sigma^2)f(\beta)f(\sigma^2)}{f(y, \sigma^2)} \nonumber \\
+                       & \propto &  f(y | \beta, \sigma^2) f(\beta) f(\sigma^2)
 \label{LinModAPostProb}
 \end{eqnarray}
 
 
 ## Komponenten der A Posteriori Verteilung
 
-- $f(\mathbf{y} | \mathbf{\beta})$: Likelihood
-- $f(\mathbf{\beta})$: a priori Verteilung von $\beta$
-- $f(\mathbf{y})$: Normalisierungskonstante
+- $f(y | \beta, \sigma^2)$: Likelihood
+- $f(\beta)$: a priori Verteilung von $\beta$,  oft als konstant angenommen, d.h. uninformative a priori Verteilung
+- $f(\sigma^2)$ : a priori Verteilung von $\sigma^2$,  oft als konstant angenommen
+- $f(y, \sigma^2)$: Normalisierungskonstante
+
+$\rightarrow$ uninformative a priori Verteilungen führen 
+
+$$f(\beta | y, \sigma^2) \propto f(y | \beta, \sigma^2)$$
+
+$\rightarrow$ Annahme, dass $y$ normalverteilt:
+
+$$ f(y | \beta, \sigma^2) = (2\pi\sigma^2)^{-n/2}\ exp\left\{-{1\over2}\frac{(y-X\beta)^T(y-X\beta)}{\sigma^2}\right\}$$
 
 
 ## Problem
@@ -77,10 +87,10 @@ f(\mathbf{\beta} | \mathbf{y}) & = & \frac{f(\mathbf{\beta}, \mathbf{y})}{f(\mat
 - Lösung durch
     1. Julian Besag 1974:  A Posteriori Verteilung ist bestimmt durch vollbedingte Verteilungen
     2. Gute Pseudozufallszahlen-Generatoren in Software   
-- A Posteriori Verteilung für Regression: $f(\mathbf{\beta} | \mathbf{y})$
+- A Posteriori Verteilung für Regression: $f(\beta | y, \sigma^2)$
 - Vollbedingte Verteilungen für Regression: 
-    + $f(\beta_0 | \beta_1, \mathbf{y})$
-    + $f(\beta_1 | \beta_0, \mathbf{y})$
+    + $f(\beta_0 | \beta_1, y, \sigma^2)$
+    + $f(\beta_1 | \beta_0, y, \sigma^2)$
     
 wobei $\beta$ der Vektor bestehen aus $\beta^T = \left[\begin{array}{cc}\beta_0 & \beta_1 \end{array} \right]$    
 

@@ -50,7 +50,7 @@ nPointOverallTotal <- nPointQ1Total + nPointQ2Total + nPointQ3Total + nPointQ4To
 	Institut f\"ur Agrarwissenschaften
 }
 
-\title{\vspace{5ex} L\"osungen zur Pr\"ufung \\
+\title{\vspace{5ex} Pr\"ufung \\
        Angewandte Statistische Methoden in den Nutzierwissenschaften\\
        FS 2016 \vspace{3ex}}
 \author{Peter von Rohr \vspace{3ex}}

@@ -5,3 +5,6 @@ GLMM	Generalized Linear Mixed Models
 i.i.d.	independent, identically distributed
 QQ	Quantil Quantil
 LASSO	Least Absolute Shrinkage And Selection Operator
+REML	Restricted oder Residual Maximum Likelihood
+ML	Maximum Likelihood
+MCMC	Markov Chain Monte Carlo
