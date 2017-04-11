@@ -1,1 +1,152 @@
-# Genomic Best Linear Unbiased Prediction {#gblup}
+# Genomic Best Linear Unbiased Prediction (GBLUP) {#gblup}
+Die Methode GBLUP verwendet genomische Verwandtschaftsbeziehungen zur Schätzung des genetischen Potentials von Individuen. Die genomische Verwandtschaft wird aufgrund von DNA-Informationen geschätzt. Die genomische Verwandtschaftsmatrix $G$ definiert die Kovarianz zwischen Individuen aufgrund von Ähnlichkeiten auf dem Niveau der genomischen Information. Diese Definition der Kovarianz steht im Gegensatz zur Kovarianz aufgrund der erwarteten Ähnlichkeit aufgrund von Pedigrees in der traditionellen Verwandtschaftsmatrix $A$. 
+
+
+## DNA Markers
+Die Verfügbarkeit von Markerkarten in genügender Dichte verteilt über das ganze Genom, ermöglicht die Schätzung des genetischen Potentials von Individuen basierend auf der beobachteten Markerinformation. Das aktuell am weitesten verbreitete Markermodell wird als `r r6objTableAbbrev$add_abbrev(psAbbrev = "SNP", psMeaning = "Single Nucleotide Polymorphism")` bezeichnet. Bei den SNPs handelt es sich um Positionen im Genom, an welchen Unterschiede zwischen Individuen einer Population bei einer einzelnen DNA-Base auftreten. Nehmen wir an, dass Genorte (QTL), welche wichtig sind für die Expression von interessanten phänotypischen Eigenschaften, sich in der Nähe von beobachteten SNPs befinden, können wir aufgrund von Kopplungsungleichgewichten zwischen SNPs und QTL eine statistische Beziehung zwischen phänotypischen Werten und SNP-Genotypen modellieren.
+
+Für die Schätzung der SNP-Effekte auf phänotypische Ausprägungen stehen verschiedene statistische Verfahren zur Verfügung. Als einfachste Methode können wir die Regression auf einzelne SNP-Marker bezeichnen. Das Problem der Single-Marker Regression liegt in der im Vergleich zur Anzahl der Beobachtungen sehr grossen Anzahl an SNP-Markern. Eine Lösung dieses Problems besteht darin, dass die SNP-Effekte im linearen Modell als zufällige Effekte aufgefasst werden. Dadurch wird das einfache lineare Regressionsmodell in ein lineares gemischtes Modell verwandelt. Aus der traditionellen Zuchtwertschätzung ([@Hofer1990] und [@vonRohr2016]) kennen wir die Mischmodellgleichungen, welche uns Schätzwerte für fixe und zufällige Effekte mit BLUE- und BLUP-Eigenschaften liefern. Bei diesem Verfahren werden aber allen SNPs der gleiche Varianzanteil zugesprochen. Die totale genetische Varianz wird somit auf alle SNPs gleichmässig aufgeteilt. Bayes'sche Methoden, wie sie in Kapitel \@ref(bayes) beschrieben sind, erlauben es verschiedenen genomischen Regionen verschiedene Varianzanteile zuzuordnen.
+
+
+## Markerinformationen in BLUP-Verfahren
+Parameterschätzverfahren, welche zu Schätzungen für fixe Effekte mit `r r6objTableAbbrev$add_abbrev(psAbbrev = "BLUE", psMeaning = "Best Linear Unbiased Estimation")`-Eigenschaften und zu Vorhersagen von zufälligen Effekten mit `r r6objTableAbbrev$add_abbrev(psAbbrev = "BLUP", psMeaning = "Best Linear Unbiased Prediction")`-Eigenschaften führen werden hier kurz als __BLUP-Verfahren__ bezeichnet. Die traditionelle Zuchtwertschätzung basiert auf Pedigreeinformationen zur Schätzung der Covarianz zwischen zufälligen Effekten (Zuchtwerten) von verwandten Tieren. Die Covarianz kann aber auch aufgrund von Markerinformation geschätzt werden. Die aufgrund von SNPs erstellte Matrix wird als `r r6objTableAbbrev$add_abbrev(psAbbrev = "GRM", psMeaning = "Genomic Relationship Matrix")` bezeichnet. 
+
+Wir besprechen hier zwei verschiedene Ansätze
+
+1. `r r6objTableAbbrev$add_abbrev(psAbbrev = "RR", psMeaning = "Ridge Regression")`-BLUP
+2. `r r6objTableAbbrev$add_abbrev(psAbbrev = "GBLUP", psMeaning = "Genomic BLUP")`
+
+### Ridge Regression (RR) BLUP
+Diese Methode wurde von [@MHG2001] und [@HFD2007] untersucht. Dabei haben die Autoren das folgende Modell angenommen.
+
+\begin{equation}
+y = 1_n\mu + Wq + e
+\label{eq:RRBlupModel}
+\end{equation}
+
+\begin{tabular}{lll}
+wobei  &         & \\
+       &  $y$    &  Vektor der Länge $n$ mit Beobachtungen \\
+       &  $\mu$  &  allgemeines Mittel \\
+       &  $q$    &  Vektor der Länge $m$ mit zufälligen SNP-Effekten\\
+       &  $W$    &  Matrix der Dimension $n\times m$, welche SNP-Genotypen codiert\\
+       &  $e$    &  Vektor der Länge $n$ mit zufälligen Resteffekten
+\end{tabular}
+
+Die Genotypen an jedem SNP-Locus in Matrix $W$ werden mit $0$, $1$ und $2$ codiert. Diese Codes repräsentieren die Anzahl an SNP-Allelen mit positiver Wirkung. Die SNP-Effekte werden als zufällig betrachtet. Das Modell in (\ref{eq:RRBlupModel}) ist also ein gemischtes lineares Modell. Die unbekannten Parameter werden mit Hilfe von Mischmodellgleichungen geschätzt. Der geschätzte genomische Zuchtwert entspricht der Summe der SNP-Effekte über alle SNP-Loci. Die durch die SNP-Effekte erklärte Varianz ist gleich $WW^T\sigma_q^2$. Die Varianz der Resteffekte wird als $I\sigma_e^2$ angenommen. Somit entspricht die Covarianz zwischen Beobachtungen $WW^T\sigma_q^2 + I\sigma_e^2$. In RR-BLUP wird die Varianz an allen SNPs als konstant angenommen. 
+
+### Genomic BLUP (GBLUP)
+Die zweite Methode, welche genomische Information berücksichtigt verwendet die genomische Verwandtschaftsmatrix $G$ anstelle der additiv genetischen Verwandtschaftsmatrix $A$ in einem gemischten linearen Modell. Dieser Ansatz wird als __gBLUP__ bezeichnet. Das Modell zur Umsetzung von gBLUP lautet
+
+\begin{equation}
+y = Xb + Zg + e
+\label{eq:GblupModel}
+\end{equation}
+
+\begin{tabular}{lll}
+wobei  &         & \\
+       & $y$     & Vektor der Länge $n$ mit Beobachtungen \\
+       & $b$     & Vektor der Länge $r$ mit fixen Effekten \\
+       & $X$     & Inzidenzmatrix zur Verknüpfung von $b$ und $y$ \\
+       & $g$     & Vektor der Länge $t$ mit zufälligen genetischen Effekten \\
+       & $Z$     & Inzidenzmatrix zur Verknüpfung von $g$ und $y$ \\
+       & $e$     & Vektor der Länge $n$ mit zufälligen Resteffekten
+\end{tabular}
+
+Der Vektor $g$ enthält zufällige genetische Effekte für alle Tiere, welche typisiert sind. Diese Tiere können Beobachtungen aufweisen oder nicht. Die Tiere mit Beobachtungen und Typisierungsergebnisse werden allgemein als Trainings- oder Referenzpopulation bezeichnet. Die Tiere ohne phänotypische Beobachtung mit Typisierungsergebnissen bilden das Testset, für welche die genomischen Zuchtwerte geschätzt werden sollen. Die Varianz $var(g) = G * \sigma_g^2$ wobei $G$ der genomischen Verwandtschaftsmatrix entspricht. Die zufälligen Resteffekte werden als unabhängig angenommen mit der Covarianzmatrix $var(e) = I*\sigma_e^2$.  
+
+GBLUP hat drei wichtige Vorteile im Vergleich zu RR-BLUP.
+
+1. Die Dimension der genetischen Effekte in GBLUP beträgt $n\times n$, wobei $n$ die Anzahl Tiere sind. In RR-BLUP beträgt diese Dimension $m\times m$, wobei $m$ der Anzahl an SNP-Markern entspricht. Somit ist GBLUP effizienter im Hinblick auf Rechenresourcen.
+2. Die Genauigkeiten der genomischen Zuchtwerte können bei GBLUP analog zu den Genauigkeiten der Zuchtwerte im BLUP-Tiermodell berechnet werden.
+3. GBLUP kann mit Pedigree-basierten Informationen zu den sogenannten __single step__ Verfahren kombiniert werden [@MLA2009]. 
+
+
+## Genomische Verwandtschaftsmatrix (GRM)
+Die Covarianz zwischen den gentischen Effekten $g$ im Modell (\ref{eq:GblupModel}) wird über die genomische Verwandtschaftsmatrix $G$ ausgedrückt. Analog zum BLUP-Tiermodell, soll die Covarianz der genetischen Effekte als Produkt der genomischen Verwandtschaftsmatrix $G$ mal die Varianzkomponente $\sigma_g^2$ dargestellt werden. 
+
+### Herleitung der GRM
+Als erstes stellt sich die Frage, wie wir die genetischen Effekte $g$ überhaupt definieren sollen. Auf dieser Definition von $g$ aufbauend können wir uns anschliessend überlegen, wie die Matrix $G$ aufgestellt werden kann. Die folgenden Eigenschaften für die genetischen Effekte $g$ und für die GRM $G$ sollen gelten. 
+
+1. Die genetischen Effekte $g$ sollen der Summe aller SNP-Effekte $q$ entsprechen. 
+2. Die genetischen Effekte $g$ sollen als Abweichungen definiert sein, das heisst der Erwartungswert $E\left[g\right] = 0$. 
+3. Wie schon erwähnt soll die Covarianz der genetischen Effekte $g$ dem Produkt aus GRM $G$ und der Varianzkomponente $\sigma_g^2$ entsprechen, d.h. $var(g) = G * \sigma_g^2$.
+4. Die GRM $G$ soll ähnlich wie die additive Verwandtschaftsmatrix $A$ aussehen, d.h. die Diagnoalelemente sollen um $1$ liegen und auf der Offdiagonalen sollen hohe Werte mit genetisch ähnlichen Tieren assoziiert werden.
+
+Als Informationsquellen für die Definition von $g$ und zum Aufstellen der GRM $G$ haben wir die SNP-Markerinformationen zur Verfügung. Das hier vorgestellte Material basiert auf der Arbeit von [@VanRaden2008]. In den folgenden Unterabschnitten wollen wir die Konsequenzen der oben aufgelisteten Eigenschaften analysieren und daraus die GRM $G$ aufstellen.
+
+#### Genetische Effekte als Summe der SNP-Effekte
+Basierend auf der SNP-Markerinformation können wir Effekte für die einzelnen SNP-Marker schätzen. Wir nehmen hier also an, dass wir den Vektor $q$ kennen. Formell bedeutet die Eigenschaft, dass die genetischen Effekte $g$ als Summe der SNP-Effekte $q$ dargestellte werden können, dass es eine Matrix $U$ gibt, für welche gilt, dass 
+
+\begin{equation}
+g = U * q
+\label{eq:VecGSumOfVecQ}
+\end{equation}
+wobei an dieser Stelle die Matrix $U$ noch unbekannt ist. Wir werden diese anhand der nächsten Eigenschaft bestimmten.
+
+#### Genetische Effekte als Abweichungen
+Die genetischen Effekte sollen, analog zu den Zuchtwerten aus dem BLUP-Tiermodell als Abweichungen von einer gegebenen Basis definiert werden. Die Basis stellt dann den Nullpunkt der genetischen Effekte dar. Somit kommen die einzelnen Genetischen Effekte $g_i$ für Tier $i$ aus einer Verteilung mit Erwartungswert $E\left[g_i\right] = 0$. Die Frage ist nun, wie muss die Matrix $U$ aussehen, dass unabhängig vom Vektor $q$ der Erwartungswert der Komponenten von $g_i$ gleich null ist.
+
+Dies erreichen wir durch die Zuweisung der folgenden Werte für die beiden SNP-Allele $G_{j1}$ und $G_{j2}$ am SNP-Locus $j$:
+
+\vspace{2ex}
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+Allel     &  Wert         \\
+\hline
+$G_{j1}$  &  $-p_jq_j$    \\
+$G_{j2}$  &  $(1-p_j)q_j$ \\
+\hline
+\end{tabular}
+\end{center}
+
+wobei $p_j$ der Frequenz des Allels $G_{j2}$ entspricht und $q_j$ für den Effekt des SNPs $j$ steht. Aus dieser Zuweisung von Werten zu Allelen können am SNP-Locus $j$ folgende Werte für die Genotypen berechnet werden.
+
+\vspace{2ex}
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+Genotypen     &  Wert            &  Codierung \\
+\hline
+$(G_1G_1)_j$  &  $-2p_jq_j$      &  $-2p_j$\\
+$(G_1G_2)_j$  &  $(1-2p_j)q_j$   &  $1-2p_j$\\
+$(G_2G_2)_j$  &  $(2-2p_j)q_j$   &  $2-2p_j$\\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{2ex}
+Unter der Annahme des Hardy-Weinberg-Gleichgewichts für die Genotypen am SNP-Locus $j$ können wir den Erwartungswert für den Effekt am SNP $j$ berechnen als
+
+\begin{equation}
+\begin{split}
+E\left[g\right]_j & = \left[(1-p_j)^2(-2p_j) + 2p_j(1-p_j)(1-2p_j) + p_j^2(2-2p_j)\right]q_j\\
+  & = \left[(1 - 2p_j + p_j^2)(-2p_j) + (2p_j - 2p_j^2)(1-2p_j) + p_j^2(2-2p_j)\right]q_j\\
+  & = \left[-2p_j + 4p_j^2 - 2p_j^3 + 2p_j - 4p_j^2 - 2p_j^2 + 4p_j^3 + 2p_j^2 - 2p_j^3\right]q_j\\
+  & = 0
+\end{split}
+\label{eq:ExpectedValueGj}
+\end{equation}
+
+Die gleiche Herleitung lässt sich für jeden SNP Locus $j = 1,\ldots, m$ machen. Somit ist der Erwartungswert über alle genetischen Komponenten $g_i$ gleich null, unabhängig von den SNP-Effekten $q_j$ am Locus $j$. 
+
+Die Matrix $U$ (welche der Matrix $Z$ in [@VanRaden2008] entspricht) kann nun wie folgt aufgestellt werden. Die SNP-Genotypen werden in der Matrix $M$ mit den Werten $-1$, $0$ und $1$ kodiert. Die Matrix $P$ enthält in jeder Kolonne $j$ zweimal die Differenz zwischen der Frequenz des raren Allels minus $0.5$. Die Matrix $U$ wird als Differenz $U = M - P$ berechnet.
+
+OLD STUFF below
+
+Aufgrund der genotypischen Werte lässt sich die Codierung der Genotypen für die Matrix $U$ bestimmen. Diese ist in der dritten Kolonnen der oben gezeigten Tabelle aufgeführt
+
+Er definiert die Matrix $M$ mit den Genotypencodes $-1$, $0$ und $1$ für die SNP-Genotypen. Die Matrix $P$ enthält in jeder Kolonne $j$ zweimal die Differenz zwischen der Frequenz des raren Allels minus $0.5$. Die Matrix $W = M-P$. Die genomische Verwandtschaftsmatrix $G$ berechnet sich dann als
+
+\begin{equation}
+G = \frac{WW^T}{2\sum_j p_j(1-p_j)}
+\label{eq:GenomRelMat}
+\end{equation}
+
+Die Formel in (\ref{eq:GenomRelMat}) basiert auf der Herleitung aus [@VanRaden2008] und [@GDHMF2009]. Da wir mit dem am Anfang dieses Kapitels gezeigten Material konsistent sein wollen, verwenden wir eine leicht andere Notation als [@VanRaden2008] und [@GDHMF2009]. 
+
+Die Komponenten aus dem Vektor $g$ in (\ref{eq:GblupModel}) setzen sich aus den Effekten der einzelnen SNPs zusammen. Im Modell (\ref{eq:RRBlupModel}) wurden diese im Vektor $q$ zusammengefasst. Somit können wir den Vektor $g$ schreiben als
+
+
+Die Matrix U in (\ref{eq:VecGSumOfVecQ}) entspricht der Matrix $Z$ in [@VanRaden2008]. Die Matrix $U$ soll so bestimmt werden, dass der Erwartungswert $E(g)$ und die Varianz $var(g)$ der zufälligen Effekte in $g$ gewisse erwünschte Eigenschaften aufweisen. 

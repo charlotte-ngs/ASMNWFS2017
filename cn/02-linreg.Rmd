@@ -324,7 +324,7 @@ verwenden.
 ### Modellwahl mit dem $C_p$-Kriterium
 Für das volle Modell mit $p$ erklärenden Variablen gibt es $2^p-1$ Submodelle oder Vorhersagen $\mathcal{M}$. Somit ist ein Vergleich der $C_p$-Statistik aller Submodelle nur machbar, wenn $p$ nicht zu gross, d.h. kleiner als $16$ ist. Für $p \ge 16$ werden die folgenden zwei schrittweisen Algorithmen vorgeschlagen.
 
-#### Vorwärts-Integration ("Forward Selection)
+#### Vorwärts-Integration (Forward Selection)
 1. Starte mit dem minimalen Modell $\mathcal{M}_0$, welches nur ein globales Mittel enthält
 2. Wähle die erklärende Variable, welche die Summe der quadrierten Residuen am meisten reduziert und nimm diese ins Modell auf
 3. Wiederhole Schritt 2 bis alle erklärenden Variablen im Modell aufgenommen wurden. Das produziert eine Sequenz von Submodellen $\mathcal{M}_0, \mathcal{M}_1, \mathcal{M}_2, \ldots$. 

@@ -1,4 +1,4 @@
-# Bayes'sche Ansätze
+# Bayes'sche Ansätze {#bayes}
 
 ```{r BayesAbbrev, echo=FALSE, results='hide'}
 r6objTableAbbrev$add_abbrev(psAbbrev = "REML", psMeaning = "Restricted oder Residual Maximum Likelihood", pbOut = FALSE)

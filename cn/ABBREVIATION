@@ -4,6 +4,12 @@ GWAS	Genome Wide Association Study
 GLMM	Generalized Linear Mixed Models
 i.i.d.	independent, identically distributed
 QQ	Quantil Quantil
+SNP	Single Nucleotide Polymorphism
+BLUE	Best Linear Unbiased Estimation
+BLUP	Best Linear Unbiased Prediction
+GRM	Genomic Relationship Matrix
+RR	Ridge Regression
+GBLUP	Genomic BLUP
 LASSO	Least Absolute Shrinkage And Selection Operator
 REML	Restricted oder Residual Maximum Likelihood
 ML	Maximum Likelihood
