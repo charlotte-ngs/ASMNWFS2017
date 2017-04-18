@@ -149,6 +149,13 @@ w = \left\{ \begin{array}{lll}
 \label{eq:RandVarGenotypesWalternative}
 \end{equation}
 
+Der Erwartungswert für $w$ unter der alternativen Codierung ist dann
+
+\begin{equation}
+E\left[w\right] = (-1)*(1-p)^2 + 0 * 2p(1-p) + 1 * p^2 = -1 + 2p - p^2 + p^2 = 2p - 1 = 2(p - 0.5)
+\label{eq:ExpectedValueWalternative}
+\end{equation}
+
 
 Die Matrix $U$ (welche der Matrix $Z$ in [@VanRaden2008] entspricht) kann nun wie folgt aufgestellt werden. Die SNP-Genotypen werden in der Matrix $M$ mit den Werten $-1$, $0$ und $1$ kodiert. Die Matrix $P$ enthält in jeder Kolonne $j$ zweimal die Differenz zwischen der Frequenz des raren Allels minus $0.5$. Die Matrix $U$ wird als Differenz $U = M - P$ berechnet. Die Matrix $P$ enthält in jeder Kolonne $j$ zweimal die Differenz zwischen der Frequenz des raren Allels minus $0.5$. 
 
