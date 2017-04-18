@@ -106,13 +106,13 @@ E\left[w\right] = 0*(1-p)^2 + 1 * 2p(1-p) + 2 * p^2 = 2p
 \label{eq:ExpectedValueW}
 \end{equation}
 
-Die Matrix $U$ aus \ref{eq:VecGSumOfVecQ} berechnen wir als Differenz zwischen den Matrizen $W$ und $P$. Die Matrix $P$ besteht aus Kolonnenvektoren $1_n2p_j$ der Länge $n$ für die entsprechenden SNPs $j = 1,\ldots ,m$. Für einen bestimmten SNP-Locus $j$ folgen aufgrund der Definition der Matrix $U$ die folgenden Codierungen der SNP-Genotypen. Dabei nehme wir an, dass das Allel $(G_{2})_j$ mit Frequenz $p_j$ auftritt und das Allel mit der positiven Wirkung ist.
+Die Matrix $U$ aus (\ref{eq:VecGSumOfVecQ}) berechnen wir als Differenz zwischen den Matrizen $W$ und $P$. Die Matrix $P$ besteht aus Kolonnenvektoren $1_n2p_j$ der Länge $n$ für die entsprechenden SNPs $j = 1,\ldots ,m$. Für einen bestimmten SNP-Locus $j$ folgen aufgrund der Definition der Matrix $U$ die folgenden Codierungen der SNP-Genotypen. Dabei nehmen wir an, dass das Allel $(G_{2})_j$ einerseits mit Frequenz $p_j$ auftritt und andererseits dasjenige Allel mit der positiven Wirkung ist. Die nachfolgende Tabelle gibt eine Übersicht über die genotypischen Werte und der Codierung der Genotypen in der Matrix $U$ für die drei auftretenden Genotypen am SNP-Locus $j$. 
 
 \vspace{2ex}
 \begin{center}
 \begin{tabular}{|l|l|l|}
 \hline
-Genotypen     &  Wert            &  Codierung \\
+Genotypen     &  Genotypischer Wert            &  Codierung in Matrix $U$\\
 \hline
 $(G_1G_1)_j$  &  $-2p_jq_j$      &  $-2p_j$\\
 $(G_1G_2)_j$  &  $(1-2p_j)q_j$   &  $1-2p_j$\\
@@ -134,10 +134,10 @@ E\left[g\right]_j & = \left[(1-p_j)^2(-2p_j) + 2p_j(1-p_j)(1-2p_j) + p_j^2(2-2p_
 \label{eq:ExpectedValueGj}
 \end{equation}
 
-Die gleiche Herleitung lässt sich für jeden SNP Locus $j = 1,\ldots, m$ machen. Somit ist der Erwartungswert über alle genetischen Komponenten $g_i$ gleich null, unabhängig von den SNP-Effekten $q_j$ am Locus $j$. Somit haben wir die Matrix $U$, welche aus den SNP-Effekten $q$ in \ref{eq:RRBlupModel} die genetischen Effekte $g$ in \ref{eq:GblupModel} berechnet, gefunden.
+Die gleiche Herleitung lässt sich für jeden SNP Locus $j = 1,\ldots, m$ machen. Somit ist der Erwartungswert über alle genetischen Komponenten $g_i$ gleich null, unabhängig von den SNP-Effekten $q_j$ am Locus $j$. Somit haben wir die Matrix $U$, welche aus den SNP-Effekten $q$ in (\ref{eq:RRBlupModel}) die genetischen Effekte $g$ in (\ref{eq:GblupModel}) berechnet, gefunden.
 
 ### Alternative Codierung
-Anstelle der verwendeten Codierungen von $0$, $1$ und $2$ für die SNP-Genotypen können diese auch mit $-1$, $0$ und $1$ codiert werden. Diese Codierung wird in [@VanRaden2008] zum Aufstellen der GRM $G$ verwendet. Auch im Paper von [@GDHMF2009] wird diese Codierung verwendet. Am prinzipiellen Vorgehen ändert sich aber dadurch nicht. Nur die verwendeten Werte in den Matrizen sind anders. Die Matrix $W$ unter der alternativen Codierung besteht nun aus Werten $-1$, $0$ und $1$. Die Zufallsvariable $w$, welche wir in \ref{eq:RandVarGenotypesW} definiert zur Bestimmung der Matrix $P$ verwendet hatten, sieht unter der alternativen Codierung wie folgt aus.
+Anstelle der verwendeten Codierungen von $0$, $1$ und $2$ für die SNP-Genotypen können diese auch mit $-1$, $0$ und $1$ codiert werden. Diese Codierung wird in [@VanRaden2008] zum Aufstellen der GRM $G$ verwendet. Auch die Autoren des Papers [@GDHMF2009] verwenden diese alternative Codierung. Am prinzipiellen Vorgehen ändert sich aber dadurch nichts. Nur die verwendeten Werte in den Matrizen sind anders. Die Matrix $W$ unter der alternativen Codierung besteht aus Werten $-1$, $0$ und $1$. Die Zufallsvariable $w$, welche wir in (\ref{eq:RandVarGenotypesW}) definiert und zur Bestimmung der Matrix $P$ verwendet hatten, sieht unter der alternativen Codierung wie folgt aus.
 
 \begin{equation}
 w = \left\{ \begin{array}{lll}
@@ -156,8 +156,40 @@ E\left[w\right] = (-1)*(1-p)^2 + 0 * 2p(1-p) + 1 * p^2 = -1 + 2p - p^2 + p^2 = 2
 \label{eq:ExpectedValueWalternative}
 \end{equation}
 
+Die Kolonne $j$ der Matrix $P$ besteht aus dem Kolonnenvektoren $1_n*2(p_j - 0.5)$. Die Matrix $U$ (welche der Matrix $Z$ in [@VanRaden2008] entspricht) kann wird berechnet als 
 
-Die Matrix $U$ (welche der Matrix $Z$ in [@VanRaden2008] entspricht) kann nun wie folgt aufgestellt werden. Die SNP-Genotypen werden in der Matrix $M$ mit den Werten $-1$, $0$ und $1$ kodiert. Die Matrix $P$ enthält in jeder Kolonne $j$ zweimal die Differenz zwischen der Frequenz des raren Allels minus $0.5$. Die Matrix $U$ wird als Differenz $U = M - P$ berechnet. Die Matrix $P$ enthält in jeder Kolonne $j$ zweimal die Differenz zwischen der Frequenz des raren Allels minus $0.5$. 
+\begin{equation}
+U = W - P
+\label{eq:MatrixUalternative}
+\end{equation}
+
+Die Elemente der Matrix $U$ der Genotypen am SNP-Locus $j$ unter der alternativen Codierung lauten
+
+\vspace{2ex}
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+Genotypen     &  Codierung in Matrix $U$\\
+\hline
+$(G_1G_1)_j$  &  $-1-2(p_j-0.5)$\\
+$(G_1G_2)_j$  &  $-2(p_j-0.5)$  \\
+$(G_2G_2)_j$  &  $1-2(p_j-0.5)$ \\
+\hline
+\end{tabular}
+\end{center}
+
+Der Erwartungswert der Komponenten der genetischen Effekte $g$ aufgrund des SNP-Locus $j$ beträgt dann
+
+\begin{equation}
+\begin{split}
+E\left[g\right]_j & = \left[(1-p_j)^2(-1-2(p_j-0.5)) + 2p_j(1-p_j)(-2(p_j-0.5)) + p_j^2(1-2(p_j-0.5))\right]q_j\\
+  & = \left[ \right]q_j\\
+  & = \left[ \right]q_j\\
+  & = 0
+\end{split}
+\label{eq:ExpectedValueGjalternative}
+\end{equation}
+
 
 ### Varianz der genetischen Effekte
 Aufgrund der postulierten Eigenschaften soll die Varianz $var(g)$ der genetischen Effekte berechnet werden als das Produkt der GRM $G$ mal die gemeinsame Varianzkomponente $\sigma_g^2$. Formell entspricht das $var(g) = G * \sigma_g^2$. 
