@@ -69,13 +69,13 @@ Die Covarianz zwischen den gentischen Effekten $g$ im Modell (\ref{eq:GblupModel
 Als erstes stellt sich die Frage, wie wir die genetischen Effekte $g$ überhaupt definieren sollen. Auf dieser Definition von $g$ aufbauend können wir uns anschliessend überlegen, wie die Matrix $G$ aufgestellt werden kann. Die folgenden Eigenschaften für die genetischen Effekte $g$ und für die GRM $G$ sollen gelten. 
 
 1. Die genetischen Effekte $g$ sollen der Summe aller SNP-Effekte $q$ entsprechen. 
-2. Die genetischen Effekte $g$ sollen als Abweichungen definiert sein, das heisst der Erwartungswert $E\left[g\right] = 0$. 
+2. Die genetischen Effekte $g$ sollen nicht als Absolute Werte sondern analog zu den Zuchtwerten aus dem BLUP-Tiermodell als Abweichungen von einer festgelegten Basis definiert sein, das heisst der Erwartungswert $E\left[g\right] = 0$. 
 3. Wie schon erwähnt soll die Covarianz der genetischen Effekte $g$ dem Produkt aus GRM $G$ und der Varianzkomponente $\sigma_g^2$ entsprechen, d.h. $var(g) = G * \sigma_g^2$.
 4. Die GRM $G$ soll ähnlich wie die additive Verwandtschaftsmatrix $A$ aussehen, d.h. die Diagnoalelemente sollen um $1$ liegen und auf der Offdiagonalen sollen hohe Werte mit genetisch ähnlichen Tieren assoziiert werden.
 
-Als Informationsquellen für die Definition von $g$ und zum Aufstellen der GRM $G$ haben wir die SNP-Markerinformationen zur Verfügung. Das hier vorgestellte Material basiert auf der Arbeit von [@VanRaden2008]. In den folgenden Unterabschnitten wollen wir die Konsequenzen der oben aufgelisteten Eigenschaften analysieren und daraus die GRM $G$ aufstellen.
+Als Informationsquellen für die Definition von $g$ und zum Aufstellen der GRM $G$ haben wir die SNP-Markerinformationen zur Verfügung. Das hier vorgestellte Material basiert auf den Arbeiten von [@VanRaden2008] und von [@GDHMF2009]. In den folgenden Unterabschnitten wollen wir die Konsequenzen der oben aufgelisteten Eigenschaften analysieren und daraus die GRM $G$ aufstellen.
 
-#### Genetische Effekte als Summe der SNP-Effekte
+### Genetische Effekte als Summe der SNP-Effekte
 Basierend auf der SNP-Markerinformation können wir Effekte für die einzelnen SNP-Marker schätzen. Wir nehmen hier also an, dass wir den Vektor $q$ kennen. Formell bedeutet die Eigenschaft, dass die genetischen Effekte $g$ als Summe der SNP-Effekte $q$ dargestellte werden können, dass es eine Matrix $U$ gibt, für welche gilt, dass 
 
 \begin{equation}
@@ -84,24 +84,29 @@ g = U * q
 \end{equation}
 wobei an dieser Stelle die Matrix $U$ noch unbekannt ist. Wir werden diese anhand der nächsten Eigenschaft bestimmten.
 
-#### Genetische Effekte als Abweichungen
-Die genetischen Effekte sollen, analog zu den Zuchtwerten aus dem BLUP-Tiermodell als Abweichungen von einer gegebenen Basis definiert werden. Die Basis stellt dann den Nullpunkt der genetischen Effekte dar. Somit kommen die einzelnen Genetischen Effekte $g_i$ für Tier $i$ aus einer Verteilung mit Erwartungswert $E\left[g_i\right] = 0$. Die Frage ist nun, wie muss die Matrix $U$ aussehen, dass unabhängig vom Vektor $q$ der Erwartungswert der Komponenten von $g_i$ gleich null ist.
+### Genetische Effekte als Abweichungen
+Die genetischen Effekte sollen, analog zu den Zuchtwerten aus dem BLUP-Tiermodell als Abweichungen von einer festgelegten Basis definiert werden. Die Basis stellt den Nullpunkt der genetischen Effekte dar. Somit kommen die einzelnen Genetischen Effekte $g_i$ für Tier $i$ aus einer Verteilung mit Erwartungswert $E\left[g_i\right] = 0$. Die Frage ist nun, wie muss die Matrix $U$ aussehen, dass unabhängig vom Vektor $q$ der Erwartungswert der Komponenten von $g_i$ gleich null ist.
 
-Dies erreichen wir durch die Zuweisung der folgenden Werte für die beiden SNP-Allele $G_{j1}$ und $G_{j2}$ am SNP-Locus $j$:
+Betrachten wir die Zufallsvariable $w$ mit den SNP-Genotypencodes in Matrix $W$ im RR-BLUP-Modell (\ref{eq:RRBlupModel}) und nehmen wir an, das Hardy-Weinberg-Gleichgewicht gelte für alle SNP-Genorte, dann sind folgende Realisierungswerte für $w$ möglich
 
-\vspace{2ex}
-\begin{center}
-\begin{tabular}{|l|l|}
-\hline
-Allel     &  Wert         \\
-\hline
-$G_{j1}$  &  $-p_jq_j$    \\
-$G_{j2}$  &  $(1-p_j)q_j$ \\
-\hline
-\end{tabular}
-\end{center}
+\begin{equation}
+w = \left\{ \begin{array}{lll}
+0  &  \text{mit Wahrscheinlichkeit} & (1-p)^2\\
+1  &  \text{mit Wahrscheinlichkeit} & 2p(1-p) \\
+2  &  \text{mit Wahrscheinlichkeit} & p^2
+\end{array}
+\right.
+\label{eq:RandVarGenotypesW}
+\end{equation}
 
-wobei $p_j$ der Frequenz des Allels $G_{j2}$ entspricht und $q_j$ für den Effekt des SNPs $j$ steht. Aus dieser Zuweisung von Werten zu Allelen können am SNP-Locus $j$ folgende Werte für die Genotypen berechnet werden.
+Der Erwartungswert der Zufallsvariablen $w$ entspricht
+
+\begin{equation}
+E\left[w\right] = 0*(1-p)^2 + 1 * 2p(1-p) + 2 * p^2 = 2p
+\label{eq:ExpectedValueW}
+\end{equation}
+
+Die Matrix $U$ aus \ref{eq:VecGSumOfVecQ} berechnen wir als Differenz zwischen den Matrizen $W$ und $P$. Die Matrix $P$ besteht aus Kolonnenvektoren $1_n2p_j$ der Länge $n$ für die entsprechenden SNPs $j = 1,\ldots ,m$. Für einen bestimmten SNP-Locus $j$ folgen aufgrund der Definition der Matrix $U$ die folgenden Codierungen der SNP-Genotypen. Dabei nehme wir an, dass das Allel $(G_{2})_j$ mit Frequenz $p_j$ auftritt und das Allel mit der positiven Wirkung ist.
 
 \vspace{2ex}
 \begin{center}
@@ -117,7 +122,7 @@ $(G_2G_2)_j$  &  $(2-2p_j)q_j$   &  $2-2p_j$\\
 \end{center}
 
 \vspace{2ex}
-Unter der Annahme des Hardy-Weinberg-Gleichgewichts für die Genotypen am SNP-Locus $j$ können wir den Erwartungswert für den Effekt am SNP $j$ berechnen als
+Unter der Annahme des Hardy-Weinberg-Gleichgewichts für die Genotypen am SNP-Locus $j$ können wir den Erwartungswert für den genetischen Effekt $g$ am SNP-Locus $j$ berechnen. Der Erwartungswert wird über alle Komponenten des Vektors $g$ der genetischen Effekte berechnet.
 
 \begin{equation}
 \begin{split}
@@ -129,24 +134,53 @@ E\left[g\right]_j & = \left[(1-p_j)^2(-2p_j) + 2p_j(1-p_j)(1-2p_j) + p_j^2(2-2p_
 \label{eq:ExpectedValueGj}
 \end{equation}
 
-Die gleiche Herleitung lässt sich für jeden SNP Locus $j = 1,\ldots, m$ machen. Somit ist der Erwartungswert über alle genetischen Komponenten $g_i$ gleich null, unabhängig von den SNP-Effekten $q_j$ am Locus $j$. 
+Die gleiche Herleitung lässt sich für jeden SNP Locus $j = 1,\ldots, m$ machen. Somit ist der Erwartungswert über alle genetischen Komponenten $g_i$ gleich null, unabhängig von den SNP-Effekten $q_j$ am Locus $j$. Somit haben wir die Matrix $U$, welche aus den SNP-Effekten $q$ in \ref{eq:RRBlupModel} die genetischen Effekte $g$ in \ref{eq:GblupModel} berechnet, gefunden.
 
-Die Matrix $U$ (welche der Matrix $Z$ in [@VanRaden2008] entspricht) kann nun wie folgt aufgestellt werden. Die SNP-Genotypen werden in der Matrix $M$ mit den Werten $-1$, $0$ und $1$ kodiert. Die Matrix $P$ enthält in jeder Kolonne $j$ zweimal die Differenz zwischen der Frequenz des raren Allels minus $0.5$. Die Matrix $U$ wird als Differenz $U = M - P$ berechnet.
-
-OLD STUFF below
-
-Aufgrund der genotypischen Werte lässt sich die Codierung der Genotypen für die Matrix $U$ bestimmen. Diese ist in der dritten Kolonnen der oben gezeigten Tabelle aufgeführt
-
-Er definiert die Matrix $M$ mit den Genotypencodes $-1$, $0$ und $1$ für die SNP-Genotypen. Die Matrix $P$ enthält in jeder Kolonne $j$ zweimal die Differenz zwischen der Frequenz des raren Allels minus $0.5$. Die Matrix $W = M-P$. Die genomische Verwandtschaftsmatrix $G$ berechnet sich dann als
+### Alternative Codierung
+Anstelle der verwendeten Codierungen von $0$, $1$ und $2$ für die SNP-Genotypen können diese auch mit $-1$, $0$ und $1$ codiert werden. Diese Codierung wird in [@VanRaden2008] zum Aufstellen der GRM $G$ verwendet. Auch im Paper von [@GDHMF2009] wird diese Codierung verwendet. Am prinzipiellen Vorgehen ändert sich aber dadurch nicht. Nur die verwendeten Werte in den Matrizen sind anders. Die Matrix $W$ unter der alternativen Codierung besteht nun aus Werten $-1$, $0$ und $1$. Die Zufallsvariable $w$, welche wir in \ref{eq:RandVarGenotypesW} definiert zur Bestimmung der Matrix $P$ verwendet hatten, sieht unter der alternativen Codierung wie folgt aus.
 
 \begin{equation}
-G = \frac{WW^T}{2\sum_j p_j(1-p_j)}
-\label{eq:GenomRelMat}
+w = \left\{ \begin{array}{lll}
+-1  &  \text{mit Wahrscheinlichkeit} & (1-p)^2\\
+0  &  \text{mit Wahrscheinlichkeit} & 2p(1-p) \\
+1  &  \text{mit Wahrscheinlichkeit} & p^2
+\end{array}
+\right.
+\label{eq:RandVarGenotypesWalternative}
 \end{equation}
 
-Die Formel in (\ref{eq:GenomRelMat}) basiert auf der Herleitung aus [@VanRaden2008] und [@GDHMF2009]. Da wir mit dem am Anfang dieses Kapitels gezeigten Material konsistent sein wollen, verwenden wir eine leicht andere Notation als [@VanRaden2008] und [@GDHMF2009]. 
 
-Die Komponenten aus dem Vektor $g$ in (\ref{eq:GblupModel}) setzen sich aus den Effekten der einzelnen SNPs zusammen. Im Modell (\ref{eq:RRBlupModel}) wurden diese im Vektor $q$ zusammengefasst. Somit können wir den Vektor $g$ schreiben als
+Die Matrix $U$ (welche der Matrix $Z$ in [@VanRaden2008] entspricht) kann nun wie folgt aufgestellt werden. Die SNP-Genotypen werden in der Matrix $M$ mit den Werten $-1$, $0$ und $1$ kodiert. Die Matrix $P$ enthält in jeder Kolonne $j$ zweimal die Differenz zwischen der Frequenz des raren Allels minus $0.5$. Die Matrix $U$ wird als Differenz $U = M - P$ berechnet. Die Matrix $P$ enthält in jeder Kolonne $j$ zweimal die Differenz zwischen der Frequenz des raren Allels minus $0.5$. 
 
+### Varianz der genetischen Effekte
+Aufgrund der postulierten Eigenschaften soll die Varianz $var(g)$ der genetischen Effekte berechnet werden als das Produkt der GRM $G$ mal die gemeinsame Varianzkomponente $\sigma_g^2$. Formell entspricht das $var(g) = G * \sigma_g^2$. 
 
-Die Matrix U in (\ref{eq:VecGSumOfVecQ}) entspricht der Matrix $Z$ in [@VanRaden2008]. Die Matrix $U$ soll so bestimmt werden, dass der Erwartungswert $E(g)$ und die Varianz $var(g)$ der zufälligen Effekte in $g$ gewisse erwünschte Eigenschaften aufweisen. 
+Aus der Theorie folgt unter Berücksichtigung von (\ref{eq:VecGSumOfVecQ}), dass $var(g) = U * var(q) * U^T$ ist. Für die Varianz der SNP-Effekte nehmen wir an, dass $var(q) = I\sigma_q^2$. Dies bedeutet, dass die Kovarianz der genetischen Effekte $g$ vereinfacht zu $var(g) = UU^T \sigma_q^2$. 
+
+Im Paper von [@GDHMF2009] wurde $\sigma_g^2$ aus $\sigma_q^2$ hergeleitet. Die resultierende Formel sieht wie folgt aus.
+
+\begin{equation}
+\sigma_g^2 = 2 \sum_j^m p_j(1-p_j) \sigma_q^2
+\label{eq:GenomicVariance}
+\end{equation}
+
+Fassen wir alle diese Beziehungen zusammen, können wir die verschiedenen Ausdrücke für die Kovarianz der genetischen Effekte gleichsetzen. 
+
+\begin{equation}
+var(g) = G * \sigma_g^2 = UU^T \sigma_q^2
+\label{eq:GenomicVarianceTwoExpr}
+\end{equation}
+
+Ersetzen wir $\sigma_g^2$ in (\ref{eq:GenomicVarianceTwoExpr}) durch den Ausdruck in (\ref{eq:GenomicVariance}) so folgt
+
+\begin{equation}
+G * 2 \sum_j^m p_j(1-p_j) \sigma_q^2 = UU^T \sigma_q^2
+\label{eq:GenomicVarianceInserted}
+\end{equation}
+
+Aus der Gleichung in (\ref{eq:GenomicVarianceInserted}) kann die genomische Verwandtschaftsmatrix $G$ berechnet werden als
+
+\begin{equation}
+G = \frac{UU^T}{2\sum_j p_j(1-p_j)}
+\label{eq:GenomRelMat}
+\end{equation}
