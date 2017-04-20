@@ -234,7 +234,7 @@ G = \frac{UU^T}{2\sum_j p_j(1-p_j)}
 \end{equation}
 
 ### R-Code zur Berechnung der GRM
-Im Kapitel 13 von [@GWH2013] ist ein R-Programm zur Berechnung der genomischen Verwandtschaftsmatrix aufgeführt. Wir wollen dieses Programm analysieren und präsentieren auch eine alternative Art der Berechnung der genomischen Verwandtschaftsmatrix. 
+Im Kapitel 13 von [@CV2013] ist ein R-Programm zur Berechnung der genomischen Verwandtschaftsmatrix aufgeführt. Wir wollen dieses Programm analysieren und präsentieren auch eine alternative Art der Berechnung der genomischen Verwandtschaftsmatrix. 
 
 ```{r GrmSimulateDate, echo=FALSE}
 ### # Code taken from ImpGWH2013a
@@ -285,7 +285,7 @@ G = ZtZ/(2*sumpq)
 G
 ```
 
-Das gezeigte Programm zur Berechnung der genomischen Verwandtschaftsmatrix aus [@GWH2013] kann vereinfacht werden. Insbesondere können die `for`-loops durch einfachere Funktionen und vektorisierte Berechnungen ersetzt werden. Das folgende Programm berechnet die gleiche genomische Verwandtschafsmatrix. 
+Das gezeigte Programm zur Berechnung der genomischen Verwandtschaftsmatrix aus [@CV2013] kann vereinfacht werden. Insbesondere können die `for`-loops durch einfachere Funktionen und vektorisierte Berechnungen ersetzt werden. Das folgende Programm berechnet die gleiche genomische Verwandtschafsmatrix. 
 
 ```{r ComputeGrmAlternative}
 # Making the genomic relationship matrix
@@ -345,3 +345,32 @@ file.remove("genotypes.txt")
 Die genomischen Verwandtschaftsmatrix erlaubt es uns die Daten der Tiere mit Beobachtung mit den Tieren ohne Beobachtungen aber mit SNP-Genotypen zu verlinken. Die Inverse $G^{-1}$ der genomischen Verwandtschaftsmatrix wird zur Modellierung der Kovarianzstruktur zwischen den genetischen Effekten und somit zwischen den genomischen Zuchtwerten verwendet. Wie schon beim BLUP-Tiermodell werden auch bei GBLUP die unbekannten Effekte mit Mischmodellgleichungen geschätzt. Für das GBLUP-Modell in (\ref{eq:GblupModel}) lauten die Mischmodellgleichungen, wie folgt.
 
 
+```{r GblupMme, echo=FALSE, results='asis'}
+matCoeff <- matrix(c("X^TX","X^TZ","0",
+                     "Z^TX","Z^TZ + G^{11}","G^{12}",
+                     "0","G^{21}","G^{22}"), ncol = 3, byrow = TRUE)
+vecSol <- c("\\hat{b}","\\hat{g}_1","\\hat{g}_2")
+vecRhs <- c("X^Ty","Z^Ty","0")
+### # show mme
+cat("$$\\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = matCoeff), collapse = "\n"))
+cat("\\right]\n")
+cat("\\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecSol, ncol=1)), collapse = "\n"))
+cat("\\right]\n")
+cat(" = \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecRhs, ncol=1)), collapse = "\n"))
+cat("\\right]\n")
+cat("$$\n")
+```
+
+$G^{11}$ steht für den Teil der Inversen $G^{-1}$, der zu den Tieren mit phänotypischen Beobachtungen gehört. Analog dazu entspricht $G^{22}$ dem Teil von $G^{-1}$, der die Tiere ohne Beobachtungen mit nur SNP-Genotypen beinhaltet. Die Teile $G^{12}$ und $G^{21}$ verknüpfen die Tiere mit und ohne Beobachtungen. Bei den oben gezeigten Mischmodellgleichungen wird ein Verhältnis der Varianzkomponenten $\sigma_g^2$ und $\sigma_e^2$ von $1$ angenommen.
+
+Aufgrund der letzten Zeile der GBLUP-Mischmodellgleichungen ist ersichtlich, dass die genomischen Zuchtwerte $\hat{g}_2$ der Tiere ohne phänotypische Beobachtungen aufgrund der Schätzungen $\hat{g}_1$ der genomischen Zuchtwerte der Tiere mit Beobachtungen vorhergesagt werden können.
+
+\begin{equation}
+\hat{g}_2 = -\left( G^{22}\right)^{-1}G^{21}\hat{g}_1
+\label{eq:GenomicBvAnimalNoPhen}
+\end{equation}
+
+Die Beziehung in (\ref{eq:GenomicBvAnimalNoPhen}) wird auch als genomische Regression der Zuchtwerte der Tiere ohne Beobachtung auf die genomischen Zuchtwerte der Tiere mit Beobachtung bezeichnet.

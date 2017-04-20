@@ -135,16 +135,19 @@ bref <- c(bibentry(
     key     = "GDHMF2009"
   ),
   bibentry(
-    bibtype = "Book",
-    title = "Genome-Wide Association Studies and Genomic Prediction",
-    chapter = "Genomic Best Linear Unbiased Prediction (gBLUP) for the Estimation of Genomic Breeding Values",
-    author = c(as.person("S. A. Clerk"), as.person("J. van der Werf")),
-    editor = c(as.person("C. Gondro"), as.person("J.  van der Werf"), as.person("B. Hayes")),
-    year = "2013",
-    publisher = "Springer",
-    doi = "10.1007/978-1-62703-447-0",
-    key = "GWH2013"
-  )
+       bibtype = "InBook",
+       title   = "Genomic Best Linear Unbiased Prediction (gBLUP) for the Estimation of Genomic Breeding Values",
+       author  = c(as.person("Samuel A. Clark [aut]"),as.person("Julius van der Werf [aut]")),
+       year    = "2013",
+       booktitle = "Genome-Wide Association Studies and Genomic Prediction, Methods in Molecular Biology, vol 1019",
+       chapter   = 13,
+       editor    = c(as.person("Cedric Gondro"), 
+                     as.person("Julius van der Werf"),
+                     as.person("Ben Hayes")),
+       publisher = "Springer",
+       doi       = "10.1007/978-1-62703-447-0_13",
+       key       = "CV2013"
+     )
 )
 
 ### # Fixed assignmen of bib file
