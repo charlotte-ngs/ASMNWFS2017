@@ -183,8 +183,9 @@ Der Erwartungswert der Komponenten der genetischen Effekte $g$ aufgrund des SNP-
 \begin{equation}
 \begin{split}
 E\left[g\right]_j & = \left[(1-p_j)^2(-1-2(p_j-0.5)) + 2p_j(1-p_j)(-2(p_j-0.5)) + p_j^2(1-2(p_j-0.5))\right]q_j\\
-  & = \left[ \right]q_j\\
-  & = \left[ \right]q_j\\
+  & = \left[- 2 \ p_j^{3} + 4 \ p_j^{2} - 2 \ p_j 
+            + 4 \ p_j^{3} - 6 \ p_j^{2} + 2 \ p_j 
+            - 2 \ p_j^{3} + 2 \  p_j^{2} \right]q_j\\
   & = 0
 \end{split}
 \label{eq:ExpectedValueGjalternative}
@@ -192,11 +193,19 @@ E\left[g\right]_j & = \left[(1-p_j)^2(-1-2(p_j-0.5)) + 2p_j(1-p_j)(-2(p_j-0.5)) 
 
 
 ### Varianz der genetischen Effekte
-Aufgrund der postulierten Eigenschaften soll die Varianz $var(g)$ der genetischen Effekte berechnet werden als das Produkt der GRM $G$ mal die gemeinsame Varianzkomponente $\sigma_g^2$. Formell entspricht das $var(g) = G * \sigma_g^2$. 
+Aufgrund der postulierten Eigenschaften soll die Varianz $var(g)$ der genetischen Effekte berechnet werden als das Produkt der GRM $G$ mal die gemeinsame Varianzkomponente $\sigma_g^2$. Als Formel geschrieben lautet der Ausdruck für $var(g)$
 
-Aus der Theorie folgt unter Berücksichtigung von (\ref{eq:VecGSumOfVecQ}), dass $var(g) = U * var(q) * U^T$ ist. Für die Varianz der SNP-Effekte nehmen wir an, dass $var(q) = I\sigma_q^2$. Dies bedeutet, dass die Kovarianz der genetischen Effekte $g$ vereinfacht zu $var(g) = UU^T \sigma_q^2$. 
+\begin{equation}
+var(g) = G * \sigma_g^2\text{.}
+\label{eq:VarGFormula}
+\end{equation}
 
-Im Paper von [@GDHMF2009] wurde $\sigma_g^2$ aus $\sigma_q^2$ hergeleitet. Die resultierende Formel sieht wie folgt aus.
+Aus der Theorie folgt unter Berücksichtigung von (\ref{eq:VecGSumOfVecQ}), dass 
+
+$$var(g) = U * var(q) * U^T$$
+ist. Für die Varianz der SNP-Effekte nehmen wir an, dass $var(q) = I\sigma_q^2$. Dies bedeutet, dass sich der Ausdruck für die Kovarianz der genetischen Effekte $g$ vereinfacht zu $var(g) = UU^T \sigma_q^2$. 
+
+Im Paper von [@GDHMF2009] wurde $\sigma_g^2$ aus $\sigma_q^2$ hergeleitet. Das Resultat dieser Herleitung lautet 
 
 \begin{equation}
 \sigma_g^2 = 2 \sum_j^m p_j(1-p_j) \sigma_q^2
@@ -223,3 +232,116 @@ Aus der Gleichung in (\ref{eq:GenomicVarianceInserted}) kann die genomische Verw
 G = \frac{UU^T}{2\sum_j p_j(1-p_j)}
 \label{eq:GenomRelMat}
 \end{equation}
+
+### R-Code zur Berechnung der GRM
+Im Kapitel 13 von [@GWH2013] ist ein R-Programm zur Berechnung der genomischen Verwandtschaftsmatrix aufgeführt. Wir wollen dieses Programm analysieren und präsentieren auch eine alternative Art der Berechnung der genomischen Verwandtschaftsmatrix. 
+
+```{r GrmSimulateDate, echo=FALSE}
+### # Code taken from ImpGWH2013a
+### # fix rng seed
+set.seed(1234)
+### # Generate a small SNP-data matrix
+nNrSnp <- 1000
+nNrSamples <- 5
+minAlleleFreq <- 0.15
+matSnp <- matrix(data = sample(c(0,1,2), 
+                               nNrSnp*nNrSamples, 
+                               replace = T, 
+                               prob = c((1-minAlleleFreq)^2,2*(1-minAlleleFreq)*minAlleleFreq,minAlleleFreq^2)), 
+                 nrow = nNrSamples, 
+                 ncol = nNrSnp)
+### # write data to file
+write.table(matSnp, file = "genotypes.txt", quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
+
+```
+
+```{r ComputeGrmOriginal}
+# Making the genomic relationship matrix
+nmarkers <- 1000
+# Reading SNP-Genotype codes (0,1,2) from file
+data <- matrix(scan("genotypes.txt"),ncol = nmarkers,byrow = TRUE)
+# Initialisation of variables
+sumpq = 0
+freq = dim(data)[1]
+P = freq
+lamda = ncol(data)
+# Compute allele frequencies and column vectors of matrix P
+for(i in 1:ncol(data)){
+  (freq[i]  <- ((mean(data[,i])/2)))
+  (P[i] = (2*(freq[i]-0.5)))
+  (sumpq = sumpq+(freq[i]*(1-freq[i])))
+}
+# Transform coding from (0,1,2) to (-1,0,1) and subtract P
+Z <- data
+for(i in 1:nrow(data)){
+  for(j in 1:ncol(data)){
+    (Z[i,j] <- ((data[i,j]-1)-(P[j])))
+  }
+}
+# Compute GRM
+Zt = t(Z)
+ZtZ = Z%*%Zt
+G = ZtZ/(2*sumpq)
+G
+```
+
+Das gezeigte Programm zur Berechnung der genomischen Verwandtschaftsmatrix aus [@GWH2013] kann vereinfacht werden. Insbesondere können die `for`-loops durch einfachere Funktionen und vektorisierte Berechnungen ersetzt werden. Das folgende Programm berechnet die gleiche genomische Verwandtschafsmatrix. 
+
+```{r ComputeGrmAlternative}
+# Making the genomic relationship matrix
+nmarkers <- 1000
+# Reading SNP-Genotype codes (0,1,2) from file
+data <- matrix(scan("genotypes.txt"),ncol = nmarkers,byrow = TRUE)
+# Compute allele frequencies, column vectors of matrix P and sum of frequency products
+freq <- apply(data, 2, mean) / 2
+P <- 2 * (freq - 0.5)
+sumpq <- sum(freq*(1-freq))
+# Compute matrix Z by first changing the coding from (0,1,2) 
+# to (-1,0,1) and then subtracting matrix P
+Z <- data - 1 - matrix(P, nrow = nrow(data), ncol = ncol(data), byrow = TRUE)
+# Z%*%Zt is replaced by tcrossprod(Z)
+(matGrm <- tcrossprod(Z)/(2*sumpq))
+```
+
+Wir können überprüfen, ob die beiden Matrizen identisch sind
+
+```{r CheckGrmIdentical}
+all.equal(G, matGrm)
+```
+
+Das oben gezeigte alternative Programm zur Berechnung der genomischen Verwandtschaftsmatrix kann so verwendet werden. Da R eine funktionale Programmiersprache ist, soll es unser Ziel sein, möglichst viele Aufgaben in Funktionen zu kapseln. Die folgende Funktion `computeMatGrm()` berechnet aufgrund der Datenmatrix die genomischen Verwandtschaftsmatrix auf.
+
+```{r ComputeGrmFunction}
+#' Compute genomic relationship matrix based on data matrix
+computeMatGrm <- function(pmatData) {
+  # Allele frequencies, column vector of P and sum of frequency products
+  freq <- apply(pmatData, 2, mean) / 2
+  P <- 2 * (freq - 0.5)
+  sumpq <- sum(freq*(1-freq))
+  # Changing the coding from (0,1,2) to (-1,0,1) and subtract matrix P
+  Z <- data - 1 - matrix(P, nrow = nrow(pmatData), 
+                         ncol = ncol(pmatData), 
+                         byrow = TRUE)
+  # Z%*%Zt is replaced by tcrossprod(Z)
+  return(tcrossprod(Z)/(2*sumpq))
+}
+
+# Computing the genomic relationship matrix using the above defined function
+nmarkers <- 1000
+# Reading SNP-Genotype codes (0,1,2) from file
+data <- matrix(scan("genotypes.txt"),ncol = nmarkers,byrow = TRUE)
+# calling the function
+(matGrmFunc <- computeMatGrm(pmatData = data))
+# checking the result
+all.equal(G, matGrmFunc)
+```
+
+```{r GrmDataCleanup, echo=FALSE, results='hide'}
+file.remove("genotypes.txt")
+```
+
+
+## Wie GBLUP funktioniert
+Die genomischen Verwandtschaftsmatrix erlaubt es uns die Daten der Tiere mit Beobachtung mit den Tieren ohne Beobachtungen aber mit SNP-Genotypen zu verlinken. Die Inverse $G^{-1}$ der genomischen Verwandtschaftsmatrix wird zur Modellierung der Kovarianzstruktur zwischen den genetischen Effekten und somit zwischen den genomischen Zuchtwerten verwendet. Wie schon beim BLUP-Tiermodell werden auch bei GBLUP die unbekannten Effekte mit Mischmodellgleichungen geschätzt. Für das GBLUP-Modell in (\ref{eq:GblupModel}) lauten die Mischmodellgleichungen, wie folgt.
+
+

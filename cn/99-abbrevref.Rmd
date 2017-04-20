@@ -133,6 +133,17 @@ bref <- c(bibentry(
     number  = "183",
     pages   = "347–363",
     key     = "GDHMF2009"
+  ),
+  bibentry(
+    bibtype = "Book",
+    title = "Genome-Wide Association Studies and Genomic Prediction",
+    chapter = "Genomic Best Linear Unbiased Prediction (gBLUP) for the Estimation of Genomic Breeding Values",
+    author = c(as.person("S. A. Clerk"), as.person("J. van der Werf")),
+    editor = c(as.person("C. Gondro"), as.person("J.  van der Werf"), as.person("B. Hayes")),
+    year = "2013",
+    publisher = "Springer",
+    doi = "10.1007/978-1-62703-447-0",
+    key = "GWH2013"
   )
 )
 
