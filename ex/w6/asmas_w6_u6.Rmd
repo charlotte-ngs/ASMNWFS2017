@@ -1,0 +1,191 @@
+---
+title: "ASMNW - Übung 6"
+author: "Peter von Rohr"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document:
+    keep_tex: FALSE
+output_file: asmas_w6_u6.pdf
+---
+
+```{r DocumentSetup, echo=FALSE, results='hide'}
+knitr::opts_chunk$set(echo = FALSE, results = 'hide')
+r6objTableAbbrev <- rmddochelper::R6ClassTableAbbrev$new()
+```
+
+
+
+## Aufgabe 1: Kontrollfragen LASSO
+
+__Kontrollfrage 1__: 
+
+a. Wieso brauchen wir Alternativen zu Least Squares?
+b. Wie sehen die Alternativen zu Least Squares aus?
+
+
+__Kontrollfrage 2__: Gegeben das einfache lineare Modell 
+
+\begin{equation}
+y = Xb + e
+\label{eq:SimpleLinModel}
+\end{equation}
+
+a. Welche Anforderung bezüglich des Ranges der Matrix $\mathbf{X}$ besteht, damit Least Squares verwendet werden kann? 
+b. Aus welchem Grund besteht diese Anforderung aus 2a?
+
+
+
+## Aufgabe 2: Kontrollfragen Bayes
+
+__Kontrollfrage 1__: Gegeben sei das folgende einfache lineare Modell
+
+\begin{equation}
+y_i = \beta_0 + \beta_1 x_{i1} + \epsilon_i
+\label{eq:BayLinMod}
+\end{equation}
+
+\begin{tabular}{lll}
+wobei  &  &  \\
+       &  $y_i$          &  die $i$-te Beobachtung einer Zielgrösse ist  \\
+       &  $\beta_0$      & für den Achsenabschnitt steht  \\
+       &  $x_1$          &  eine erklärende Variable ist und  \\ 
+       &  $\epsilon_i$   &  für den Restterm steht 
+\end{tabular}
+
+Für den Restterm nehmen wir an, dass deren Varianz konstant gleich $\sigma^2$ ist. Teilen Sie die Komponenten im Modell (\ref{eq:BayLinMod}) in der folgenden Tabelle in bekannte und unbekannte Grössen ein.
+
+
+```{r BayesianUnKnowsTab, results='asis'}
+Was <- c("$y_i$", "$x_1$", "$\\beta_0$", "$\\beta_1$", "$\\sigma^2$")
+bekannt <- c("", "", "", "", "")
+unbekannt <- c("", "", "", "", "")
+knitr::kable(data.frame(Was = Was,
+                        bekannt = bekannt,
+                        unbekannt = unbekannt, 
+                        row.names = NULL,
+                        stringsAsFactors = FALSE))
+```
+
+__Kontrollfrage 2__:
+
+Unter der Annahme, dass bei der Zielgrösse und der erklärenden Variablen keine Daten fehlen, welcher Einteilung bei den Frequentisten entspricht dann die Bayes'sche Einteilung in bekannte und unbekannte Grössen?
+
+
+
+## Aufgabe 3: Vergleich zwischen Bayes und Least Squares
+Gegeben ist das Modell 
+
+\begin{equation}
+y_i = \beta_0 + \beta_1 * x_{i} + \epsilon_i
+\label{eq:SimpleLinRegModel}
+\end{equation}
+
+\begin{tabular}{lll}
+wobei  &  &\\
+       & $y_i$         &  Zielgrösse der Beobachtung $i$\\
+       & $\beta_0$     &  Achsenabschnitt\\
+       & $x_i$         &  erklärende Variable der Beobachtung $i$\\
+       & $\beta_1$     &  fixer Parameter der erklärenden Variable $x$\\
+       & $\epsilon_i$  &  zufälliger Resteffekt der Beobachtung $i$
+\end{tabular}
+
+Wir nehmen an die Resteffekte seien unkorreliert und normalverteilt mit Erwartungswert $0$ und konstanter Varianz $var(e_i) = \sigma^2$
+
+```{r SimulateData, echo=FALSE, results='hide'}
+### # decide whether we are online or not
+bOnLine <- FALSE
+### # simulated data according to Rohan's course note from 2013
+set.seed(987)
+n = 20 # number of observations
+k = 1 # number of covariates
+x = matrix(sample(c(0, 1, 2), n * k, replace = T), nrow = n, ncol = k)
+X = cbind(1, x)
+# head(X)
+betaTrue = c(10.9, 3.4)
+y = X %*% betaTrue + rnorm(n, 0, 1)
+#head(y)
+### # generate dataframe for saving to file
+dfSimData <- data.frame(y=y, x = X[,2], stringsAsFactors = FALSE)
+### # writing the data, with given filename
+sDataFn <- "simpleLinReg.csv"
+sDataLink <- file.path("https://charlotte-ngs.github.io/GELASMFS2017/w6", sDataFn)
+write.csv(dfSimData, file = sDataFn, quote = FALSE, row.names = FALSE)
+### # directly assign data in case we are offline
+if (!bOnLine){
+  dfDataRead <- read.csv(file = sDataFn, stringsAsFactors = FALSE)
+}
+```
+
+Auf der Webseite ist unter dem Link `r sDataLink` ein Datensatz mit `r nrow(dfSimData)` Beobachtungen verfügbar. Diesen Datensatz können Sie mit dem folgenden R-Befehl einlesen. Als Kontrolle können wir die Dimension der eingelesenen Daten bestimmen.
+
+```{r ReadData, echo=TRUE, results='markup', eval=bOnLine}
+sDataFn <- "simpleLinReg.csv"
+sDataLink <- file.path("https://charlotte-ngs.github.io/GELASMFS2017/w6", sDataFn)
+dfDataRead <- read.csv(file = sDataLink, stringsAsFactors = FALSE)
+dim(dfDataRead)
+```
+
+Mit dem folgenden Programm schätzen wir den Achsenabschnitt und den Koeffizienten der erklärenden Variablen mit einer Bayesschen Methode, welche auch als Gibbs Sampler bezeichnet wird.
+
+```{r BayesEstGibbs, echo=TRUE, results='markup'}
+### # Matrix X als Inzidenzmatrix des Achsenabschnitts und 
+### #  der erklärenden Variablen
+X <- cbind(1,dfDataRead$x)
+### # y als Vektor der Beobachtungen
+y <- dfDataRead$y
+### # Zuweisung der Startwerte 
+beta = c(0, 0) 
+# loop for Gibbs sampler
+niter = 100000 # number of samples
+meanBeta = c(0, 0)
+for (iter in 1:niter) {
+  # sampling intercept
+  w = y - X[, 2] * beta[2]
+  x = X[, 1]
+  xpxi = 1/(t(x) %*% x)
+  betaHat = t(x) %*% w * xpxi
+  beta[1] = rnorm(1, betaHat, sqrt(xpxi)) # using residual var = 1
+  # sampling slope
+  w = y - X[, 1] * beta[1]
+  x = X[, 2]
+  xpxi = 1/(t(x) %*% x)
+  betaHat = t(x) %*% w * xpxi
+  beta[2] = rnorm(1, betaHat, sqrt(xpxi)) # using residual var = 1
+  meanBeta = meanBeta + beta
+  if ((iter%%20000) == 0) {
+    cat(sprintf("Intercept = %6.3f \n", meanBeta[1]/iter))
+    cat(sprintf("Slope = %6.3f \n", meanBeta[2]/iter))
+  }
+}
+```
+
+```{r BayesEstProcessResult, echo=FALSE, results='hide'}
+betaBayes <- meanBeta/niter
+betaBayesRound2D <- round(betaBayes, digits = 2)
+```
+
+
+Das oben gezeigte Programm hat $`r niter`$ Runden des Gibbs Samplers gemacht und als Resultat erhalten wir die Schätzung für den Achabschnitt als 
+
+```{r BayesEstSolIntercept, echo=FALSE, results='asis'}
+cat("$$\\hat{\\beta}_0 = ", betaBayesRound2D[1], "$$\n")
+```
+
+Die Bayessche Schätzung für den Koeffizienten der erklärenden Variablen lautet
+
+```{r BayesEstSolSlope, echo=FALSE, results='asis'}
+cat("$$\\hat{\\beta}_1 = ", betaBayesRound2D[2], "$$\n")
+```
+
+### Ihre Aufgabe
+- Vergleichen Sie die Bayessche Schätzung mit der Schätzung aufgrund von Least Squares. 
+- Da die Daten ursprünglich simuliert waren, kennen wir die wahren Werte diese sind in der nachfolgenden Tabelle gezeigt. Vervollständigen Sie die folgende Tabelle für einen übersichtlichen Vergleich.
+
+```{r TableResultTask, echo=FALSE, results='markup'}
+dfEstResult <- data.frame(Parameter = c("Achsenabschnitt", "Koeffizient"), 
+                          Wahr = betaTrue, 
+                          Bayes = c("",""),
+                          LeastSquares = c("","") )
+knitr::kable(dfEstResult)
+```
+
