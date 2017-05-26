@@ -1,0 +1,374 @@
+---
+output:
+  pdf_document:
+    includes:
+      in_header: tex/header.tex
+    fig_caption: false
+---
+
+<!-- %\usepackage{fancyhdr} -->
+
+\newcommand{\points}[1]
+{\begin{flushright}\textbf{#1}\end{flushright}}
+
+<!-- %\begin{document} -->
+<!-- %\SweaveOpts{concordance=TRUE} -->
+```{r ChunkOptions, echo=FALSE}
+knitr::opts_chunk$set(concordance=TRUE)
+knitr::knit_hooks$set(conv.odg = rmddochelper::odg.graphics.conv.hook)
+```
+
+<!-- <<PointsQ1, echo=FALSE>>= -->
+```{r PointsQ1, echo=FALSE}
+# Assign Points for Q1
+lPointsQ1 <- list(TaskA = 6,
+                  TaskB = 2,
+                  TaskC = 2,
+                  TaskD = 0)
+nPointQ1Total <- sum(unlist(lPointsQ1))
+```
+<!-- @ -->
+<!-- <<PointsQ2, echo=FALSE>>= -->
+```{r PointsQ2, echo=FALSE}
+# Assign Points for Q2
+lPointsQ2 <- list(TaskA = 8,
+                  TaskB = 2,
+                  TaskC = 6,
+                  TaskD = 0)
+nPointQ2Total <- sum(unlist(lPointsQ2))
+```
+<!-- @ -->
+<!-- <<PointsQ3, echo=FALSE>>= -->
+```{r PointsQ3, echo=FALSE}
+# Assign Points for Q3
+lPointsQ3 <- list(TaskA = 4,
+                  TaskB = 4,
+                  TaskC = 3,
+                  TaskD = 3)
+nPointQ3Total <- sum(unlist(lPointsQ3))
+```
+<!-- @ -->
+<!-- <<PointsQ4, echo=FALSE>>= -->
+```{r PointsQ4, echo=FALSE}
+# Assign Points for Q4
+lPointsQ4 <- list(TaskA = 0,
+                  TaskB = 0,
+                  TaskC = 0,
+                  TaskD = 0)
+nPointQ4Total <- sum(unlist(lPointsQ4))
+```
+<!-- @ -->
+<!-- <<PointsTotal, echo=FALSE>>= -->
+```{r PointsTotal, echo=FALSE}
+nPointOverallTotal <- nPointQ1Total + nPointQ2Total + nPointQ3Total + nPointQ4Total
+```
+<!-- @ -->
+
+
+\thispagestyle{empty}
+
+\fcolorbox{white}{white}{
+	\centering \parbox[t]{1.0\linewidth}{
+		\fontsize{12pt}{20pt}\selectfont % 
+		\vspace*{0.5cm} % 
+
+   	\hfill 	Peter von Rohr \\ Institut f\"ur Agrarwissenschaften\\ D-USYS\\ ETH Z\"urich
+
+		\vspace*{0.5cm} 
+	}
+}
+
+\vspace*{2cm}
+
+\fcolorbox{white}{white}{
+	\parbox[t]{1.0\linewidth}{
+		\centering \fontsize{25pt}{40pt}\selectfont %
+		\vspace*{0.7cm}
+     L\"osungen zur Pr\"ufung    \\
+     Angewandte Statistische Methoden in den Nutzierwissenschaften\\
+     FS 2017
+
+		\vspace*{0.7cm} % Space between the end of the title and the bottom of the grey box
+	}
+}
+
+
+\vspace*{3cm}
+
+<!-- % Table with Name -->
+\begin{tabular}{p{3cm}p{6cm}}
+Name:     &  \\
+          &  \\
+Legi-Nr:  & \\
+\end{tabular}
+
+<!-- % Table with Points -->
+
+\vspace{5ex}
+\begin{center}
+\begin{tabular}{|p{3cm}|c|c|}
+\hline
+Aufgabe  &  Maximale Punktzahl  &  Erreichte Punktzahl\\
+\hline
+1        &  `r nPointQ1Total`  & \\
+\hline
+2        &  `r nPointQ2Total`  & \\
+\hline
+3        &  `r nPointQ3Total`  & \\
+\hline
+4        &  `r nPointQ4Total`  & \\
+\hline
+Total    &  `r nPointOverallTotal` & \\
+\hline
+\end{tabular}
+\end{center}
+
+\clearpage
+\pagebreak
+
+\section*{Aufgabe 1: Genomische Selektion}
+\begin{enumerate}
+\item[a)] In der genomischen Selektion werden häufig Zielgrässen verwendet, welche auf BLUP-Zuchtwerten basieren. Was wird in der klassischen Zuchtwertschätzung als Zielgrösse verwendet? Wo liegen die Vor- und die Nachteile der jeweilen verwendeten Zielgrössen? Füllen Sie die nachfolgende Tabelle aus und geben Sie je einen Vor- und einen Nachteil der Zielgrössen vor und nach der Einführung der genomischen Selektion an.
+\end{enumerate}
+\points{`r lPointsQ1$TaskA`}
+
+\noindent\textbf{L\"osung:}
+
+\vspace{5ex}
+\begin{tabular}{|l|p{6cm}|p{6cm}|}
+\hline
+Punkt  &  klassische Zuchtwertschätzung  &  Genomische Selektion \\
+\hline
+Zielgrösse   &  ph\"anotypische Beobachtungen oder Leistungen
+             &  Deregressierte Zuchtwerte \\ %\vspace{20ex}\\
+\hline
+Vorteile     &  unabhängig von Schätzverfahren, direkt beobachtbar oder messbar
+             &  frühe und breite Verfügbarkeit \\ %\vspace{25ex}\\
+\hline
+Nachteil     &  späte Verfügbarkeit, uneinheitliche Definition
+             &  abhängig von Schätzverfahren, berechnete Grösse, Reduktion der Varianz und Schrumpfung zum Elterndurchschnitt \\ %\vspace{25ex}\\
+\hline
+\end{tabular}
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[b)] Angenommen wir würden rohe BLUP-Zuchtwerte als Zielgrössen in der genomischen Zuchtwertschätzung verwenden, welche Nachteile hätte das? Nennen Sie zwei Nachteile. 
+\end{enumerate}
+
+\points{`r lPointsQ1$TaskB`}
+
+### Lösung: 
+1. Reduktion der Varianz und 
+2. Schrumpfung zum Elterndurchschnitt
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[c)] Wie lautet die Korrekturmassnahme zur Behebung der unter Aufgabe b) genannten Nachteile und auf welcher Grösse basiert diese Massnahme?
+\end{enumerate}
+
+### Lösung: 
+1. Deregression 
+2. Bestimmtheitsmass der geschätzten Zuchtwerte
+
+\clearpage
+\pagebreak
+
+\section*{Aufgabe 2: Lineare Regression}
+
+```{r DataSim, echo=FALSE, results='hide'}
+set.seed(1566)
+n = 30
+k = 1
+#x = matrix(sample(c(0, 1), n * k, replace = T), nrow = n, ncol = k)
+x = matrix(rnorm(n*k, mean = 3, sd = 0.5), nrow = n, ncol = k)
+X = cbind(1, x)
+betaTrue = c(1.07, 3.32)
+y = X %*% betaTrue + rnorm(n, 0, 2)
+dfSimData <- data.frame(X1 = x[,1], y = y)
+```
+
+Wir haben den gleichen Datensatz mit zwei unterschiedlichen linearen Regressionsmodellen analysiert. Der R-Output dieser beiden Analysen ist nachfolgend als Output A und Output B gegeben. 
+
+
+### Output A
+```{r SnpRegOutputA, echo=FALSE}
+summary(snp_regA <- lm(y ~ X1, data = dfSimData))
+```
+
+### Output B
+```{r SnpRegOutputB, echo=FALSE}
+summary(snp_regB <- lm(y ~ 0 + X1, data = dfSimData))
+```
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[a)] Geben Sie die Formeln der beiden statistischen Modelle an, welche zu Output A und Output B geführt haben. Wo liegt der hauptsächliche Unterschied zwischen den beiden Modellen
+\end{enumerate}
+\points{`r lPointsQ2$TaskA`}
+
+### Lösung
+
+- Modell für Output A: $y_i = \beta_0 + \beta_1 X_{1i} + \epsilon_i$
+- Modell für Output B: $y_i = \beta_1 X_{1i} + \epsilon_i$
+- Der Hauptunterschied liegt darin, dass im Modell von Output A ein Achsenabschnitt $\beta_0$ angepasst wird und im Modell von Output B nicht.
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[b)] Für die zwei Analysen wurden auch zwei Plots gemacht. Ordnen Sie die Plots 1 und 2 den Outputs A und B zu.
+\end{enumerate}
+\points{`r lPointsQ2$TaskB`}
+
+### Plot 1
+```{r PlotAbline1, echo=FALSE}
+plot(dfSimData$X1, dfSimData$y, type = "p", xlab = "X1", ylab = "y", 
+     xlim = c(0,max(dfSimData$X1)+0.2), ylim = c(-1,max(dfSimData$y)+1) )
+abline(snp_regB, col = "red")
+```
+
+
+### Plot 2
+```{r PlotAbline2, echo=FALSE}
+plot(dfSimData$X1, dfSimData$y, type = "p", xlab = "X1", ylab = "y", 
+     xlim = c(0,max(dfSimData$X1)+0.2), ylim = c(-1,max(dfSimData$y)+1))
+abline(snp_regA, col = "red")
+```
+
+\clearpage
+\pagebreak
+
+### Lösung: 
+- Plot 1 gehört zu Output B
+- Plot 2 gehört zu Output A
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[c)] Zeichnen Sie die geschätzten Parameter (Estimate) aus den Outputs A und B in die Plots 1 und 2 ein
+\end{enumerate}
+\points{`r lPointsQ2$TaskC`}
+
+### Plot 1
+```{r PlotAblineC1, echo=FALSE}
+plot(dfSimData$X1, dfSimData$y, type = "p", xlab = "X1", ylab = "y", 
+     xlim = c(0,max(dfSimData$X1)+0.2), ylim = c(-1,max(dfSimData$y)+1) )
+abline(snp_regB, col = "red")
+```
+
+
+### Plot 2
+```{r PlotAblineC2, echo=FALSE}
+plot(dfSimData$X1, dfSimData$y, type = "p", xlab = "X1", ylab = "y", 
+     xlim = c(0,max(dfSimData$X1)+0.2), ylim = c(-1,max(dfSimData$y)+1))
+abline(snp_regA, col = "red")
+```
+
+
+\clearpage
+\pagebreak
+
+### Lösung: 
+
+```{r SolEstInPlot, conv.odg=TRUE, odg.path="odg", odg.graph.cache=TRUE, fig.align='center', echo=FALSE, results='asis'}
+knitr::include_graphics(path = "SolEstInPlot.pdf")
+```
+
+
+\clearpage
+\pagebreak
+
+
+\section*{Aufgabe 3: LASSO und Bayes}
+
+\begin{enumerate}
+\item[a)] In der genomischen Zuchtwertschätzung sind die SNP-Genotypen die hauptsächliche Informationsquelle. Für die statistische Modellierung dieser Daten können wir ein einfaches lineares Regressionsmodell verwende. Weshalb kann bei der genomischen Zuchtwertschätzung Least Squares nicht als Schätzmethode verwendet werden?
+\end{enumerate}
+\points{`r lPointsQ3$TaskA`}
+
+### Lösung
+- $n << p$ , wobei $n$ die Anzahl Beobachtungen und $p$ die Anzahl Parameter
+- Für die Berechnung der Least Squares-Parameterschätzungen muss die Designmatrix $X$ vollen Kolonnenrang haben, da nur dann $(X^TX)$ invertierbar ist.
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[b)] LASSO (Least Absolute Shrinkage and Selection Operator) ist eine Alternative zu Least Squares. Worin unterscheiden sich LASSO und Least Squares? 
+\end{enumerate}
+\points{`r lPointsQ3$TaskB`}
+
+### Lösung
+- Bei LASSO wird ein sogenannter Strafterm berücksichtigt. 
+- Strafterm führt dazu, dass gewisse Parameterschätzwerte $\beta_j$ auf $0$ gesetzt werden, weshalb auch eine Seletion der erklärenden Variablen passiert (Selection). Dies gibt es in Least Squares nicht.
+- Durch die Berücksichtigung des Strafterms werden die Parameterschätzwerte auch gegen $0$ gedrückt (Shrinkage). Dies gibt es in Least Squares nicht.
+- Der Strafterm ist eine Funktion des Absolutbetrages des Parametervektors (Absolute). Dies gibt es in Least Squares nicht.
+
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[c)] Unterschiede zwischen Bayesianer und Frequentisten
+- Frequentisten unterscheiden in einer statistischen Analyse zwischen Daten und Parameter. Wie lautet die äquivalente Unterscheidung in einer Bayes'schen Analyse? 
+- Fehlende Daten werden in einer frequentistischen Datenanalyse ignoriert. Was passiert damit in einer Bayes'schen Analyse
+- Aus welchem Grund muss die Bedingung $n > p$ in einer Bayes'schen Analyse nicht gelten?
+\end{enumerate}
+\points{`r lPointsQ3$TaskC`}
+
+### Lösung
+- Bayesianter unterscheiden zwischen bekannten und unbekannten Grössen.
+- Fehlende Daten werden als unbekannte Grössen behandelt und aus den vorhandenen Daten mitgeschätzt
+- Da die Berücksichtigung der a priori Information eine Schätzung auch mit sehr wenigen Beobachtungen erlaubt
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[d)] In einer Bayes'schen Analyse basieren die Schätzung der unbekannten Grössen auf der sogenannten a posteriori-Verteilung. Aus welchen  Komponenten besteht diese a posteriori Verteilung
+\end{enumerate}
+\points{`r lPointsQ3$TaskD`}
+
+### Lösung
+
+- Bayessche Likelihood
+- a priori Verteilung
+- Normalisierungskonstante
+
+\clearpage
+\pagebreak
+
+\section*{Aufgabe 4: Genomisches BLUP}
+
+\begin{enumerate}
+\item[a)]
+\end{enumerate}
+\points{`r lPointsQ4$TaskA`}
+
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[b)] 
+\end{enumerate}
+\points{`r lPointsQ4$TaskB`}
+
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[c)] 
+\end{enumerate}
+\points{`r lPointsQ4$TaskC`}
+
+
+
+

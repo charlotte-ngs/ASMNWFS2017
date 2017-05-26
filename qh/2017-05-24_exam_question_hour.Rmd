@@ -1,0 +1,57 @@
+---
+title: "Fragestunde  Prüfung Angewandte Statistische Methoden in den Nutztierwissenschaften"
+author: "Peter von Rohr"
+date: "5/24/2017"
+output: beamer_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Plan
+
+Folgende Punkte stehen für die heutige Fragestunde auf dem Plan
+
+- Prüfung 2017
+- Ihre Fragen
+- Prüfung 2016
+- Übung zu GBLUP
+
+
+## Prüfung 2017
+
+- __Termin__:  Montag 29.05.2017 um 08:15 Uhr, LFW C11
+- __Erlaubte Hilfsmittel__: alle, ausser Laptop, Tablet und Handy. Taschenrechner hilfreich
+
+
+## Ihre Fragen
+
+Haben Sie konkrete Fragen, welche Sie gleich zu Anfang geklärt haben wollen?
+
+
+## Prüfung 2016
+
+- 4 Aufgaben
+- 45 Minuten
+
+
+## Aufgabe 1: Genomische Selektion
+
+- a] Unterschiede traditionelle Zuchtwertschätzung versus Zuchtwertschätzung mit genomischer Selektion
+    + Gefragt sind Unterschiede im Bezug auf Informationsquellen und Modelle
+    + mit traditioneller Zuchtwertschätzung ist BLUP Tiermodell gemeint
+    
+- b] Thema: BLUP-Zuchtwerte als Zielgrösse im statistischen Modell für die Schätzung genomischer Zuchtwerte
+    + Vorteil: grosse Verfügbarkeit, auch über Ländergrenzen hinweg
+    + Nachteil: Regression zum Elterndurchschnitt und Reduktion der Varianz aufgrund von BLUP
+    + Deregression    
+
+
+## Aufgabe 2: Regression
+
+Wichtig ist alle Zahlen auf diesem Output zu vestehen
+
+- a] Komponenten, d.h. Zielgrösse ($y$), erklärende Variablen ($x_j$), Parameter ($\beta$), Reste ($e$)
+- b] wie lautet das Modell als Formel
+- c] Vertrauensintervall aufgrund von t-Testgrössen
