@@ -85,7 +85,8 @@ nPointOverallTotal <- nPointQ1Total + nPointQ2Total + nPointQ3Total + nPointQ4To
 \fcolorbox{white}{white}{
 	\parbox[t]{1.0\linewidth}{
 		\centering \fontsize{25pt}{40pt}\selectfont %
-		\vspace*{0.7cm}
+		\vspace*{0.2cm}
+		 751-7602-00 V \\
      Pr\"ufung    \\
      Angewandte Statistische Methoden in den Nutzierwissenschaften\\
      FS 2017
@@ -95,11 +96,12 @@ nPointOverallTotal <- nPointQ1Total + nPointQ2Total + nPointQ3Total + nPointQ4To
 }
 
 
-\vspace*{3cm}
+\vspace*{2cm}
 
 <!-- % Table with Name -->
 \begin{tabular}{p{3cm}p{6cm}}
 Name:     &  \\
+          &  \\
           &  \\
 Legi-Nr:  & \\
 \end{tabular}
@@ -141,13 +143,13 @@ Total    &  `r nPointOverallTotal` & \\
 \hline
 Punkt  &  klassische Zuchtwertschätzung  &  Genomische Selektion \\
 \hline
-Zielgrösse   &  
+Zielgrössen  &  
              &    \vspace{20ex}\\
 \hline
 Vorteile     &  
              &    \vspace{25ex}\\
 \hline
-Nachteil     &  
+Nachteile    &  
              &    \vspace{25ex}\\
 \hline
 \end{tabular}
