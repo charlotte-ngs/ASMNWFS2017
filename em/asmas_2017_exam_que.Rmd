@@ -1,0 +1,392 @@
+---
+output:
+  pdf_document:
+    includes:
+      in_header: tex/header.tex
+    fig_caption: false
+output_file: asmas_2017_exam_que.pdf
+---
+
+<!-- %\usepackage{fancyhdr} -->
+
+\newcommand{\points}[1]
+{\begin{flushright}\textbf{#1}\end{flushright}}
+
+<!-- %\begin{document} -->
+<!-- %\SweaveOpts{concordance=TRUE} -->
+```{r ChunkOptions, echo=FALSE}
+knitr::opts_chunk$set(echo = FALSE, results = 'hide')
+#knitr::opts_chunk$set(concordance=TRUE)
+knitr::knit_hooks$set(conv.odg = rmddochelper::odg.graphics.conv.hook)
+```
+
+<!-- <<PointsQ1, echo=FALSE>>= -->
+```{r PointsQ1, echo=FALSE}
+# Assign Points for Q1
+lPointsQ1 <- list(TaskA = 6,
+                  TaskB = 2,
+                  TaskC = 2,
+                  TaskD = 0)
+nPointQ1Total <- sum(unlist(lPointsQ1))
+```
+<!-- @ -->
+<!-- <<PointsQ2, echo=FALSE>>= -->
+```{r PointsQ2, echo=FALSE}
+# Assign Points for Q2
+lPointsQ2 <- list(TaskA = 8,
+                  TaskB = 2,
+                  TaskC = 6,
+                  TaskD = 0)
+nPointQ2Total <- sum(unlist(lPointsQ2))
+```
+<!-- @ -->
+<!-- <<PointsQ3, echo=FALSE>>= -->
+```{r PointsQ3, echo=FALSE}
+# Assign Points for Q3
+lPointsQ3 <- list(TaskA = 4,
+                  TaskB = 4,
+                  TaskC = 3,
+                  TaskD = 3)
+nPointQ3Total <- sum(unlist(lPointsQ3))
+```
+<!-- @ -->
+<!-- <<PointsQ4, echo=FALSE>>= -->
+```{r PointsQ4, echo=FALSE}
+# Assign Points for Q4
+lPointsQ4 <- list(TaskA = 4,
+                  TaskB = 2,
+                  TaskC = 8,
+                  TaskD = 8)
+nPointQ4Total <- sum(unlist(lPointsQ4))
+```
+<!-- @ -->
+<!-- <<PointsTotal, echo=FALSE>>= -->
+```{r PointsTotal, echo=FALSE}
+nPointOverallTotal <- nPointQ1Total + nPointQ2Total + nPointQ3Total + nPointQ4Total
+```
+<!-- @ -->
+
+
+\thispagestyle{empty}
+
+\fcolorbox{white}{white}{
+	\centering \parbox[t]{1.0\linewidth}{
+		\fontsize{12pt}{20pt}\selectfont % 
+		\vspace*{0.5cm} % 
+
+   	\hfill 	Peter von Rohr \\ Institut f\"ur Agrarwissenschaften\\ D-USYS\\ ETH Z\"urich
+
+		\vspace*{0.5cm} 
+	}
+}
+
+\vspace*{2cm}
+
+\fcolorbox{white}{white}{
+	\parbox[t]{1.0\linewidth}{
+		\centering \fontsize{25pt}{40pt}\selectfont %
+		\vspace*{0.7cm}
+     Pr\"ufung    \\
+     Angewandte Statistische Methoden in den Nutzierwissenschaften\\
+     FS 2017
+
+		\vspace*{0.7cm} % Space between the end of the title and the bottom of the grey box
+	}
+}
+
+
+\vspace*{3cm}
+
+<!-- % Table with Name -->
+\begin{tabular}{p{3cm}p{6cm}}
+Name:     &  \\
+          &  \\
+Legi-Nr:  & \\
+\end{tabular}
+
+<!-- % Table with Points -->
+
+\vspace{5ex}
+\begin{center}
+\begin{tabular}{|p{3cm}|c|c|}
+\hline
+Aufgabe  &  Maximale Punktzahl  &  Erreichte Punktzahl\\
+\hline
+1        &  `r nPointQ1Total`  & \\
+\hline
+2        &  `r nPointQ2Total`  & \\
+\hline
+3        &  `r nPointQ3Total`  & \\
+\hline
+4        &  `r nPointQ4Total`  & \\
+\hline
+Total    &  `r nPointOverallTotal` & \\
+\hline
+\end{tabular}
+\end{center}
+
+\clearpage
+\pagebreak
+
+\section*{Aufgabe 1: Genomische Selektion}
+\begin{enumerate}
+\item[a)] In der genomischen Selektion werden häufig Zielgrössen verwendet, welche auf BLUP-Zuchtwerten basieren. Was wird in der klassischen Zuchtwertschätzung als Zielgrösse verwendet? Wo liegen die Vor- und die Nachteile der jeweilen verwendeten Zielgrössen? Füllen Sie die nachfolgende Tabelle aus und geben Sie je einen Vor- und einen Nachteil der Zielgrössen in der klassischen Zuchtwertschätzung und der genomischen Selektion an.
+\end{enumerate}
+\points{`r lPointsQ1$TaskA`}
+
+\noindent\textbf{L\"osung:}
+
+\vspace{5ex}
+\begin{tabular}{|l|p{6cm}|p{6cm}|}
+\hline
+Punkt  &  klassische Zuchtwertschätzung  &  Genomische Selektion \\
+\hline
+Zielgrösse   &  
+             &    \vspace{20ex}\\
+\hline
+Vorteile     &  
+             &    \vspace{25ex}\\
+\hline
+Nachteil     &  
+             &    \vspace{25ex}\\
+\hline
+\end{tabular}
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[b)] Angenommen wir würden rohe BLUP-Zuchtwerte als Zielgrössen in der genomischen Zuchtwertschätzung verwenden, welche Nachteile hätte das? Nennen Sie zwei Nachteile. 
+\end{enumerate}
+
+\points{`r lPointsQ1$TaskB`}
+
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[c)] Wie lautet die Korrekturmassnahme zur Behebung der unter Aufgabe b) genannten Nachteile und auf welcher Grösse basiert diese Massnahme?
+\end{enumerate}
+
+\points{`r lPointsQ1$TaskC`}
+
+
+\clearpage
+\pagebreak
+
+\section*{Aufgabe 2: Lineare Regression}
+
+```{r DataSim, echo=FALSE, results='hide'}
+set.seed(1566)
+n = 30
+k = 1
+#x = matrix(sample(c(0, 1), n * k, replace = T), nrow = n, ncol = k)
+x = matrix(rnorm(n*k, mean = 3, sd = 0.5), nrow = n, ncol = k)
+X = cbind(1, x)
+betaTrue = c(1.07, 3.32)
+y = X %*% betaTrue + rnorm(n, 0, 2)
+dfSimData <- data.frame(X1 = x[,1], y = y)
+```
+
+Wir haben den gleichen Datensatz mit zwei unterschiedlichen linearen Regressionsmodellen analysiert. Der R-Output dieser beiden Analysen ist nachfolgend als Output A und Output B gegeben. 
+
+
+### Output A
+```{r SnpRegOutputA, echo=FALSE, results='markup'}
+summary(snp_regA <- lm(y ~ X1, data = dfSimData))
+```
+
+### Output B
+```{r SnpRegOutputB, echo=FALSE, results='markup'}
+summary(snp_regB <- lm(y ~ -1 + X1, data = dfSimData))
+```
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[a)] Geben Sie die Formeln der beiden statistischen Modelle an, welche zu Output A und Output B geführt haben. Wo liegt der hauptsächliche Unterschied zwischen den beiden Modellen
+\end{enumerate}
+\points{`r lPointsQ2$TaskA`}
+
+
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[b)] Für die zwei Analysen wurden auch zwei Plots gemacht. Ordnen Sie die Plots 1 und 2 den Outputs A und B zu.
+\end{enumerate}
+\points{`r lPointsQ2$TaskB`}
+
+### Plot 1
+```{r PlotAbline1, echo=FALSE}
+plot(dfSimData$X1, dfSimData$y, type = "p", xlab = "X1", ylab = "y", 
+     xlim = c(0,max(dfSimData$X1)+0.2), ylim = c(-1,max(dfSimData$y)+1) )
+abline(snp_regB, col = "red")
+```
+
+
+### Plot 2
+```{r PlotAbline2, echo=FALSE}
+plot(dfSimData$X1, dfSimData$y, type = "p", xlab = "X1", ylab = "y", 
+     xlim = c(0,max(dfSimData$X1)+0.2), ylim = c(-1,max(dfSimData$y)+1))
+abline(snp_regA, col = "red")
+```
+
+\clearpage
+\pagebreak
+
+- Plot 1 gehört zu Output 
+- Plot 2 gehört zu Output 
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[c)] Zeichnen Sie die geschätzten Parameter (Estimate) aus den Outputs A und B in die Plots 1 und 2 ein
+\end{enumerate}
+\points{`r lPointsQ2$TaskC`}
+
+### Plot 1
+```{r PlotAblineC1, echo=FALSE}
+plot(dfSimData$X1, dfSimData$y, type = "p", xlab = "X1", ylab = "y", 
+     xlim = c(0,max(dfSimData$X1)+0.2), ylim = c(-1,max(dfSimData$y)+1) )
+abline(snp_regB, col = "red")
+```
+
+
+### Plot 2
+```{r PlotAblineC2, echo=FALSE}
+plot(dfSimData$X1, dfSimData$y, type = "p", xlab = "X1", ylab = "y", 
+     xlim = c(0,max(dfSimData$X1)+0.2), ylim = c(-1,max(dfSimData$y)+1))
+abline(snp_regA, col = "red")
+```
+
+
+\clearpage
+\pagebreak
+
+
+
+\section*{Aufgabe 3: LASSO und Bayes}
+
+\begin{enumerate}
+\item[a)] In der genomischen Zuchtwertschätzung sind die SNP-Genotypen die hauptsächliche Informationsquelle. Für die statistische Modellierung dieser Daten können wir ein einfaches lineares Regressionsmodell verwenden. Weshalb kann bei der genomischen Zuchtwertschätzung Least Squares nicht als Schätzmethode verwendet werden?
+\end{enumerate}
+\points{`r lPointsQ3$TaskA`}
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[b)] LASSO (Least Absolute Shrinkage and Selection Operator) ist eine Alternative zu Least Squares. Worin unterscheiden sich LASSO und Least Squares? 
+\end{enumerate}
+\points{`r lPointsQ3$TaskB`}
+
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[c)] Unterschiede zwischen Bayesianer und Frequentisten
+
+- Frequentisten unterscheiden in einer statistischen Analyse zwischen Daten und Parameter. Wie lautet die äquivalente Unterscheidung in einer Bayes'schen Analyse? 
+
+- Fehlende Daten werden in einer frequentistischen Datenanalyse ignoriert. Was passiert damit in einer Bayes'schen Analyse
+
+- Aus welchem Grund muss die Bedingung $n > p$ in einer Bayes'schen Analyse nicht gelten?
+\end{enumerate}
+\points{`r lPointsQ3$TaskC`}
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[d)] In einer Bayes'schen Analyse basieren die Schätzung der unbekannten Grössen auf der sogenannten a posteriori-Verteilung. Aus welchen  Komponenten besteht diese a posteriori Verteilung
+\end{enumerate}
+\points{`r lPointsQ3$TaskD`}
+
+\clearpage
+\pagebreak
+
+\section*{Aufgabe 4: Genomisches BLUP}
+
+\begin{enumerate}
+\item[a)] Worin besteht der Unterschied zwischen RR-BLUP und GBLUP und wie werden die SNP-Informationen in RR-BLUP und in GBLUP berücksichtigen?
+\end{enumerate}
+\points{`r lPointsQ4$TaskA`}
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[b)] Wenn wir uns die Grösse der entstehenden Gleichungssysteme anschauen, welche Methode RR-BLUP oder GBLUP ergibt die kleineren Gleichungssysteme? Begründen Sie Ihre Antwort.
+\end{enumerate}
+\points{`r lPointsQ4$TaskB`}
+
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[c)] Gegeben ist der folgende Datensatz. Bei allen SNPs nehmen wir an, dass $G_1$ das Allel mit der positiven Wirkung sei. Stellen Sie die Modelle und die Gleichungssysteme für RR-BLUP auf. Verwenden Sie bei den Gleichungssystemen so weit als möglich die im Datensatz gegebenen Zahlenwerte. Als fixen Effekt können Sie ein allgemeines Mittel $\mu$ annehmen. Das Verhältnis zwischen Restvarianz und genetischer Varianz $\lambda$ betrage $\lambda = 1$.  
+\end{enumerate}
+\points{`r lPointsQ4$TaskC`}
+
+
+```{r TaskInit, echo=FALSE, results='asis'}
+minAlleleFreq <- 0.45
+nAnzTiere <- 2
+nAnzSnp <- 3
+nAnzAllelPerSnp <- 2
+nAnzAllelTot <- nAnzAllelPerSnp * nAnzSnp * nAnzTiere
+### # specify the allele which has positive effect,
+### # in this context, this can only be 0 or 1
+nAllelePosEffect <- 1
+### # rng stuff
+set.seed(986)
+### # sample matrix of alleles for all snps and all animals
+matAlleles <- matrix(data = rbinom(n = nAnzAllelTot, size = 1, prob = minAlleleFreq), ncol = nAnzTiere)
+### # generate matrix of genotypes
+matGenotypes <- matrix(NA, nrow = nAnzSnp, ncol = nAnzTiere)
+### # matrix with counts of 1-Alleles
+matSumG1Alleles <- matrix(NA, nrow = nAnzSnp, ncol = nAnzTiere)
+for (i in 1:nAnzSnp){
+  matGenotypes[i,] <- unlist(sapply(c(1:ncol(matAlleles)), 
+                                    function(x) {
+                                      ### # extracting the two rows of alleles for i-th SNP
+                                      curAllele <- matAlleles[((i-1)*2 + 1):(i*2),x]
+                                      ### # we are only having genotypes, so heterozygotes should always
+                                      ### # have the same order
+                                      curAllele <- curAllele[order(curAllele)]
+                                      paste0("$G_", curAllele[1], "G_", curAllele[2], "$", collapse = " ")
+                                      }
+                                    ))
+  
+ matSumG1Alleles[i,] <- apply(matAlleles[((i-1)*2 + 1):(i*2),], 2, sum)
+}
+### # generate phenotypes, assume a-effects for each snp
+vecAddEff <- round(rnorm(n=nAnzSnp, mean=5.3, sd=1.42), digits = 1)
+matAddGeno <- matSumG1Alleles
+### # in case that 0 is the positive allele, change the design matrix
+if (nAllelePosEffect == 0)
+  matAddGeno <- 2-matSumG1Alleles
+y <- crossprod(matAddGeno,vecAddEff) + rnorm(nAnzTiere)
+### # put together dataframe for table
+dfGenotypes <- data.frame(rbind(matGenotypes,t(round(y, digits = 2))), 
+                          row.names = c(unlist(sapply(c(1:nAnzSnp), function(x) paste0("SNP",x,collapse = ""))),"y"),
+                          stringsAsFactors = FALSE)
+colnames(dfGenotypes) <- unlist(sapply(c(1:nAnzTiere), function(x) paste0("Tier ",x,collapse = "")))
+### # generate table
+knitr::kable(dfGenotypes)
+```
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[d)] Verwenden Sie den gleichen Datensatz und die gleichen Annahmen, wie unter Aufgabe 4c) und stellen sie das Modell und das Gleichungssystem gleich wie in Aufgabe 4c, aber für GBLUP auf.   
+\end{enumerate}
+\points{`r lPointsQ4$TaskD`}

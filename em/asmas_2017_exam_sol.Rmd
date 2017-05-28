@@ -4,6 +4,7 @@ output:
     includes:
       in_header: tex/header.tex
     fig_caption: false
+output_file: asmas_2017_exam_sol.pdf
 ---
 
 <!-- %\usepackage{fancyhdr} -->
@@ -14,7 +15,8 @@ output:
 <!-- %\begin{document} -->
 <!-- %\SweaveOpts{concordance=TRUE} -->
 ```{r ChunkOptions, echo=FALSE}
-knitr::opts_chunk$set(concordance=TRUE)
+knitr::opts_chunk$set(echo = FALSE, results = 'hide')
+#knitr::opts_chunk$set(concordance=TRUE)
 knitr::knit_hooks$set(conv.odg = rmddochelper::odg.graphics.conv.hook)
 ```
 
@@ -51,10 +53,10 @@ nPointQ3Total <- sum(unlist(lPointsQ3))
 <!-- <<PointsQ4, echo=FALSE>>= -->
 ```{r PointsQ4, echo=FALSE}
 # Assign Points for Q4
-lPointsQ4 <- list(TaskA = 0,
-                  TaskB = 0,
-                  TaskC = 0,
-                  TaskD = 0)
+lPointsQ4 <- list(TaskA = 4,
+                  TaskB = 2,
+                  TaskC = 8,
+                  TaskD = 8)
 nPointQ4Total <- sum(unlist(lPointsQ4))
 ```
 <!-- @ -->
@@ -170,6 +172,8 @@ Nachteil     &  späte Verfügbarkeit, uneinheitliche Definition
 \item[c)] Wie lautet die Korrekturmassnahme zur Behebung der unter Aufgabe b) genannten Nachteile und auf welcher Grösse basiert diese Massnahme?
 \end{enumerate}
 
+\points{`r lPointsQ1$TaskC`}
+
 ### Lösung: 
 1. Deregression 
 2. Bestimmtheitsmass der geschätzten Zuchtwerte
@@ -195,13 +199,13 @@ Wir haben den gleichen Datensatz mit zwei unterschiedlichen linearen Regressions
 
 
 ### Output A
-```{r SnpRegOutputA, echo=FALSE}
+```{r SnpRegOutputA, echo=FALSE, results='markup'}
 summary(snp_regA <- lm(y ~ X1, data = dfSimData))
 ```
 
 ### Output B
-```{r SnpRegOutputB, echo=FALSE}
-summary(snp_regB <- lm(y ~ 0 + X1, data = dfSimData))
+```{r SnpRegOutputB, echo=FALSE, results='markup'}
+summary(snp_regB <- lm(y ~ -1 + X1, data = dfSimData))
 ```
 
 \clearpage
@@ -347,28 +351,278 @@ knitr::include_graphics(path = "SolEstInPlot.pdf")
 \section*{Aufgabe 4: Genomisches BLUP}
 
 \begin{enumerate}
-\item[a)]
+\item[a)] Worin besteht der Unterschied zwischen RR-BLUP und GBLUP und wie werden die SNP-Informationen in RR-BLUP und in GBLUP berücksichtigen?
 \end{enumerate}
 \points{`r lPointsQ4$TaskA`}
 
+### Lösung
+In RR-BLUP werden die einzelnen SNP-Genotypen als fixe oder zufällige Effekte modelliert. Somit entspricht die Anzahl der unbekannten Parameter der Anzahl an SNPs. Die Berücksichtigung der SNP-Information erfolgt also über die direkte Modellierung der SNP-Effekte.
+
+In GBLUP werden die genetischen Effekte aller SNP-Effekte pro Tier in einem zufälligen Effekt zusammengefasst. Die Berücksichtigung der SNP-Information erfolgt über die genomische Verwandtschaftsmatrix.
 
 \clearpage
 \pagebreak
 
 \begin{enumerate}
-\item[b)] 
+\item[b)] Wenn wir uns die Grösse der entstehenden Gleichungssysteme anschauen, welche Methode RR-BLUP oder GBLUP ergibt die kleineren Gleichungssysteme? Begründen Sie Ihre Antwort.
 \end{enumerate}
 \points{`r lPointsQ4$TaskB`}
 
+### Lösung
+Da in den meisten genomischen Analysen $n<p$ ist, dann haben wir in GBLUP die kleineren Gleichungssysteme. Die Begründung ist, dass in GBLUP die Anzahl der unbekannten Parameter der Anzahl Tiere $n$ entspricht und in RR-BLUP ist die Anzahl der unbekannten Parameter gleich der Anzahl SNPs $p$. 
 
 \clearpage
 \pagebreak
 
 \begin{enumerate}
-\item[c)] 
+\item[c)] Gegeben ist der folgende Datensatz. Bei den SNPs gilt $G_1$ als Allel mit der positiven Wirkung. Stellen Sie die Modelle als Formeln und die Gleichungssysteme für RR-BLUP und GBLUP auf. Verwenden Sie bei den Gleichungssystem so weit als möglich die im Datensatz gegebenen Zahlenwerte. Als fixen Effekt können Sie ein allgemeines Mittel $\mu$ annehmen. Das Verhältnis zwischen Restvarianz und genetischer Varianz $\lambda$ betrage $\lambda = 1$.  
 \end{enumerate}
 \points{`r lPointsQ4$TaskC`}
 
 
+```{r TaskInit, echo=FALSE, results='asis'}
+minAlleleFreq <- 0.45
+nAnzTiere <- 2
+nAnzSnp <- 3
+nAnzAllelPerSnp <- 2
+nAnzAllelTot <- nAnzAllelPerSnp * nAnzSnp * nAnzTiere
+### # specify the allele which has positive effect,
+### # in this context, this can only be 0 or 1
+nAllelePosEffect <- 1
+### # rng stuff
+set.seed(986)
+### # sample matrix of alleles for all snps and all animals
+matAlleles <- matrix(data = rbinom(n = nAnzAllelTot, size = 1, prob = minAlleleFreq), ncol = nAnzTiere)
+### # generate matrix of genotypes
+matGenotypes <- matrix(NA, nrow = nAnzSnp, ncol = nAnzTiere)
+### # matrix with counts of 1-Alleles
+matSumG1Alleles <- matrix(NA, nrow = nAnzSnp, ncol = nAnzTiere)
+for (i in 1:nAnzSnp){
+  matGenotypes[i,] <- unlist(sapply(c(1:ncol(matAlleles)), 
+                                    function(x) {
+                                      ### # extracting the two rows of alleles for i-th SNP
+                                      curAllele <- matAlleles[((i-1)*2 + 1):(i*2),x]
+                                      ### # we are only having genotypes, so heterozygotes should always
+                                      ### # have the same order
+                                      curAllele <- curAllele[order(curAllele)]
+                                      paste0("$G_", curAllele[1], "G_", curAllele[2], "$", collapse = " ")
+                                      }
+                                    ))
+  
+ matSumG1Alleles[i,] <- apply(matAlleles[((i-1)*2 + 1):(i*2),], 2, sum)
+}
+### # generate phenotypes, assume a-effects for each snp
+vecAddEff <- round(rnorm(n=nAnzSnp, mean=5.3, sd=1.42), digits = 1)
+matAddGeno <- matSumG1Alleles
+### # in case that 0 is the positive allele, change the design matrix
+if (nAllelePosEffect == 0)
+  matAddGeno <- 2-matSumG1Alleles
+y <- crossprod(matAddGeno,vecAddEff) + rnorm(nAnzTiere)
+### # put together dataframe for table
+dfGenotypes <- data.frame(rbind(matGenotypes,t(round(y, digits = 2))), 
+                          row.names = c(unlist(sapply(c(1:nAnzSnp), function(x) paste0("SNP",x,collapse = ""))),"y"),
+                          stringsAsFactors = FALSE)
+colnames(dfGenotypes) <- unlist(sapply(c(1:nAnzTiere), function(x) paste0("Tier ",x,collapse = "")))
+### # generate table
+knitr::kable(dfGenotypes)
+```
+
+### Lösung
+Das Modell für RR-BLUP lautet:
+
+\begin{equation}
+y = 1_n\mu + W q + e
+\label{eq:RRBlupModel}
+\end{equation}
+
+\begin{tabular}{lll}
+wobei  &  & \\
+       & $y$ & Vektor der Länge $n$ mit phänotypischen Beobachtungen \\
+       & $\mu$ & allgemeines Mittel \\
+       & $q$   & Vektor der zufälligen additiven Effekte aller SNPs\\
+       & $W$   & Inzidenzmatrix, welche Genotypen für die SNPscodiert\\
+       & $e$   & Vektor der Resteffekte
+\end{tabular}
+
+Die Komponenten $\mu$ und $q$ sind unbekannt und müssen aus den Daten geschätzt werden.
+
+```{r vecQSnp, results='asis'} 
+vecQ <- rmddochelper::vecGetVecElem(psBaseElement = "q", pnVecLen = nAnzSnp, psResult = "latex")
+cat("$$q = \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecQ, ncol=1)), collapse = "\n"))
+cat("\\right]$$\n")
+```
+
+Die Matrix $W$ verbindet die genetischen Effekte mit den Tieren. Die Elemente sind codiert als $0$, $1$ oder $2$ je nachdem wie viele Allele mit positiver Wirkung in einem Genotyp enthalten sind. Die Matrix $W$ lautet somit
+
+```{r MatDesignW, results='asis'}
+matDesignW <- t(matAddGeno)
+cat("$$W = \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = matDesignW), 
+          collapse = "\n"))
+cat("\\right]$$\n")
+```
+
+Der Vektor der Beobachtungen $y$ ist definiert als
+
+```{r VecPhen, results='asis'}
+cat("$$y = \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(y, ncol=1)), collapse = "\n"))
+cat("\\right]$$\n")
+```
+
+Der Vektor der unbekannten Resteffekte $\epsilon$ ist definiert als
+
+```{r VecResidual, results='asis'}
+vecEps <- rmddochelper::vecGetVecElem(psBaseElement = "\\epsilon", pnVecLen = nAnzTiere, psResult = "latex")
+cat("$$\\epsilon = \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecEps, ncol=1)), collapse = "\n"))
+cat("\\right]$$\n")
+```
 
 
+Das Gleichungssystem als Ganzes lautet somit
+
+```{r SysEqRrBlup, results='asis'}
+cat("$$\\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(y, ncol=1)), collapse = "\n"))
+cat("\\right]\n")
+cat(" = \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(rep(1,nAnzTiere), ncol=1)), collapse = "\n"))
+cat("\\right] \\mu \n")
+cat("+ \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = matDesignW), 
+          collapse = "\n"))
+cat("\\right]\n")
+cat("\\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecQ, ncol=1)), collapse = "\n"))
+cat("\\right]\n")
+cat(" + \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecEps, ncol=1)), collapse = "\n"))
+cat("\\right]$$\n")
+```
+
+\clearpage
+\pagebreak
+
+\begin{enumerate}
+\item[d)] Verwenden Sie den gleichen Datensatz und die gleichen Annahmen, wie unter Aufgabe 4c) und stellen sie das Modell und das Gleichungssystem gleich wie in Aufgabe 4c, aber für GBLUP auf.   
+\end{enumerate}
+\points{`r lPointsQ4$TaskD`}
+
+
+### Lösung
+Das Modell für GBLUP lautet:
+
+\begin{equation}
+y = 1_n\mu + Z g + \epsilon
+\label{eq:GBlupModel}
+\end{equation}
+
+\begin{tabular}{lll}
+wobei  &              &  \\
+       &  $y$         &  Vektor der Länge $n$ mit phänotypischen Beobachtungen \\
+       &  $\mu$       &  allgemeines Mittel \\
+       &  $g$         &  Vektor der Länge $n$ mit zufälligen additiven SNP-Effekten pro Individuum \\
+       &  $Z$         &  Inzidenzmatrix, welche SNP-Effekte mit Beobachtungen verknüpft\\
+       &  $\epsilon$  &  Vektor von zufälligen Resteffekten
+\end{tabular}
+
+Berechnung der genomischen Verwandtschaftsmatrix
+
+```{r CV2013Code, echo = TRUE, results='hide'}
+### # use the data from task1
+data <- matDesignW
+nmarkers <- ncol(data)
+sumpq <- 0
+freq <- dim(data)[1]
+P <- freq
+for(i in 1:ncol(data)){
+  (freq[i] <- ((mean(data[,i])/2)))
+  (P[i] <- (2*(freq[i]-0.5)))
+  (sumpq <- sumpq+(freq[i]*(1-freq[i])))
+}
+Z <- data
+for(i in 1:nrow(data)){
+  for(j in 1:ncol(data)){
+    (Z[i,j] <- ((data[i,j]-1)-(P[j])))
+  }
+}
+Zt <- t(Z)
+ZtZ <- Z%*%Zt
+G <- ZtZ/(2*sumpq)
+```
+
+Aufstellen der MMG und Berechnung der Lösungen
+
+```{r GBlupSolution, echo=TRUE, results='markup'}
+lamda <- 1
+matG <- G
+for(i in 1:nrow(G)){
+  (matG[i,i] <- ((matG[i,i]+0.01)))
+}
+# matrix X
+matX <- matrix(1,nrow=nAnzTiere,1)
+matXtX <- crossprod(matX)
+matZ <- diag(1,nAnzTiere)
+matXtZ <- crossprod(matX,matZ)
+matZtZ <- crossprod(matZ)
+matCoeff <- cbind(rbind(matXtX,t(matXtZ)),rbind(matXtZ,matZtZ + lamda * solve(matG)))
+vecRhs <- rbind(crossprod(matX,y),crossprod(matZ,y))
+vecSol <- solve(matCoeff,vecRhs)
+```
+
+1. Die Elemente $y$, $1_n$, $\mu$ und $\epsilon$ sind gleich wie im RR-BLUP Modell. Die Matrix $Z$ und der Vektor $g$ sind wie folgt definiert.
+
+```{r MatDesignZ, echo=FALSE, results='asis'}
+matDesignZ <- diag(1,nAnzTiere)
+cat("$$Z = \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = matDesignZ), 
+          collapse = "\n"))
+cat("\\right]$$\n")
+```
+
+Der Vektor $g$ enthält die genetischen Effekte pro Individuum über alle SNP.
+
+```{r VecG, results='asis'}
+vecG <- rmddochelper::vecGetVecElem(psBaseElement = "g", pnVecLen = nAnzTiere, psResult = "latex")
+cat("$$g = \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecG, ncol=1)), collapse = "\n"))
+cat("\\right]$$\n")
+```
+
+2. Die Genomische Verwandtschaftsmatrix, wie sie nach dem R-Programm aus [@CV2013] berechnet wird lautet
+
+```{r ShowGenomicRelationshipMatrix, echo=TRUE, results='markup'}
+cat(" * Genomische Verwandtschaftsmatrix G:\n")
+print(G)
+```
+
+3. Zur Berechnung der Lösung mit GBLUP müssen wir die entsprechenden Mischmodellgleichungen aufstellen. Diese lauten
+
+```{r GblupMmg, echo=FALSE, results='asis'}
+vecEstFix <- rmddochelper::vecGetVecElem(psBaseElement = "\\hat{\\mu}", pnVecLen = 1, psResult = "latex")
+vecEstRand <- rmddochelper::vecGetVecElem(psBaseElement = "\\hat{g}", pnVecLen = nAnzTiere, psResult = "latex")
+vecEst <- c(vecEstFix,vecEstRand)
+cat("$$\\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = matCoeff), collapse = "\n"))
+cat("\\right]\n")
+cat("\\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecEst, ncol=1)), collapse = "\n"))
+cat("\\right]\n")
+cat(" = \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecRhs, ncol=1)), collapse = "\n"))
+cat("\\right]\n")
+cat("$$\n")
+```
+
+Der Lösungsvektor lautet
+
+```{r VecSol, echo=FALSE, results='asis'}
+cat("$$\\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecEst, ncol=1)), collapse = "\n"))
+cat("\\right]\n")
+cat(" = \\left[\n")
+cat(paste(rmddochelper::sConvertMatrixToLaTexArray(pmatAMatrix = as.matrix(vecSol, ncol=1)), collapse = "\n"))
+cat("\\right]\n")
+cat("$$\n")
