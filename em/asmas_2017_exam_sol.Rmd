@@ -312,7 +312,7 @@ knitr::include_graphics(path = "SolEstInPlot.pdf")
 
 ### Lösung
 - Bei LASSO wird ein sogenannter Strafterm berücksichtigt. 
-- Strafterm führt dazu, dass gewisse Parameterschätzwerte $\beta_j$ auf $0$ gesetzt werden, weshalb auch eine Seletion der erklärenden Variablen passiert (Selection). Dies gibt es in Least Squares nicht.
+- Strafterm führt dazu, dass gewisse Parameterschätzwerte $\beta_j$ auf $0$ gesetzt werden, weshalb auch eine Selektion der erklärenden Variablen passiert (Selection). Dies gibt es in Least Squares nicht.
 - Durch die Berücksichtigung des Strafterms werden die Parameterschätzwerte auch gegen $0$ gedrückt (Shrinkage). Dies gibt es in Least Squares nicht.
 - Der Strafterm ist eine Funktion des Absolutbetrages des Parametervektors (Absolute). Dies gibt es in Least Squares nicht.
 
@@ -322,9 +322,11 @@ knitr::include_graphics(path = "SolEstInPlot.pdf")
 
 \begin{enumerate}
 \item[c)] Unterschiede zwischen Bayesianer und Frequentisten
-- Frequentisten unterscheiden in einer statistischen Analyse zwischen Daten und Parameter. Wie lautet die äquivalente Unterscheidung in einer Bayes'schen Analyse? 
-- Fehlende Daten werden in einer frequentistischen Datenanalyse ignoriert. Was passiert damit in einer Bayes'schen Analyse
-- Aus welchem Grund muss die Bedingung $n > p$ in einer Bayes'schen Analyse nicht gelten?
+\begin{itemize}
+\item Frequentisten unterscheiden in einer statistischen Analyse zwischen Daten und Parameter. Wie lautet die äquivalente Unterscheidung in einer Bayes'schen Analyse? 
+\item Fehlende Daten werden in einer frequentistischen Datenanalyse ignoriert. Was passiert damit in einer Bayes'schen Analyse
+\item Aus welchem Grund muss die Bedingung $n > p$ in einer Bayes'schen Analyse nicht gelten?
+\end{itemize}
 \end{enumerate}
 \points{`r lPointsQ3$TaskC`}
 
